@@ -793,12 +793,12 @@ import FooterComponent from "@/components/Footer.vue";
     </div>
   </div>
 
-  <div class="w-full px-5 m-auto">
+  <div class="max-w-[1560px] w-full px-5 m-auto">
     <h3 class="text-center text-gray-50 text-5xl py-2">Options</h3>
     <div
       class="flex flex-wrap justify-around p-5 rounded-2xl border-2 border-gray-400 bg-gray-950"
     >
-      <div class="flex flex-col items-center px-2 justify-center">
+      <div class="flex flex-col items-center px-2 py-2 justify-center">
         <h4 class="text-gray-50 text-2xl">String Count</h4>
         <button class="text-gray-100 bg-rose-700 p-3 my-2 rounded-xl w-3xs">
           Add String
@@ -807,7 +807,7 @@ import FooterComponent from "@/components/Footer.vue";
           Remove String
         </button>
       </div>
-      <div class="flex flex-col justify-center px-2 items-center">
+      <div class="flex flex-col justify-center px-2 py-2 items-center">
         <h4 class="text-gray-50 text-2xl">♯ / ♭?</h4>
         <button class="text-gray-50 p-3 my-2 rounded-xl w-3xs bg-rose-700">
           ♯
@@ -816,7 +816,7 @@ import FooterComponent from "@/components/Footer.vue";
           ♭
         </button>
       </div>
-      <div class="flex flex-col justify-center px-2 items-center">
+      <div class="flex flex-col justify-center px-2 py-2 items-center">
         <h4 class="text-gray-50 text-2xl">Orientation</h4>
         <button class="text-gray-50 p-3 my-2 rounded-xl w-3xs bg-rose-700">
           Flip Vertically
@@ -825,7 +825,7 @@ import FooterComponent from "@/components/Footer.vue";
           Flip Horizontally
         </button>
       </div>
-      <div class="flex flex-col justify-center px-2 items-center">
+      <div class="flex flex-col justify-center px-2 py-2 items-center">
         <h4 class="text-gray-50 text-2xl">Fret View</h4>
         <button class="text-gray-50 p-3 my-2 rounded-xl w-3xs bg-rose-700">
           Full 24
@@ -834,7 +834,7 @@ import FooterComponent from "@/components/Footer.vue";
           0 To 12
         </button>
       </div>
-      <div class="text-gray-50 text-2xl flex flex-col items-center">
+      <div class="text-gray-50 text-2xl flex flex-col px-2 py-2 items-center">
         <h4>Adjust Tuning</h4>
 
         <div class="flex text-gray-50 p-3 my-2 rounded-2xl bg-zinc-700">
@@ -870,9 +870,11 @@ import FooterComponent from "@/components/Footer.vue";
           </div>
         </div>
       </div>
-      <div class="text-gray-50 text-2xl flex flex-col items-center">
+      <div class="text-gray-50 text-2xl flex flex-col px-2 py-2 items-center">
         <h4 class="mb-2">Highlighting</h4>
-        <div class="bg-zinc-700 p-2 rounded-2xl w-full">
+        <div
+          class="bg-zinc-700 p-2 rounded-2xl w-full h-full flex flex-col justify-center"
+        >
           <p class="text-[18px] text-center mb-2">
             Select a specific note to open the color palette
           </p>
@@ -939,6 +941,15 @@ import FooterComponent from "@/components/Footer.vue";
             </div>
           </div>
         </div>
+      </div>
+      <div class="flex flex-col justify-center px-2 py-2 items-center">
+        <h4 class="text-gray-50 text-2xl">Visibility</h4>
+        <button class="text-gray-50 p-3 my-2 rounded-xl w-3xs bg-rose-700">
+          Show All Notes
+        </button>
+        <button class="text-gray-50 p-3 my-2 rounded-xl w-3xs bg-zinc-700">
+          Show Only Highlighted
+        </button>
       </div>
     </div>
   </div>
