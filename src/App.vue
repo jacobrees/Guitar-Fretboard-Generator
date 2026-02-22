@@ -4,8 +4,55 @@ import Navigation from "@/components/Navigation.vue";
 
 <template>
   <Navigation />
-  <div class="p-5">
-    <div class="w-full h-auto relative">
+  <div class="p-5 flex">
+    <div class="w-1/25">
+      <div class="w-full flex flex-col items-between justify-between h-full">
+        <div class="h-[54px]"></div>
+        <div class="h-[54px] relative">
+          <div
+            class="absolute -top-5 right-1 flex items-center justify-center bg-gray-50 w-[42px] h-[42px] rounded-full"
+          >
+            <p class="font-bold text-ll">E</p>
+          </div>
+        </div>
+        <div class="h-[54px] relative">
+          <div
+            class="absolute -top-5 right-1 flex items-center justify-center bg-gray-50 w-[42px] h-[42px] rounded-full"
+          >
+            <p class="font-bold text-ll">B</p>
+          </div>
+        </div>
+        <div class="h-[54px] relative">
+          <div
+            class="absolute -top-5 right-1 flex items-center justify-center bg-gray-50 w-[42px] h-[42px] rounded-full"
+          >
+            <p class="font-bold text-ll">G</p>
+          </div>
+        </div>
+        <div class="h-[54px] relative">
+          <div
+            class="absolute -top-5 right-1 flex items-center justify-center bg-gray-50 w-[42px] h-[42px] rounded-full"
+          >
+            <p class="font-bold text-ll">D</p>
+          </div>
+        </div>
+        <div class="h-[54px] relative">
+          <div
+            class="absolute -top-5 right-1 flex items-center justify-center bg-gray-50 w-[42px] h-[42px] rounded-full"
+          >
+            <p class="font-bold text-ll">A</p>
+          </div>
+        </div>
+        <div class="h-[54px] relative">
+          <div
+            class="absolute -top-5 right-1 flex items-center justify-center bg-gray-50 w-[42px] h-[42px] rounded-full"
+          >
+            <p class="font-bold text-ll">E</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="w-24/25 h-auto relative">
       <div
         class="w-full h-[44px] absolute top-0 left-0 bg-gray-800 flex items-center"
       >
@@ -202,6 +249,7 @@ import Navigation from "@/components/Navigation.vue";
           <p class="">24</p>
         </div>
       </div>
+
       <div class="w-full h-[54px] border-b-2 border-t-2 flex">
         <div
           class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
