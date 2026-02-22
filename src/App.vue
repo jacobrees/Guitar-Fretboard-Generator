@@ -793,7 +793,7 @@ import Navigation from "@/components/Navigation.vue";
   </div>
 
   <div class="w-full px-5 m-auto">
-    <h3 class="text-center text-gray-200 text-5xl py-2">Options</h3>
+    <h3 class="text-center text-gray-50 text-5xl py-2">Options</h3>
     <div
       class="flex flex-wrap justify-around p-5 rounded-2xl border-2 border-gray-400 bg-gray-950"
     >
@@ -866,6 +866,76 @@ import Navigation from "@/components/Navigation.vue";
             <button class="border-2 rounded-xl bg-rose-800">⬆</button>
             <p>E</p>
             <button class="border-2 rounded-xl bg-rose-800">⬇</button>
+          </div>
+        </div>
+      </div>
+      <div class="text-gray-50 text-2xl flex flex-col items-center">
+        <h4 class="mb-2">Highlighting</h4>
+        <div class="bg-zinc-700 p-2 rounded-2xl w-full">
+          <p class="text-[18px] text-center mb-2">
+            Select a specific note to open the color pallete
+          </p>
+          <div class="flex h-12 items-center justify-around">
+            <div
+              class="w-[42px] h-[42px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 bg-rose-600"
+            >
+              <p>A</p>
+            </div>
+            <div
+              class="w-[42px] h-[42px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 bg-lime-600"
+            >
+              <p>A#</p>
+            </div>
+            <div
+              class="w-[42px] h-[42px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 bg-indigo-600"
+            >
+              <p>B</p>
+            </div>
+            <div
+              class="w-[42px] h-[42px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 bg-cyan-600"
+            >
+              <p>C</p>
+            </div>
+            <div
+              class="w-[42px] h-[42px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 bg-fuchsia-600"
+            >
+              <p>C#</p>
+            </div>
+            <div
+              class="w-[42px] h-[42px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 bg-orange-600"
+            >
+              <p>D</p>
+            </div>
+            <div
+              class="w-[42px] h-[42px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 bg-pink-600"
+            >
+              <p>D#</p>
+            </div>
+            <div
+              class="w-[42px] h-[42px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 bg-emerald-600"
+            >
+              <p>E</p>
+            </div>
+            <div
+              class="w-[42px] h-[42px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2"
+            >
+              <p>F</p>
+            </div>
+            <div
+              class="w-[42px] h-[42px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2"
+            >
+              <p>F#</p>
+            </div>
+            <div
+              class="w-[42px] h-[42px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2"
+            >
+              <p>G</p>
+            </div>
+            <div
+              class="w-[42px] h-[42px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2"
+            >
+              <p>G#</p>
+            </div>
           </div>
         </div>
       </div>
