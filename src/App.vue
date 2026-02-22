@@ -833,6 +833,42 @@ import Navigation from "@/components/Navigation.vue";
           0 To 12
         </button>
       </div>
+      <div class="text-gray-50 text-2xl flex flex-col items-center">
+        <h4>Adjust Tuning</h4>
+
+        <div class="flex text-gray-50 p-3 my-2 rounded-2xl bg-zinc-700">
+          <div class="w-[68px] flex flex-col items-center">
+            <button class="border-2 rounded-xl bg-rose-800">⬆</button>
+            <p>E</p>
+            <button class="border-2 rounded-xl bg-rose-800">⬇</button>
+          </div>
+          <div class="w-[68px] flex flex-col items-center">
+            <button class="border-2 rounded-xl bg-rose-800">⬆</button>
+            <p>B</p>
+            <button class="border-2 rounded-xl bg-rose-800">⬇</button>
+          </div>
+          <div class="w-[68px] flex flex-col items-center">
+            <button class="border-2 rounded-xl bg-rose-800">⬆</button>
+            <p>G</p>
+            <button class="border-2 rounded-xl bg-rose-800">⬇</button>
+          </div>
+          <div class="w-[68px] flex flex-col items-center">
+            <button class="border-2 rounded-xl bg-rose-800">⬆</button>
+            <p>D</p>
+            <button class="border-2 rounded-xl bg-rose-800">⬇</button>
+          </div>
+          <div class="w-[68px] flex flex-col items-center">
+            <button class="border-2 rounded-xl bg-rose-800">⬆</button>
+            <p>A</p>
+            <button class="border-2 rounded-xl bg-rose-800">⬇</button>
+          </div>
+          <div class="w-[68px] flex flex-col items-center">
+            <button class="border-2 rounded-xl bg-rose-800">⬆</button>
+            <p>E</p>
+            <button class="border-2 rounded-xl bg-rose-800">⬇</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
