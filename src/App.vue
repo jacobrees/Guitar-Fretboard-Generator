@@ -791,14 +791,30 @@ import Navigation from "@/components/Navigation.vue";
       </div>
     </div>
   </div>
-  <div class="flex flex-col max-w-[1300px] m-auto">
-    <div>
-      <button class="text-gray-100 bg-rose-700 p-3 rounded-xl mr-2">
-        Add String
-      </button>
-      <button class="text-gray-100 bg-rose-700 p-3 rounded-xl">
-        Remove String
-      </button>
+
+  <div class="w-full px-5 m-auto">
+    <h3 class="text-center text-gray-200 text-5xl py-2">Options</h3>
+    <div class="flex p-5 rounded-2xl border-2 border-gray-400 bg-gray-950">
+      <div class="flex flex-col items-center w-auto">
+        <h4 class="text-gray-50 text-2xl">String Count</h4>
+        <button
+          class="text-gray-100 bg-rose-700 p-3 my-2 rounded-xl mr-2 w-3xs"
+        >
+          Add String
+        </button>
+        <button class="text-gray-100 bg-rose-700 p-3 my-2 rounded-xl w-3xs">
+          Remove String
+        </button>
+      </div>
+      <div class="rounded-2xl flex flex-col justify-center items-center">
+        <h4 class="text-gray-50 text-2xl">♯ / ♭?</h4>
+        <button class="text-gray-50 p-3 my-2 rounded-xl w-3xs bg-rose-700">
+          ♯
+        </button>
+        <button class="text-gray-50 p-3 my-2 rounded-xl w-3xs bg-zinc-700">
+          ♭
+        </button>
+      </div>
     </div>
   </div>
 </template>
