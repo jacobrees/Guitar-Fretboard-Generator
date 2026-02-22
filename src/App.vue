@@ -1,5 +1,6 @@
 <script setup>
 import Navigation from "@/components/Navigation.vue";
+import FooterComponent from "@/components/Footer.vue";
 </script>
 
 <template>
@@ -873,7 +874,7 @@ import Navigation from "@/components/Navigation.vue";
         <h4 class="mb-2">Highlighting</h4>
         <div class="bg-zinc-700 p-2 rounded-2xl w-full">
           <p class="text-[18px] text-center mb-2">
-            Select a specific note to open the color pallete
+            Select a specific note to open the color palette
           </p>
           <div class="flex h-12 items-center justify-around">
             <div
@@ -941,4 +942,5 @@ import Navigation from "@/components/Navigation.vue";
       </div>
     </div>
   </div>
+  <FooterComponent />
 </template>
