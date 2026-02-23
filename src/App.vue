@@ -1,54 +1,69 @@
 <script setup>
+import { ref, computed } from "vue";
 import Navigation from "@/components/Navigation.vue";
 import FooterComponent from "@/components/Footer.vue";
+
+const sharpsEnabled = ref(true);
+
+const toggleSharpsEnabled = () => {
+  sharpsEnabled.value = !sharpsEnabled.value;
+};
+
+const musicalNotes = computed(() => [
+  "A",
+  sharpsEnabled.value ? "A#" : "B♭",
+  "B",
+  "C",
+  sharpsEnabled.value ? "C#" : "D♭",
+  "D",
+  sharpsEnabled.value ? "D#" : "E♭",
+  "E",
+  "F",
+  sharpsEnabled.value ? "F#" : "G♭",
+  "G",
+  sharpsEnabled.value ? "G#" : "A♭",
+]);
+
+const tuningIndexes = ref([7, 2, 10, 5, 0, 7]);
+const fretboardMarkers = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
+
+const guitarTuning = computed(() =>
+  tuningIndexes.value.map((i) => musicalNotes.value[i]),
+);
+
+const raiseString = (index) => {
+  tuningIndexes.value[index] = (tuningIndexes.value[index] + 1) % 12;
+};
+
+const lowerString = (index) => {
+  tuningIndexes.value[index] = (tuningIndexes.value[index] + 11) % 12;
+};
+
+const removeString = () => tuningIndexes.value.pop();
+
+const addString = () => {
+  let lastStringNote = tuningIndexes.value[tuningIndexes.value.length - 1];
+  let newStringNote = (lastStringNote - 5) % 12;
+  tuningIndexes.value.push(newStringNote);
+};
 </script>
 
 <template>
   <Navigation />
   <div class="p-5 flex">
     <div class="w-1/25">
-      <div class="w-full flex flex-col items-between justify-between h-full">
+      <div class="w-full flex flex-col justify-between h-full">
         <div class="h-[54px]"></div>
-        <div class="h-[54px] relative">
+
+        <div
+          v-for="(note, index) in guitarTuning.slice().reverse()"
+          :key="index"
+          class="h-[54px] relative"
+        >
           <div
             class="absolute -top-5 right-1 flex items-center justify-center bg-gray-50 w-[42px] h-[42px] rounded-full"
           >
-            <p class="font-bold text-ll">E</p>
-          </div>
-        </div>
-        <div class="h-[54px] relative">
-          <div
-            class="absolute -top-5 right-1 flex items-center justify-center bg-gray-50 w-[42px] h-[42px] rounded-full"
-          >
-            <p class="font-bold text-ll">B</p>
-          </div>
-        </div>
-        <div class="h-[54px] relative">
-          <div
-            class="absolute -top-5 right-1 flex items-center justify-center bg-gray-50 w-[42px] h-[42px] rounded-full"
-          >
-            <p class="font-bold text-ll">G</p>
-          </div>
-        </div>
-        <div class="h-[54px] relative">
-          <div
-            class="absolute -top-5 right-1 flex items-center justify-center bg-gray-50 w-[42px] h-[42px] rounded-full"
-          >
-            <p class="font-bold text-ll">D</p>
-          </div>
-        </div>
-        <div class="h-[54px] relative">
-          <div
-            class="absolute -top-5 right-1 flex items-center justify-center bg-gray-50 w-[42px] h-[42px] rounded-full"
-          >
-            <p class="font-bold text-ll">A</p>
-          </div>
-        </div>
-        <div class="h-[54px] relative">
-          <div
-            class="absolute -top-5 right-1 flex items-center justify-center bg-gray-50 w-[42px] h-[42px] rounded-full"
-          >
-            <p class="font-bold text-ll">E</p>
+            <p class="font-bold text-ll">{{ note }}</p>
           </div>
         </div>
       </div>
@@ -58,737 +73,52 @@ import FooterComponent from "@/components/Footer.vue";
         class="w-full h-[44px] absolute top-0 left-0 bg-gray-800 flex items-center"
       >
         <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 bg-amber-50 flex justify-center"
+          v-for="n in 24"
+          :key="n"
+          :class="[
+            'w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center',
+            fretboardMarkers.includes(n) ? 'bg-amber-50' : '',
+          ]"
         >
-          <p class="">1</p>
-        </div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
-        ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 bg-amber-50 flex justify-center"
-        >
-          <p class="">3</p>
-        </div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
-        ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 bg-amber-50 flex justify-center"
-        >
-          <p class="">5</p>
-        </div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
-        ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 bg-amber-50 flex justify-center"
-        >
-          <p class="">7</p>
-        </div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
-        ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 bg-amber-50 flex justify-center"
-        >
-          <p class="">9</p>
-        </div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
-        ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
-        ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 bg-amber-50 flex justify-center"
-        >
-          <p class="">12</p>
-        </div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
-        ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
-        ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 bg-amber-50 flex justify-center"
-        >
-          <p class="">15</p>
-        </div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
-        ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 bg-amber-50 flex justify-center"
-        >
-          <p class="">17</p>
-        </div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
-        ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 bg-amber-50 flex justify-center"
-        >
-          <p class="">19</p>
-        </div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
-        ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 bg-amber-50 flex justify-center"
-        >
-          <p class="">21</p>
-        </div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
-        ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
-        ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 bg-amber-50 flex justify-center"
-        >
-          <p class="">24</p>
+          <p v-if="fretboardMarkers.includes(n)">{{ n }}</p>
         </div>
       </div>
       <div
-        class="w-full h-[44px] absolute bottom-0 left-0 bg-gray-800 flex items-center"
+        class="w-full h-[44px] absolute bottom-0 left-0 bg-gray-800 flex items-center z-50"
       >
         <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 bg-amber-50 flex justify-center"
-        >
-          <p class="">1</p>
-        </div>
-        <div
+          v-for="n in 24"
+          :key="n"
           class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
         ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 bg-amber-50 flex justify-center"
-        >
-          <p class="">3</p>
-        </div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
-        ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 bg-amber-50 flex justify-center"
-        >
-          <p class="">5</p>
-        </div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
-        ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 bg-amber-50 flex justify-center"
-        >
-          <p class="">7</p>
-        </div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
-        ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 bg-amber-50 flex justify-center"
-        >
-          <p class="">9</p>
-        </div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
-        ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
-        ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 bg-amber-50 flex justify-center"
-        >
-          <p class="">12</p>
-        </div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
-        ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
-        ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 bg-amber-50 flex justify-center"
-        >
-          <p class="">15</p>
-        </div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
-        ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 bg-amber-50 flex justify-center"
-        >
-          <p class="">17</p>
-        </div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
-        ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 bg-amber-50 flex justify-center"
-        >
-          <p class="">19</p>
-        </div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
-        ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 bg-amber-50 flex justify-center"
-        >
-          <p class="">21</p>
-        </div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
-        ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
-        ></div>
-        <div
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 bg-amber-50 flex justify-center"
-        >
-          <p class="">24</p>
-        </div>
       </div>
 
       <div class="w-full h-[54px] border-b-2 border-t-2 flex">
         <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-      </div>
-      <div class="w-full h-[54px] bg-white border-b-2 border-t-2 flex">
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
+          v-for="n in 24"
+          :key="n"
           class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
         ></div>
       </div>
 
-      <div class="w-full h-[54px] bg-white border-b-2 border-t-2 flex">
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-      </div>
-      <div class="w-full h-[54px] bg-white border-b-2 border-t-2 flex">
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-      </div>
-      <div class="w-full h-[54px] bg-white border-b-2 border-t-2 flex">
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-      </div>
-      <div class="w-full h-[54px] bg-white border-b-2 border-t-2 flex">
-        <div
-          class="w-1/24 h-full flex justify-center items-center border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full flex justify-center items-center border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full flex justify-center items-center border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
+      <div
+        v-for="stringCount in tuningIndexes.length"
+        class="w-full h-[54px] bg-white border-b-2 border-t-2 flex"
+      >
+        <div
+          v-for="n in 24"
+          class="relative w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
         >
-          <div class="w-[22px] rounded-full h-[22px] bg-white"></div>
+          <div
+            class="z-50 bg-zinc-600 border-gray-100 border-2 w-[38px] h-[38px] absolute -top-5 right-0.5 rounded-full flex justify-center items-center"
+          >
+            <p class="text-gray-100">
+              {{ musicalNotes[
+                (([...tuningIndexes].reverse()[(stringCount - 1)]) + n) % 12
+                ] }}
+            </p>
+          </div>
         </div>
-        <div
-          class="w-1/24 h-full flex justify-center items-center border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full flex justify-center items-center border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        >
-          <div class="w-[22px] rounded-full h-[22px] bg-white"></div>
-        </div>
-        <div
-          class="w-1/24 h-full flex justify-center items-center border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full flex justify-center items-center border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        >
-          <div class="w-[22px] rounded-full h-[22px] bg-white"></div>
-        </div>
-        <div
-          class="w-1/24 h-full flex justify-center items-center border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full flex justify-center items-center border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        >
-          <div class="w-[22px] rounded-full h-[22px] bg-white"></div>
-        </div>
-        <div
-          class="w-1/24 h-full flex justify-center items-center border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full flex justify-center items-center border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full flex justify-center items-center border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        >
-          <div class="w-[22px] rounded-full h-[22px] bg-white"></div>
-        </div>
-        <div
-          class="w-1/24 h-full flex justify-center items-center border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full flex justify-center items-center border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full flex justify-center items-center border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        >
-          <div class="w-[22px] rounded-full h-[22px] bg-white"></div>
-        </div>
-        <div
-          class="w-1/24 h-full flex justify-center items-center border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full flex justify-center items-center border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        >
-          <div class="w-[22px] rounded-full h-[22px] bg-white"></div>
-        </div>
-        <div
-          class="w-1/24 h-full flex justify-center items-center border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full flex justify-center items-center border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        >
-          <div class="w-[22px] rounded-full h-[22px] bg-white"></div>
-        </div>
-        <div
-          class="w-1/24 h-full flex justify-center items-center border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full flex justify-center items-center border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        >
-          <div class="w-[22px] rounded-full h-[22px] bg-white"></div>
-        </div>
-        <div
-          class="w-1/24 h-full flex justify-center items-center border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full flex justify-center items-center border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full flex justify-center items-center border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        >
-          <div class="w-[22px] rounded-full h-[22px] bg-white"></div>
-        </div>
-      </div>
-      <div class="w-full h-[54px] bg-white border-b-2 border-t-2 flex">
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
-        <div
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
-        ></div>
       </div>
     </div>
   </div>
@@ -809,11 +139,11 @@ import FooterComponent from "@/components/Footer.vue";
       </div>
       <div class="flex flex-col justify-center px-2 py-2 items-center">
         <h4 class="text-gray-50 text-2xl">♯ / ♭?</h4>
-        <button class="text-gray-50 p-3 my-2 rounded-xl w-3xs bg-rose-700">
-          ♯
-        </button>
-        <button class="text-gray-50 p-3 my-2 rounded-xl w-3xs bg-zinc-700">
-          ♭
+        <button
+          @click="toggleSharpsEnabled"
+          class="text-gray-50 p-3 my-2 rounded-xl w-3xs bg-rose-700"
+        >
+          Toggle ♯/♭
         </button>
       </div>
       <div class="flex flex-col justify-center px-2 py-2 items-center">
@@ -836,36 +166,14 @@ import FooterComponent from "@/components/Footer.vue";
       </div>
       <div class="text-gray-50 text-2xl flex flex-col px-2 py-2 items-center">
         <h4>Adjust Tuning</h4>
-
         <div class="flex text-gray-50 p-3 my-2 rounded-2xl bg-zinc-700">
-          <div class="w-[68px] flex flex-col items-center">
+          <div
+            v-for="(string, index) in guitarTuning"
+            :key="index"
+            class="w-[68px] flex flex-col items-center"
+          >
             <button class="border-2 rounded-xl bg-rose-800">⬆</button>
-            <p>E</p>
-            <button class="border-2 rounded-xl bg-rose-800">⬇</button>
-          </div>
-          <div class="w-[68px] flex flex-col items-center">
-            <button class="border-2 rounded-xl bg-rose-800">⬆</button>
-            <p>B</p>
-            <button class="border-2 rounded-xl bg-rose-800">⬇</button>
-          </div>
-          <div class="w-[68px] flex flex-col items-center">
-            <button class="border-2 rounded-xl bg-rose-800">⬆</button>
-            <p>G</p>
-            <button class="border-2 rounded-xl bg-rose-800">⬇</button>
-          </div>
-          <div class="w-[68px] flex flex-col items-center">
-            <button class="border-2 rounded-xl bg-rose-800">⬆</button>
-            <p>D</p>
-            <button class="border-2 rounded-xl bg-rose-800">⬇</button>
-          </div>
-          <div class="w-[68px] flex flex-col items-center">
-            <button class="border-2 rounded-xl bg-rose-800">⬆</button>
-            <p>A</p>
-            <button class="border-2 rounded-xl bg-rose-800">⬇</button>
-          </div>
-          <div class="w-[68px] flex flex-col items-center">
-            <button class="border-2 rounded-xl bg-rose-800">⬆</button>
-            <p>E</p>
+            <p>{{ string }}</p>
             <button class="border-2 rounded-xl bg-rose-800">⬇</button>
           </div>
         </div>
