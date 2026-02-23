@@ -2,8 +2,20 @@
 import { ref, computed } from "vue";
 import Navigation from "@/components/Navigation.vue";
 import FooterComponent from "@/components/Footer.vue";
+import closeSVG from "@/assets/close.svg";
 
 const sharpsEnabled = ref(true);
+const selectedNote = ref(null);
+const paletteVisible = ref(false);
+
+const openPalette = (note, index) => {
+  selectedNote.value = note;
+  paletteVisible.value = true;
+};
+
+const closePalette = () => {
+  paletteVisible.value = false;
+};
 
 const toggleSharpsEnabled = () => {
   sharpsEnabled.value = !sharpsEnabled.value;
@@ -242,75 +254,112 @@ const addString = () => {
       <div class="text-gray-50 text-2xl flex flex-col px-2 py-2 items-center">
         <h4 class="mb-2">Highlighting</h4>
         <div
-          class="bg-zinc-700 p-2 rounded-2xl w-full h-full flex flex-col justify-center"
+          class="bg-zinc-700 p-2 rounded-2xl w-full h-full flex flex-col justify-center relative"
         >
           <p class="text-[18px] text-center mb-2">
             Select a specific note to open the color palette
           </p>
           <div class="flex h-12 items-center justify-around">
-            <div
-              class="w-[42px] h-[42px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 bg-rose-600"
-            >
-              <p>A</p>
-            </div>
-            <div
-              class="w-[42px] h-[42px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 bg-lime-600"
-            >
-              <p>A#</p>
-            </div>
-            <div
-              class="w-[42px] h-[42px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 bg-indigo-600"
-            >
-              <p>B</p>
-            </div>
-            <div
-              class="w-[42px] h-[42px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 bg-cyan-600"
-            >
-              <p>C</p>
-            </div>
-            <div
-              class="w-[42px] h-[42px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 bg-fuchsia-600"
-            >
-              <p>C#</p>
-            </div>
-            <div
-              class="w-[42px] h-[42px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 bg-orange-600"
-            >
-              <p>D</p>
-            </div>
-            <div
-              class="w-[42px] h-[42px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 bg-pink-600"
-            >
-              <p>D#</p>
-            </div>
-            <div
-              class="w-[42px] h-[42px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 bg-emerald-600"
-            >
-              <p>E</p>
-            </div>
-            <div
+            <button
+              v-for="(note, index) in musicalNotes"
+              @click="openPalette(note, index)"
+              :key="note"
               class="w-[42px] h-[42px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2"
             >
-              <p>F</p>
+              <p>{{ note }}</p>
+            </button>
+          </div>
+          <div
+            v-if="paletteVisible"
+            class="w-[600px] rounded-xl bg-zinc-900 fixed bottom-2 border"
+          >
+            <div class="flex justify-between p-3 text-lg">
+              <h5>Add or remove highlighting to "{{ selectedNote }}"</h5>
+              <button
+                @click="closePalette"
+                class="border-2 w-[40px] h-[40px] rounded-lg"
+              >
+                <img :src="closeSVG" alt="Close Icon" />
+              </button>
             </div>
-            <div
-              class="w-[42px] h-[42px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2"
-            >
-              <p>F#</p>
-            </div>
-            <div
-              class="w-[42px] h-[42px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2"
-            >
-              <p>G</p>
-            </div>
-            <div
-              class="w-[42px] h-[42px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2"
-            >
-              <p>G#</p>
+            <div class="flex flex-wrap">
+              <button
+                class="flex flex-col justify-center items-center mx-2 mb-3"
+              >
+                <div class="h-[68px] w-[68px] border-2 rounded-2xl">
+                  <img :src="closeSVG" alt="" />
+                </div>
+                <p class="text-sm">Remove</p>
+              </button>
+              <button
+                class="flex flex-col justify-center items-center mx-2 mb-3"
+              >
+                <div
+                  class="h-[68px] w-[68px] border-2 rounded-2xl bg-red-600"
+                ></div>
+                <p class="text-sm">Red</p>
+              </button>
+              <button
+                class="flex flex-col justify-center items-center mx-2 mb-3"
+              >
+                <div
+                  class="h-[68px] w-[68px] border-2 rounded-2xl bg-orange-600"
+                ></div>
+                <p class="text-sm">Orange</p>
+              </button>
+              <button
+                class="flex flex-col justify-center items-center mx-2 mb-3"
+              >
+                <div
+                  class="h-[68px] w-[68px] border-2 rounded-2xl bg-yellow-500"
+                ></div>
+                <p class="text-sm">Yellow</p>
+              </button>
+              <button
+                class="flex flex-col justify-center items-center mx-2 mb-3"
+              >
+                <div
+                  class="h-[68px] w-[68px] border-2 rounded-2xl bg-lime-600"
+                ></div>
+                <p class="text-sm">Lime</p>
+              </button>
+              <button
+                class="flex flex-col justify-center items-center mx-2 mb-3"
+              >
+                <div
+                  class="h-[68px] w-[68px] border-2 rounded-2xl bg-emerald-600"
+                ></div>
+                <p class="text-sm">Emerald</p>
+              </button>
+              <button
+                class="flex flex-col justify-center items-center mx-2 mb-3"
+              >
+                <div
+                  class="h-[68px] w-[68px] border-2 rounded-2xl bg-cyan-600"
+                ></div>
+                <p class="text-sm">Cyan</p>
+              </button>
+              <button
+                class="flex flex-col justify-center items-center mx-2 mb-3"
+              >
+                <div
+                  class="h-[68px] w-[68px] border-2 rounded-2xl bg-violet-600"
+                ></div>
+                <p class="text-sm">Violet</p>
+              </button>
+              <button
+                class="flex flex-col justify-center items-center mx-2 mb-3"
+              >
+                <div
+                  class="h-[68px] w-[68px] border-2 rounded-2xl bg-fuchsia-600"
+                ></div>
+                <p class="text-sm">Fuchsia</p>
+              </button>
             </div>
           </div>
         </div>
       </div>
+
       <div class="flex flex-col justify-center px-2 py-2 items-center">
         <h4 class="text-gray-50 text-2xl">Visibility</h4>
         <button class="text-gray-50 p-3 my-2 rounded-xl w-3xs bg-rose-700">
