@@ -8,7 +8,7 @@ import gitHubLogo from "@/assets/github.svg";
   >
     <div class="max-w-[1100px] w-full m-16 flex items-center justify-between">
       <h2 class="text-gray-100 text-4xl font-semibold">
-        Fretboard Generator 🎸
+        Fretboard Visualiser 🎸
       </h2>
       <a href="#"
         ><img class="w-[64px]" :src="gitHubLogo" alt="GitHub Logo"
