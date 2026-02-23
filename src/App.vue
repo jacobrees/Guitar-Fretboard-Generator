@@ -8,9 +8,13 @@ const sharpsEnabled = ref(true);
 const selectedNote = ref(null);
 const paletteVisible = ref(false);
 const verticalFlip = ref(false);
+const horizontalFlip = ref(false);
 
 const flipVertically = () => {
   verticalFlip.value = !verticalFlip.value;
+};
+const flipHorizontally = () => {
+  horizontalFlip.value = !horizontalFlip.value;
 };
 
 const openPalette = (note, index) => {
@@ -86,7 +90,7 @@ const addString = () => {
 
 <template>
   <Navigation />
-  <div class="p-5 flex">
+  <div :class="['p-5 flex', horizontalFlip ? 'flex-row-reverse' : 'flex-row']">
     <div class="w-1/25">
       <div class="w-full flex flex-col justify-between h-full">
         <div class="h-[54px]"></div>
@@ -99,7 +103,10 @@ const addString = () => {
           class="h-[54px] relative"
         >
           <div
-            class="absolute -top-5 right-1 flex items-center justify-center bg-gray-50 w-[42px] h-[42px] rounded-full"
+            :class="[
+              'absolute -top-5  flex items-center justify-center bg-gray-50 w-[42px] h-[42px] rounded-full',
+              horizontalFlip ? 'left-1' : 'right-1',
+            ]"
           >
             <p class="font-bold text-ll">{{ note }}</p>
           </div>
@@ -108,13 +115,19 @@ const addString = () => {
     </div>
     <div class="w-24/25 h-auto relative">
       <div
-        class="w-full h-[44px] absolute top-0 left-0 bg-gray-800 flex items-center"
+        :class="[
+          'w-full h-[44px] absolute top-0 left-0 bg-gray-800 flex items-center',
+          horizontalFlip ? 'flex-row-reverse' : 'flex-row',
+        ]"
       >
         <div
           v-for="n in fretView"
           :key="n"
           :class="[
-            ' h-[24px] border-r-4 border-r-gray-500 flex justify-center',
+            ' h-[24px] flex justify-center',
+            horizontalFlip
+              ? 'border-l-4 border-l-gray-500'
+              : 'border-r-4 border-r-gray-500',
             fretboardMarkers.includes(n) ? 'bg-amber-50' : '',
             fretView === 24 ? 'w-1/24' : 'w-2/24',
           ]"
@@ -129,7 +142,10 @@ const addString = () => {
           v-for="n in fretView"
           :key="n"
           :class="[
-            'h-[24px] border-r-4 border-r-gray-500 flex justify-center',
+            'h-[24px]  flex justify-center',
+            horizontalFlip
+              ? 'border-l-4 border-l-gray-500'
+              : 'border-r-4 border-r-gray-500',
             fretView === 24 ? 'w-1/24' : 'w-2/24',
           ]"
         ></div>
@@ -140,7 +156,10 @@ const addString = () => {
           v-for="n in fretView"
           :key="n"
           :class="[
-            'h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black',
+            'h-full  border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black',
+            horizontalFlip
+              ? 'border-l-5 border-l-amber-200'
+              : 'border-r-5 border-r-amber-200',
             fretView === 24 ? 'w-1/24' : 'w-2/24',
           ]"
         ></div>
@@ -149,13 +168,19 @@ const addString = () => {
       <div
         v-for="stringCount in tuningIndexes.length"
         :key="stringCount"
-        class="w-full h-[54px] bg-white border-b-2 border-t-2 flex"
+        :class="[
+          'w-full h-[54px] bg-white border-b-2 border-t-2 flex',
+          horizontalFlip ? 'flex-row-reverse' : 'flex-row',
+        ]"
       >
         <div
           v-for="n in fretView"
           :key="n"
           :class="[
-            'relative h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black',
+            'relative h-full border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black',
+            horizontalFlip
+              ? 'border-l-5 border-l-amber-200'
+              : 'border-r-5 border-r-amber-200',
             fretView === 24 ? 'w-1/24' : 'w-2/24',
           ]"
         >
@@ -178,7 +203,10 @@ const addString = () => {
             <div class="w-full h-[4px] bg-gray-800"></div>
           </div>
           <div
-            class="z-50 bg-zinc-600 border-gray-100 border-2 w-[38px] h-[38px] absolute -top-5 right-0.5 rounded-full flex justify-center items-center"
+            :class="[
+              'z-50 bg-zinc-600 border-gray-100 border-2 w-[38px] h-[38px] absolute -top-5 rounded-full flex justify-center items-center',
+              horizontalFlip ? 'left-0.5' : 'right-0.5',
+            ]"
           >
             <p class="text-gray-100">
               {{
@@ -232,7 +260,10 @@ const addString = () => {
         >
           Flip Vertically
         </button>
-        <button class="text-gray-50 p-3 my-2 rounded-xl w-3xs bg-rose-700">
+        <button
+          @click="flipHorizontally"
+          class="text-gray-50 p-3 my-2 rounded-xl w-3xs bg-rose-700"
+        >
           Flip Horizontally
         </button>
       </div>
