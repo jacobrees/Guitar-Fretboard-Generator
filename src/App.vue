@@ -153,6 +153,24 @@ const addString = () => {
           ]"
         >
           <div
+            v-if="
+              tuningIndexes.length % 2 === 0 &&
+              stringCount === tuningIndexes.length / 2 &&
+              fretboardMarkers.includes(n)
+            "
+            class="rounded-full w-6 h-6 bg-amber-50 absolute top-1/2 left-1/2 -translate-1/2"
+          ></div>
+          <div
+            v-if="
+              tuningIndexes.length % 2 === 1 &&
+              stringCount === Math.round(tuningIndexes.length / 2) &&
+              fretboardMarkers.includes(n)
+            "
+            class="rounded-full w-6 h-6 bg-amber-50 absolute -top-4 left-1/2 -translate-x-1/2 flex items-center"
+          >
+            <div class="w-full h-[4px] bg-gray-800"></div>
+          </div>
+          <div
             class="z-50 bg-zinc-600 border-gray-100 border-2 w-[38px] h-[38px] absolute -top-5 right-0.5 rounded-full flex justify-center items-center"
           >
             <p class="text-gray-100">
