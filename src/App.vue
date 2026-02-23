@@ -103,19 +103,23 @@ const addString = () => {
 
       <div
         v-for="stringCount in tuningIndexes.length"
+        :key="stringCount"
         class="w-full h-[54px] bg-white border-b-2 border-t-2 flex"
       >
         <div
           v-for="n in 24"
+          :key="n"
           class="relative w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
         >
           <div
             class="z-50 bg-zinc-600 border-gray-100 border-2 w-[38px] h-[38px] absolute -top-5 right-0.5 rounded-full flex justify-center items-center"
           >
             <p class="text-gray-100">
-              {{ musicalNotes[
-                (([...tuningIndexes].reverse()[(stringCount - 1)]) + n) % 12
-                ] }}
+              {{
+                musicalNotes[
+                  ([...tuningIndexes].reverse()[stringCount - 1] + n) % 12
+                ]
+              }}
             </p>
           </div>
         </div>
