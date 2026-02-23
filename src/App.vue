@@ -52,12 +52,18 @@ const lowerString = (index) => {
   tuningIndexes.value[index] = (tuningIndexes.value[index] + 11) % 12;
 };
 
-const removeString = () => tuningIndexes.value.pop();
+const removeString = () => {
+  if (tuningIndexes.value.length > 5) {
+    tuningIndexes.value.pop();
+  }
+};
 
 const addString = () => {
   let lastStringNote = tuningIndexes.value[tuningIndexes.value.length - 1];
-  let newStringNote = (lastStringNote - 5) % 12;
-  tuningIndexes.value.push(newStringNote);
+  let newStringNote = (lastStringNote + 7) % 12;
+  if (tuningIndexes.value.length < 9) {
+    tuningIndexes.value.push(newStringNote);
+  }
 };
 </script>
 
@@ -157,10 +163,16 @@ const addString = () => {
     >
       <div class="flex flex-col items-center px-2 py-2 justify-center">
         <h4 class="text-gray-50 text-2xl">String Count</h4>
-        <button class="text-gray-100 bg-rose-700 p-3 my-2 rounded-xl w-3xs">
+        <button
+          @click="addString"
+          class="text-gray-100 bg-rose-700 p-3 my-2 rounded-xl w-3xs"
+        >
           Add String
         </button>
-        <button class="text-gray-100 bg-rose-700 p-3 my-2 rounded-xl w-3xs">
+        <button
+          @click="removeString"
+          class="text-gray-100 bg-rose-700 p-3 my-2 rounded-xl w-3xs"
+        >
           Remove String
         </button>
       </div>
@@ -211,9 +223,19 @@ const addString = () => {
             :key="index"
             class="w-[68px] flex flex-col items-center"
           >
-            <button class="border-2 rounded-xl bg-rose-800">⬆</button>
+            <button
+              @click="raiseString(index)"
+              class="border-2 rounded-xl bg-rose-800"
+            >
+              ⬆
+            </button>
             <p>{{ string }}</p>
-            <button class="border-2 rounded-xl bg-rose-800">⬇</button>
+            <button
+              @click="lowerString(index)"
+              class="border-2 rounded-xl bg-rose-800"
+            >
+              ⬇
+            </button>
           </div>
         </div>
       </div>
