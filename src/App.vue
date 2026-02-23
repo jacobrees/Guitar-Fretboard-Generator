@@ -26,6 +26,19 @@ const musicalNotes = computed(() => [
 
 const tuningIndexes = ref([7, 2, 10, 5, 0, 7]);
 const fretboardMarkers = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
+let fretView = ref(12);
+
+const fretViewTo12 = () => {
+  if (fretView.value === 24) {
+    fretView.value = 12;
+  }
+};
+
+const fretViewTo24 = () => {
+  if (fretView.value === 12) {
+    fretView.value = 24;
+  }
+};
 
 const guitarTuning = computed(() =>
   tuningIndexes.value.map((i) => musicalNotes.value[i]),
@@ -73,11 +86,12 @@ const addString = () => {
         class="w-full h-[44px] absolute top-0 left-0 bg-gray-800 flex items-center"
       >
         <div
-          v-for="n in 24"
+          v-for="n in fretView"
           :key="n"
           :class="[
-            'w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center',
+            ' h-[24px] border-r-4 border-r-gray-500 flex justify-center',
             fretboardMarkers.includes(n) ? 'bg-amber-50' : '',
+            fretView === 24 ? 'w-1/24' : 'w-2/24',
           ]"
         >
           <p v-if="fretboardMarkers.includes(n)">{{ n }}</p>
@@ -87,17 +101,23 @@ const addString = () => {
         class="w-full h-[44px] absolute bottom-0 left-0 bg-gray-800 flex items-center z-50"
       >
         <div
-          v-for="n in 24"
+          v-for="n in fretView"
           :key="n"
-          class="w-1/24 h-[24px] border-r-4 border-r-gray-500 flex justify-center"
+          :class="[
+            'h-[24px] border-r-4 border-r-gray-500 flex justify-center',
+            fretView === 24 ? 'w-1/24' : 'w-2/24',
+          ]"
         ></div>
       </div>
 
       <div class="w-full h-[54px] border-b-2 border-t-2 flex">
         <div
-          v-for="n in 24"
+          v-for="n in fretView"
           :key="n"
-          class="w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
+          :class="[
+            'h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black',
+            fretView === 24 ? 'w-1/24' : 'w-2/24',
+          ]"
         ></div>
       </div>
 
@@ -107,9 +127,12 @@ const addString = () => {
         class="w-full h-[54px] bg-white border-b-2 border-t-2 flex"
       >
         <div
-          v-for="n in 24"
+          v-for="n in fretView"
           :key="n"
-          class="relative w-1/24 h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black"
+          :class="[
+            'relative h-full border-r-5 border-r-amber-200 border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black',
+            fretView === 24 ? 'w-1/24' : 'w-2/24',
+          ]"
         >
           <div
             class="z-50 bg-zinc-600 border-gray-100 border-2 w-[38px] h-[38px] absolute -top-5 right-0.5 rounded-full flex justify-center items-center"
@@ -161,11 +184,23 @@ const addString = () => {
       </div>
       <div class="flex flex-col justify-center px-2 py-2 items-center">
         <h4 class="text-gray-50 text-2xl">Fret View</h4>
-        <button class="text-gray-50 p-3 my-2 rounded-xl w-3xs bg-rose-700">
-          Full 24
+        <button
+          @click="fretViewTo12"
+          :class="[
+            'text-gray-50 p-3 my-2 rounded-xl w-3xs ',
+            fretView === 12 ? 'bg-rose-700' : 'bg-zinc-700',
+          ]"
+        >
+          0...12
         </button>
-        <button class="text-gray-50 p-3 my-2 rounded-xl w-3xs bg-zinc-700">
-          0 To 12
+        <button
+          @click="fretViewTo24"
+          :class="[
+            'text-gray-50 p-3 my-2 rounded-xl w-3xs ',
+            fretView === 24 ? 'bg-rose-700' : 'bg-zinc-700',
+          ]"
+        >
+          Full 24
         </button>
       </div>
       <div class="text-gray-50 text-2xl flex flex-col px-2 py-2 items-center">
