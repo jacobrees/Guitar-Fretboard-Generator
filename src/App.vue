@@ -7,6 +7,11 @@ import closeSVG from "@/assets/close.svg";
 const sharpsEnabled = ref(true);
 const selectedNote = ref(null);
 const paletteVisible = ref(false);
+const verticalFlip = ref(false);
+
+const flipVertically = () => {
+  verticalFlip.value = !verticalFlip.value;
+};
 
 const openPalette = (note, index) => {
   selectedNote.value = note;
@@ -87,7 +92,9 @@ const addString = () => {
         <div class="h-[54px]"></div>
 
         <div
-          v-for="(note, index) in guitarTuning.slice().reverse()"
+          v-for="(note, index) in verticalFlip
+            ? guitarTuning
+            : guitarTuning.slice().reverse()"
           :key="index"
           class="h-[54px] relative"
         >
@@ -176,7 +183,9 @@ const addString = () => {
             <p class="text-gray-100">
               {{
                 musicalNotes[
-                  ([...tuningIndexes].reverse()[stringCount - 1] + n) % 12
+                  verticalFlip
+                    ? (tuningIndexes[stringCount - 1] + n) % 12
+                    : ([...tuningIndexes].reverse()[stringCount - 1] + n) % 12
                 ]
               }}
             </p>
@@ -217,7 +226,10 @@ const addString = () => {
       </div>
       <div class="flex flex-col justify-center px-2 py-2 items-center">
         <h4 class="text-gray-50 text-2xl">Orientation</h4>
-        <button class="text-gray-50 p-3 my-2 rounded-xl w-3xs bg-rose-700">
+        <button
+          @click="flipVertically"
+          class="text-gray-50 p-3 my-2 rounded-xl w-3xs bg-rose-700"
+        >
           Flip Vertically
         </button>
         <button class="text-gray-50 p-3 my-2 rounded-xl w-3xs bg-rose-700">
@@ -295,7 +307,7 @@ const addString = () => {
               <h5>Add or remove highlighting to "{{ selectedNote }}"</h5>
               <button
                 @click="closePalette"
-                class="border-2 w-[40px] h-[40px] rounded-lg"
+                class="border-2 w-[40px] h-[40px] rounded-lg bg-rose-700"
               >
                 <img :src="closeSVG" alt="Close Icon" />
               </button>
