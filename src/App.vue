@@ -16,11 +16,40 @@ const paletteColors = {
   fuchsia: "bg-fuchsia-600",
 };
 
+const onlyHighlighted = ref(true);
 const sharpsEnabled = ref(true);
 const selectedNote = ref(null);
 const paletteVisible = ref(false);
 const verticalFlip = ref(false);
 const horizontalFlip = ref(false);
+
+const toggleHighlighted = (boolean) => {
+  if (boolean) {
+    onlyHighlighted.value = true;
+  } else {
+    onlyHighlighted.value = false;
+  }
+};
+
+const highlightedNotes = ref([
+  null,
+  null,
+  null,
+  "bg-rose-700",
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+]);
+
+const highlightSelectedNote = (note, color) => {
+  highlightedNotes.value.splice(note, 1, color);
+  paletteVisible.value = false;
+};
 
 const flipVertically = () => {
   verticalFlip.value = !verticalFlip.value;
@@ -58,6 +87,14 @@ const musicalNotes = computed(() => [
   sharpsEnabled.value ? "G#" : "A♭",
 ]);
 
+const getNote = (stringCount, n) => {
+  const index = verticalFlip.value
+    ? tuningIndexes.value[stringCount - 1]
+    : [...tuningIndexes.value].reverse()[stringCount - 1];
+
+  return (index + n) % 12;
+};
+
 const tuningIndexes = ref([7, 2, 10, 5, 0, 7]);
 const fretboardMarkers = [3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
 let fretView = ref(12);
@@ -73,10 +110,6 @@ const fretViewTo24 = () => {
     fretView.value = 24;
   }
 };
-
-const guitarTuning = computed(() =>
-  tuningIndexes.value.map((i) => musicalNotes.value[i]),
-);
 
 const raiseString = (index) => {
   tuningIndexes.value[index] = (tuningIndexes.value[index] + 1) % 12;
@@ -110,18 +143,19 @@ const addString = () => {
 
         <div
           v-for="(note, index) in verticalFlip
-            ? guitarTuning
-            : guitarTuning.slice().reverse()"
+            ? tuningIndexes
+            : tuningIndexes.slice().reverse()"
           :key="index"
-          class="h-[54px] relative"
+          :class="['h-[54px] relative']"
         >
           <div
             :class="[
-              'absolute -top-5  flex items-center justify-center bg-gray-50 w-[42px] h-[42px] rounded-full',
+              'absolute -top-5  flex items-center justify-center  border-2 border-gray-50 w-[42px] h-[42px] rounded-full',
               horizontalFlip ? 'left-1' : 'right-1',
+              highlightedNotes[note] ? highlightedNotes[note] : 'bg-zinc-600',
             ]"
           >
-            <p class="font-bold text-ll">{{ note }}</p>
+            <p class="font-bold text-gray-50">{{ musicalNotes[note] }}</p>
           </div>
         </div>
       </div>
@@ -216,19 +250,20 @@ const addString = () => {
             <div class="w-full h-[4px] bg-gray-800"></div>
           </div>
           <div
+            v-if="
+              (onlyHighlighted && highlightedNotes[getNote(stringCount, n)]) ||
+              !onlyHighlighted
+            "
             :class="[
-              'z-20 bg-zinc-600 border-gray-100 border-2 w-[38px] h-[38px] absolute -top-5 rounded-full flex justify-center items-center',
+              'z-20  border-gray-100 border-2 w-[38px] h-[38px] absolute -top-5 rounded-full flex justify-center items-center',
               horizontalFlip ? 'left-0.5' : 'right-0.5',
+              highlightedNotes[getNote(stringCount, n)]
+                ? highlightedNotes[getNote(stringCount, n)]
+                : 'bg-zinc-600',
             ]"
           >
             <p class="text-gray-100">
-              {{
-                musicalNotes[
-                  verticalFlip
-                    ? (tuningIndexes[stringCount - 1] + n) % 12
-                    : ([...tuningIndexes].reverse()[stringCount - 1] + n) % 12
-                ]
-              }}
+              {{ musicalNotes[getNote(stringCount, n)] }}
             </p>
           </div>
         </div>
@@ -305,7 +340,7 @@ const addString = () => {
         <h4>Adjust Tuning</h4>
         <div class="flex text-gray-50 p-3 my-2 rounded-2xl bg-zinc-700">
           <div
-            v-for="(string, index) in guitarTuning"
+            v-for="(string, index) in tuningIndexes"
             :key="index"
             class="w-[68px] flex flex-col items-center"
           >
@@ -315,7 +350,7 @@ const addString = () => {
             >
               ⬆
             </button>
-            <p>{{ string }}</p>
+            <p>{{ musicalNotes[string] }}</p>
             <button
               @click="lowerString(index)"
               class="border-2 rounded-xl bg-rose-800"
@@ -338,7 +373,10 @@ const addString = () => {
               v-for="(note, index) in musicalNotes"
               @click="openPalette(index)"
               :key="note"
-              class="w-[46px] h-[46px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2"
+              :class="[
+                'w-[46px] h-[46px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2',
+                highlightedNotes[index] ? highlightedNotes[index] : '',
+              ]"
             >
               <p>{{ musicalNotes[index] }}</p>
             </button>
@@ -361,6 +399,7 @@ const addString = () => {
             <div class="flex flex-wrap">
               <button
                 class="flex flex-col justify-center items-center mx-2 mb-3"
+                @click="highlightSelectedNote(selectedNote, null)"
               >
                 <div class="h-[68px] w-[68px] border-2 rounded-2xl">
                   <img :src="closeSVG" alt="" />
@@ -371,6 +410,7 @@ const addString = () => {
                 v-for="(value, key) in paletteColors"
                 :key="key"
                 class="flex flex-col justify-center items-center mx-2 mb-3"
+                @click="highlightSelectedNote(selectedNote, value)"
               >
                 <div
                   :class="[
@@ -395,11 +435,23 @@ const addString = () => {
 
       <div class="flex flex-col justify-center px-2 py-2 items-center">
         <h4 class="text-gray-50 text-2xl">Visibility</h4>
-        <button class="text-gray-50 p-3 my-2 rounded-xl w-3xs bg-rose-700">
-          Show All Notes
-        </button>
-        <button class="text-gray-50 p-3 my-2 rounded-xl w-3xs bg-zinc-700">
+        <button
+          :class="[
+            'text-gray-50 p-3 my-2 rounded-xl w-3xs',
+            onlyHighlighted ? 'bg-rose-700' : 'bg-zinc-700',
+          ]"
+          @click="toggleHighlighted(true)"
+        >
           Show Only Highlighted
+        </button>
+        <button
+          :class="[
+            'text-gray-50 p-3 my-2 rounded-xl w-3xs bg-rose-700',
+            onlyHighlighted ? 'bg-zinc-700' : 'bg-rose-700',
+          ]"
+          @click="toggleHighlighted(false)"
+        >
+          Show All Notes
         </button>
       </div>
     </div>
