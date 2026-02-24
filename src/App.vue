@@ -4,6 +4,17 @@ import Navigation from "@/components/Navigation.vue";
 import FooterComponent from "@/components/Footer.vue";
 import closeSVG from "@/assets/close.svg";
 
+const paletteColors = {
+  rose: "bg-rose-700",
+  orange: "bg-orange-600",
+  yellow: "bg-yellow-500",
+  lime: "bg-lime-600",
+  emerald: "bg-emerald-600",
+  cyan: "bg-cyan-600",
+  violet: "bg-violet-600",
+  fuchsia: "bg-fuchsia-600",
+};
+
 const sharpsEnabled = ref(true);
 const selectedNote = ref(null);
 const paletteVisible = ref(false);
@@ -17,8 +28,9 @@ const flipHorizontally = () => {
   horizontalFlip.value = !horizontalFlip.value;
 };
 
-const openPalette = (note, index) => {
-  selectedNote.value = note;
+const openPalette = (index) => {
+  selectedNote.value = index;
+
   paletteVisible.value = true;
 };
 
@@ -323,11 +335,11 @@ const addString = () => {
           <div class="flex h-12 items-center justify-around">
             <button
               v-for="(note, index) in musicalNotes"
-              @click="openPalette(note, index)"
+              @click="openPalette(index)"
               :key="note"
-              class="w-[42px] h-[42px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2"
+              class="w-[46px] h-[46px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2"
             >
-              <p>{{ note }}</p>
+              <p>{{ musicalNotes[index] }}</p>
             </button>
           </div>
           <div
@@ -335,7 +347,9 @@ const addString = () => {
             class="w-[600px] rounded-xl bg-zinc-900 fixed bottom-2 border"
           >
             <div class="flex justify-between p-3 text-lg">
-              <h5>Add or remove highlighting to "{{ selectedNote }}"</h5>
+              <h5>
+                Add or remove highlighting to "{{ musicalNotes[selectedNote] }}"
+              </h5>
               <button
                 @click="closePalette"
                 class="border-2 w-[40px] h-[40px] rounded-lg bg-rose-700"
@@ -353,68 +367,25 @@ const addString = () => {
                 <p class="text-sm">Remove</p>
               </button>
               <button
+                v-for="(value, key) in paletteColors"
+                :key="key"
                 class="flex flex-col justify-center items-center mx-2 mb-3"
               >
                 <div
-                  class="h-[68px] w-[68px] border-2 rounded-2xl bg-red-600"
-                ></div>
-                <p class="text-sm">Red</p>
-              </button>
-              <button
-                class="flex flex-col justify-center items-center mx-2 mb-3"
-              >
-                <div
-                  class="h-[68px] w-[68px] border-2 rounded-2xl bg-orange-600"
-                ></div>
-                <p class="text-sm">Orange</p>
-              </button>
-              <button
-                class="flex flex-col justify-center items-center mx-2 mb-3"
-              >
-                <div
-                  class="h-[68px] w-[68px] border-2 rounded-2xl bg-yellow-500"
-                ></div>
-                <p class="text-sm">Yellow</p>
-              </button>
-              <button
-                class="flex flex-col justify-center items-center mx-2 mb-3"
-              >
-                <div
-                  class="h-[68px] w-[68px] border-2 rounded-2xl bg-lime-600"
-                ></div>
-                <p class="text-sm">Lime</p>
-              </button>
-              <button
-                class="flex flex-col justify-center items-center mx-2 mb-3"
-              >
-                <div
-                  class="h-[68px] w-[68px] border-2 rounded-2xl bg-emerald-600"
-                ></div>
-                <p class="text-sm">Emerald</p>
-              </button>
-              <button
-                class="flex flex-col justify-center items-center mx-2 mb-3"
-              >
-                <div
-                  class="h-[68px] w-[68px] border-2 rounded-2xl bg-cyan-600"
-                ></div>
-                <p class="text-sm">Cyan</p>
-              </button>
-              <button
-                class="flex flex-col justify-center items-center mx-2 mb-3"
-              >
-                <div
-                  class="h-[68px] w-[68px] border-2 rounded-2xl bg-violet-600"
-                ></div>
-                <p class="text-sm">Violet</p>
-              </button>
-              <button
-                class="flex flex-col justify-center items-center mx-2 mb-3"
-              >
-                <div
-                  class="h-[68px] w-[68px] border-2 rounded-2xl bg-fuchsia-600"
-                ></div>
-                <p class="text-sm">Fuchsia</p>
+                  :class="[
+                    'h-[68px] w-[68px] border-2 rounded-2xl  flex items-center justify-center',
+                    value,
+                  ]"
+                >
+                  <p
+                    class="border-2 rounded-full w-10 h-10 flex items-center justify-center text-[18px]"
+                  >
+                    {{ musicalNotes[selectedNote] }}
+                  </p>
+                </div>
+                <p class="text-sm">
+                  {{ key.substring(0, 1).toUpperCase() + key.substring(1) }}
+                </p>
               </button>
             </div>
           </div>
