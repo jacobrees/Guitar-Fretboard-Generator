@@ -289,13 +289,13 @@ const addString = () => {
         <h4 class="text-gray-50 text-2xl">String Count</h4>
         <button
           @click="addString"
-          class="text-gray-100 bg-rose-700 hover:bg-rose-800 p-3 my-2 rounded-xl w-3xs"
+          class="cursor-pointer text-gray-100 bg-rose-700 hover:bg-rose-800 p-3 my-2 rounded-xl w-3xs"
         >
           Add String
         </button>
         <button
           @click="removeString"
-          class="text-gray-100 bg-rose-700 hover:bg-rose-800 p-3 my-2 rounded-xl w-3xs"
+          class="cursor-pointer text-gray-100 bg-rose-700 hover:bg-rose-800 p-3 my-2 rounded-xl w-3xs"
         >
           Remove String
         </button>
@@ -304,7 +304,7 @@ const addString = () => {
         <h4 class="text-gray-50 text-2xl">♯ / ♭?</h4>
         <button
           @click="toggleSharpsEnabled"
-          class="text-gray-50 p-3 my-2 rounded-xl w-3xs bg-rose-700 hover:bg-rose-800"
+          class="cursor-pointer text-gray-50 p-3 my-2 rounded-xl w-3xs bg-rose-700 hover:bg-rose-800"
         >
           Toggle ♯/♭
         </button>
@@ -313,13 +313,13 @@ const addString = () => {
         <h4 class="text-gray-50 text-2xl">Orientation</h4>
         <button
           @click="flipVertically"
-          class="text-gray-50 p-3 my-2 rounded-xl w-3xs bg-rose-700 hover:bg-rose-800"
+          class="cursor-pointer text-gray-50 p-3 my-2 rounded-xl w-3xs bg-rose-700 hover:bg-rose-800"
         >
           Flip Vertically
         </button>
         <button
           @click="flipHorizontally"
-          class="text-gray-50 p-3 my-2 rounded-xl w-3xs bg-rose-700 hover:bg-rose-800"
+          class="cursor-pointer text-gray-50 p-3 my-2 rounded-xl w-3xs bg-rose-700 hover:bg-rose-800"
         >
           Flip Horizontally
         </button>
@@ -330,7 +330,9 @@ const addString = () => {
           @click="fretViewTo12"
           :class="[
             'text-gray-50 p-3 my-2 rounded-xl w-3xs',
-            fretView === 12 ? 'bg-rose-700' : 'bg-zinc-700 hover:bg-zinc-800',
+            fretView === 12
+              ? 'bg-rose-700 cursor-not-allowed'
+              : 'bg-zinc-700 hover:bg-zinc-800 cursor-pointer',
           ]"
         >
           0...12
@@ -339,7 +341,9 @@ const addString = () => {
           @click="fretViewTo24"
           :class="[
             'text-gray-50 p-3 my-2 rounded-xl w-3xs',
-            fretView === 24 ? 'bg-rose-700' : 'bg-zinc-700 hover:bg-zinc-800',
+            fretView === 24
+              ? 'bg-rose-700 cursor-not-allowed'
+              : 'bg-zinc-700 hover:bg-zinc-800 cursor-pointer',
           ]"
         >
           Full 24
@@ -355,14 +359,14 @@ const addString = () => {
           >
             <button
               @click="raiseString(index)"
-              class="border-2 rounded-xl bg-rose-800 hover:bg-rose-900"
+              class="cursor-pointer border-2 rounded-xl bg-rose-800 hover:bg-rose-900"
             >
               ⬆
             </button>
             <p>{{ musicalNotes[string] }}</p>
             <button
               @click="lowerString(index)"
-              class="border-2 rounded-xl bg-rose-800 hover:bg-rose-900"
+              class="cursor-pointer border-2 rounded-xl bg-rose-800 hover:bg-rose-900"
             >
               ⬇
             </button>
@@ -383,7 +387,7 @@ const addString = () => {
               @click="openPalette(index)"
               :key="note"
               :class="[
-                'w-[46px] h-[46px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 transition transform hover:scale-105 duration-200 ease-in-out',
+                'cursor-pointer w-[46px] h-[46px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 transition transform hover:scale-105 duration-200 ease-in-out',
                 highlightedNotes[index] ? highlightedNotes[index] : '',
               ]"
             >
@@ -400,14 +404,14 @@ const addString = () => {
               </h5>
               <button
                 @click="closePalette"
-                class="border-2 w-[40px] h-[40px] rounded-lg bg-rose-700 hover:bg-rose-800"
+                class="cursor-pointer border-2 w-[40px] h-[40px] rounded-lg bg-rose-700 hover:bg-rose-800"
               >
                 <img :src="closeSVG" alt="Close Icon" />
               </button>
             </div>
             <div class="flex flex-wrap">
               <button
-                class="flex flex-col justify-center items-center mx-2 mb-3 transition transform hover:scale-105 duration-200 ease-in-out"
+                class="cursor-pointer flex flex-col justify-center items-center mx-2 mb-3 transition transform hover:scale-105 duration-200 ease-in-out"
                 @click="highlightSelectedNote(selectedNote, null)"
               >
                 <div class="h-[68px] w-[68px] border-2 rounded-2xl">
@@ -418,7 +422,7 @@ const addString = () => {
               <button
                 v-for="(value, key) in paletteColors"
                 :key="key"
-                class="flex flex-col justify-center items-center mx-2 mb-3 transition transform hover:scale-105 duration-200 ease-in-out"
+                class="cursor-pointer flex flex-col justify-center items-center mx-2 mb-3 transition transform hover:scale-105 duration-200 ease-in-out"
                 @click="highlightSelectedNote(selectedNote, value)"
               >
                 <div
@@ -447,7 +451,9 @@ const addString = () => {
         <button
           :class="[
             'text-gray-50 p-3 my-2 rounded-xl w-3xs',
-            onlyHighlighted ? 'bg-rose-700' : 'bg-zinc-700 hover:bg-zinc-800',
+            onlyHighlighted
+              ? 'bg-rose-700 cursor-not-allowed'
+              : 'bg-zinc-700 hover:bg-zinc-800 cursor-pointer',
           ]"
           @click="toggleHighlighted(true)"
         >
@@ -456,7 +462,9 @@ const addString = () => {
         <button
           :class="[
             'text-gray-50 p-3 my-2 rounded-xl w-3xs',
-            !onlyHighlighted ? 'bg-rose-700' : 'bg-zinc-700 hover:bg-zinc-800',
+            !onlyHighlighted
+              ? 'bg-rose-700 cursor-not-allowed'
+              : 'bg-zinc-700 hover:bg-zinc-800 cursor-pointer',
           ]"
           @click="toggleHighlighted(false)"
         >
