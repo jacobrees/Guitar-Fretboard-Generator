@@ -11,6 +11,7 @@ const paletteColors = {
   lime: "bg-lime-600",
   emerald: "bg-emerald-600",
   cyan: "bg-cyan-600",
+  navy: "bg-blue-900",
   violet: "bg-violet-600",
   fuchsia: "bg-fuchsia-600",
 };
