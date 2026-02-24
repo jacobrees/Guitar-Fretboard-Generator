@@ -129,7 +129,7 @@ const addString = () => {
     <div class="w-24/25 h-auto relative">
       <div
         :class="[
-          'w-full h-[44px] absolute top-0 left-0 bg-gray-800 flex items-center',
+          'w-full h-[44px] absolute top-0 left-0 bg-gray-500 flex items-center z-10',
           horizontalFlip ? 'flex-row-reverse' : 'flex-row',
         ]"
       >
@@ -139,8 +139,8 @@ const addString = () => {
           :class="[
             ' h-[24px] flex justify-center',
             horizontalFlip
-              ? 'border-l-4 border-l-gray-500'
-              : 'border-r-4 border-r-gray-500',
+              ? 'border-l-4 border-l-gray-600'
+              : 'border-r-4 border-r-gray-600',
             fretboardMarkers.includes(n) ? 'bg-amber-50' : '',
             fretView === 24 ? 'w-1/24' : 'w-2/24',
           ]"
@@ -149,7 +149,7 @@ const addString = () => {
         </div>
       </div>
       <div
-        class="w-full h-[44px] absolute bottom-0 left-0 bg-gray-800 flex items-center z-50"
+        class="w-full h-[44px] absolute bottom-0 left-0 bg-gray-500 flex items-center z-10"
       >
         <div
           v-for="n in fretView"
@@ -157,8 +157,8 @@ const addString = () => {
           :class="[
             'h-[24px]  flex justify-center',
             horizontalFlip
-              ? 'border-l-4 border-l-gray-500'
-              : 'border-r-4 border-r-gray-500',
+              ? 'border-l-4 border-l-gray-600'
+              : 'border-r-4 border-r-gray-600',
             fretView === 24 ? 'w-1/24' : 'w-2/24',
           ]"
         ></div>
@@ -217,7 +217,7 @@ const addString = () => {
           </div>
           <div
             :class="[
-              'z-50 bg-zinc-600 border-gray-100 border-2 w-[38px] h-[38px] absolute -top-5 rounded-full flex justify-center items-center',
+              'z-20 bg-zinc-600 border-gray-100 border-2 w-[38px] h-[38px] absolute -top-5 rounded-full flex justify-center items-center',
               horizontalFlip ? 'left-0.5' : 'right-0.5',
             ]"
           >
@@ -345,7 +345,7 @@ const addString = () => {
           </div>
           <div
             v-if="paletteVisible"
-            class="w-[600px] rounded-xl bg-zinc-900 fixed bottom-2 border"
+            class="w-[600px] rounded-xl bg-zinc-900 fixed bottom-2 left-1/2 -translate-x-1/2 border z-30"
           >
             <div class="flex justify-between p-3 text-lg">
               <h5>
