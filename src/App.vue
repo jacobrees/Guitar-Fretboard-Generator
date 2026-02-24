@@ -163,7 +163,7 @@ const addString = () => {
     <div class="w-24/25 h-auto relative">
       <div
         :class="[
-          'w-full h-[44px] absolute top-0 left-0 bg-gray-500 flex items-center z-10',
+          'w-full h-[44px] absolute top-0 left-0 bg-gray-700 flex items-center z-10',
           horizontalFlip ? 'flex-row-reverse' : 'flex-row',
         ]"
       >
@@ -173,8 +173,8 @@ const addString = () => {
           :class="[
             ' h-[24px] flex justify-center',
             horizontalFlip
-              ? 'border-l-4 border-l-gray-600'
-              : 'border-r-4 border-r-gray-600',
+              ? 'border-l-4 border-l-gray-500'
+              : 'border-r-4 border-r-gray-500',
             fretboardMarkers.includes(n) ? 'bg-amber-50' : '',
             fretView === 24 ? 'w-1/24' : 'w-2/24',
           ]"
@@ -183,7 +183,7 @@ const addString = () => {
         </div>
       </div>
       <div
-        class="w-full h-[44px] absolute bottom-0 left-0 bg-gray-500 flex items-center z-10"
+        class="w-full h-[44px] absolute bottom-0 left-0 bg-gray-700 flex items-center z-10"
       >
         <div
           v-for="n in fretView"
@@ -191,8 +191,8 @@ const addString = () => {
           :class="[
             'h-[24px]  flex justify-center',
             horizontalFlip
-              ? 'border-l-4 border-l-gray-600'
-              : 'border-r-4 border-r-gray-600',
+              ? 'border-l-4 border-l-gray-500'
+              : 'border-r-4 border-r-gray-500',
             fretView === 24 ? 'w-1/24' : 'w-2/24',
           ]"
         ></div>
