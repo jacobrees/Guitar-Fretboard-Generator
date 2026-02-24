@@ -10,7 +10,9 @@ import gitHubLogo from "@/assets/github.svg";
       <h2 class="text-gray-100 text-4xl font-semibold">
         Fretboard Visualiser 🎸
       </h2>
-      <a href="#"
+      <a
+        target="_blank"
+        href="https://github.com/jacobrees/Guitar-Fretboard-Generator"
         ><img class="w-[64px]" :src="gitHubLogo" alt="GitHub Logo"
       /></a>
     </div>
