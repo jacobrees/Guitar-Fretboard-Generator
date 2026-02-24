@@ -20,7 +20,7 @@ const onlyHighlighted = ref(true);
 const sharpsEnabled = ref(true);
 const selectedNote = ref(null);
 const paletteVisible = ref(false);
-const verticalFlip = ref(false);
+const verticalFlip = ref(true);
 const horizontalFlip = ref(false);
 
 const toggleHighlighted = (boolean) => {
@@ -320,10 +320,8 @@ const addString = () => {
         <button
           @click="fretViewTo12"
           :class="[
-            'text-gray-50 p-3 my-2 rounded-xl w-3xs ',
-            fretView === 12
-              ? 'bg-rose-700 hover:bg-rose-800 '
-              : 'bg-zinc-700 hover:bg-zinc-800 ',
+            'text-gray-50 p-3 my-2 rounded-xl w-3xs',
+            fretView === 12 ? 'bg-rose-700' : 'bg-zinc-700 hover:bg-zinc-800',
           ]"
         >
           0...12
@@ -331,10 +329,8 @@ const addString = () => {
         <button
           @click="fretViewTo24"
           :class="[
-            'text-gray-50 p-3 my-2 rounded-xl w-3xs ',
-            fretView === 24
-              ? 'bg-rose-700 hover:bg-rose-800 '
-              : 'bg-zinc-700 hover:bg-zinc-800 ',
+            'text-gray-50 p-3 my-2 rounded-xl w-3xs',
+            fretView === 24 ? 'bg-rose-700' : 'bg-zinc-700 hover:bg-zinc-800',
           ]"
         >
           Full 24
@@ -442,9 +438,7 @@ const addString = () => {
         <button
           :class="[
             'text-gray-50 p-3 my-2 rounded-xl w-3xs',
-            onlyHighlighted
-              ? 'bg-rose-700 hover:bg-rose-800'
-              : 'bg-zinc-700 hover:bg-zinc-800',
+            onlyHighlighted ? 'bg-rose-700' : 'bg-zinc-700 hover:bg-zinc-800',
           ]"
           @click="toggleHighlighted(true)"
         >
@@ -453,9 +447,7 @@ const addString = () => {
         <button
           :class="[
             'text-gray-50 p-3 my-2 rounded-xl w-3xs',
-            onlyHighlighted
-              ? 'bg-zinc-700 hover:bg-zinc-800'
-              : 'bg-rose-700 hover:bg-rose-800',
+            !onlyHighlighted ? 'bg-rose-700' : 'bg-zinc-700 hover:bg-zinc-800',
           ]"
           @click="toggleHighlighted(false)"
         >
