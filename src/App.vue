@@ -235,15 +235,24 @@ const addString = () => {
             v-if="
               tuningIndexes.length % 2 === 0 &&
               stringCount === tuningIndexes.length / 2 &&
-              fretboardMarkers.includes(n)
+              fretboardMarkers.includes(n) &&
+              n % 12 !== 0
             "
             class="rounded-full w-6 h-6 bg-amber-50 absolute top-1/2 left-1/2 -translate-1/2"
           ></div>
           <div
             v-if="
+              (n % 12 === 0 && stringCount === tuningIndexes.length - 1) ||
+              (n % 12 === 0 && stringCount === 1)
+            "
+            class="rounded-full w-6 h-6 bg-amber-50 absolute top-1/2 left-1/2 -translate-1/2 flex items-center"
+          ></div>
+          <div
+            v-if="
               tuningIndexes.length % 2 === 1 &&
               stringCount === Math.round(tuningIndexes.length / 2) &&
-              fretboardMarkers.includes(n)
+              fretboardMarkers.includes(n) &&
+              n % 12 !== 0
             "
             class="rounded-full w-6 h-6 bg-amber-50 absolute -top-4 left-1/2 -translate-x-1/2 flex items-center"
           >
