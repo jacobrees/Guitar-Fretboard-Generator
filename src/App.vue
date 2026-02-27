@@ -35,7 +35,7 @@ const highlightedNotes = ref([
   null,
   null,
   null,
-  "bg-rose-700",
+  null,
   null,
   null,
   null,
@@ -138,12 +138,12 @@ const addString = () => {
   <Navigation />
 
   <div class="flex flex-col items-center justify-center">
-    <div class="bg-gray-950 p-3 rounded-2xl border-1 border-gray-400 mt-2">
+    <div class="bg-gray-950 z-10 p-3 rounded-2xl border-1 border-gray-400 mt-2">
       <div class="bg-zinc-700 rounded-2xl text-2xl">
         <button
           class="text-gray-50 p-1 rounded-xl w-3xs bg-rose-700 hover:cursor-pointer"
         >
-          Setup
+          Core
         </button>
         <button
           class="text-gray-50 p-1 rounded-xl w-3xs bg-zinc-700 hover:cursor-pointer"
@@ -151,19 +151,75 @@ const addString = () => {
           Focus
         </button>
       </div>
+      <h2 class="text-gray-50 text-3xl p-1 text-center">Core</h2>
+      <p class="text-gray-50 pb-1 text-center">
+        Define your instrument and select notes
+      </p>
     </div>
-    <div class="flex flex-wrap justify-center">
+    <div class="my-2 mx-5">
       <div
-        class="flex flex-row-reverse flex-wrap justify-around p-1 rounded-2xl border-2 border-gray-400 bg-gray-950"
+        class="p-1 rounded-2xl flex flex-wrap justify-center border border-gray-400 bg-gray-950"
       >
-        <div class="text-gray-50 text-2xl flex flex-col px-2 py-2 items-center">
+        <div
+          class="text-gray-50 mb-1 text-2xl flex border-gray-400 flex-col py-2 items-center"
+        >
+          
+          <p>Guitar Settings</p>
+          <div class="flex flex-col">
+            <div
+              class="text-gray-50 text-2xl flex flex-col px-2 py-2 items-center"
+            >
+              <div class="flex text-gray-50 p-3 my-2 rounded-2xl bg-zinc-700">
+                <div
+                  v-for="(string, index) in tuningIndexes"
+                  :key="index"
+                  class="w-[68px] flex flex-col items-center"
+                >
+                  <button
+                    @click="raiseString(index)"
+                    class="cursor-pointer border-2 rounded-xl bg-rose-800 hover:bg-rose-900"
+                  >
+                    ⬆
+                  </button>
+                  <p>{{ musicalNotes[string] }}</p>
+                  <button
+                    @click="lowerString(index)"
+                    class="cursor-pointer border-2 rounded-xl bg-rose-800 hover:bg-rose-900"
+                  >
+                    ⬇
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="flex text-lg items-center px-2 py-2 justify-center">
+              <button
+                @click="addString"
+                class="cursor-pointer text-gray-100 bg-rose-700 hover:bg-rose-800 p-3 m-2 rounded-xl"
+              >
+                Add String
+              </button>
+              <button
+                @click="removeString"
+                class="cursor-pointer text-gray-100 bg-rose-700 hover:bg-rose-800 p-3 m-2 rounded-xl"
+              >
+                Remove String
+              </button>
+            </div>
+          </div>
+        </div>
+        <div
+          class="text-gray-50 text-2xl border-gray-400 flex flex-col pl-3 pr-2 py-2 items-center"
+        >
+          
           <div
-            class="bg-zinc-700 p-2 rounded-2xl w-full h-full flex flex-col justify-center relative"
+            class="p-2 rounded-2xl bg-zinc-700  h-full flex flex-col justify-center relative"
           >
-            <p class="text-[18px] text-center mb-2">
+            <h5 class="text-center text-3xl mb-2">Highlight Notes On Fretboard</h5>
+            <p class="text-[17px] text-center mb-2">
               Select a specific note to open the color palette
             </p>
-            <div class="flex h-12 items-center justify-around">
+
+            <div class="flex h-12  items-center justify-around">
               <button
                 v-for="(note, index) in musicalNotes"
                 @click="openPalette(index)"
@@ -178,7 +234,7 @@ const addString = () => {
             </div>
             <div
               v-if="paletteVisible"
-              class="w-[600px] rounded-xl bg-zinc-900 fixed bottom-2 left-1/2 -translate-x-1/2 border z-30"
+              class="w-[600px] rounded-xl bg-zinc-900 fixed left-1/2 -translate-x-1/2 border z-50"
             >
               <div class="flex justify-between p-3 text-lg">
                 <h5>
@@ -230,51 +286,12 @@ const addString = () => {
           </div>
         </div>
       </div>
-      <div
-        class="flex flex-wrap bg-gray-950 justify-around border-2 border-gray-400 rounded-2xl"
-      >
-        <div class="text-gray-50 text-2xl flex flex-col px-2 py-2 items-center">
-          <div class="flex text-gray-50 p-3 my-2 rounded-2xl bg-zinc-700">
-            <div
-              v-for="(string, index) in tuningIndexes"
-              :key="index"
-              class="w-[68px] flex flex-col items-center"
-            >
-              <button
-                @click="raiseString(index)"
-                class="cursor-pointer border-2 rounded-xl bg-rose-800 hover:bg-rose-900"
-              >
-                ⬆
-              </button>
-              <p>{{ musicalNotes[string] }}</p>
-              <button
-                @click="lowerString(index)"
-                class="cursor-pointer border-2 rounded-xl bg-rose-800 hover:bg-rose-900"
-              >
-                ⬇
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="flex flex-col items-center px-2 py-2 justify-center">
-          <button
-            @click="addString"
-            class="cursor-pointer text-gray-100 bg-rose-700 hover:bg-rose-800 p-3 my-2 rounded-xl w-3xs"
-          >
-            Add String
-          </button>
-          <button
-            @click="removeString"
-            class="cursor-pointer text-gray-100 bg-rose-700 hover:bg-rose-800 p-3 my-2 rounded-xl w-3xs"
-          >
-            Remove String
-          </button>
-        </div>
-      </div>
     </div>
   </div>
 
-  <div :class="['p-5 flex', horizontalFlip ? 'flex-row-reverse' : 'flex-row']">
+  <div
+    :class="['p-5 flex z-0', horizontalFlip ? 'flex-row-reverse' : 'flex-row']"
+  >
     <div class="w-1/25">
       <div class="w-full flex flex-col justify-between h-full">
         <div class="h-[54px]"></div>
@@ -301,7 +318,7 @@ const addString = () => {
     <div class="w-24/25 h-auto relative">
       <div
         :class="[
-          'w-full h-[44px] absolute top-0 left-0 bg-gray-700 flex items-center z-10',
+          'w-full h-[44px] absolute top-0 left-0 bg-gray-800 flex items-center z-10',
           horizontalFlip ? 'flex-row-reverse' : 'flex-row',
         ]"
       >
@@ -321,7 +338,7 @@ const addString = () => {
         </div>
       </div>
       <div
-        class="w-full h-[44px] absolute bottom-0 left-0 bg-gray-700 flex items-center z-10"
+        class="w-full h-[44px] absolute bottom-0 left-0 bg-gray-800 flex items-center z-10"
       >
         <div
           v-for="n in fretView"
@@ -422,7 +439,7 @@ const addString = () => {
     class="max-w-[1560px] w-full px-5 m-auto flex justify-center items-center"
   >
     <div
-      class="flex flex-row flex-wrap items-center justify-around z-50 bg-gray-950 border-2 border-gray-400 rounded-2xl"
+      class="flex flex-row flex-wrap items-center justify-around bg-gray-950 border-2 border-gray-400 rounded-2xl"
     >
       <div class="flex flex-col justify-center px-2 py-2 items-center">
         <h4 class="text-gray-50 text-2xl">♯ / ♭?</h4>
