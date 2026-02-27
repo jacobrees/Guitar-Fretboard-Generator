@@ -136,13 +136,14 @@ const addString = () => {
 
 <template>
   <Navigation />
+
   <div class="flex flex-col items-center justify-center">
     <div class="bg-gray-950 p-3 rounded-2xl border-1 border-gray-400 mt-2">
       <div class="bg-zinc-700 rounded-2xl text-2xl">
         <button
           class="text-gray-50 p-1 rounded-xl w-3xs bg-rose-700 hover:cursor-pointer"
         >
-          Core
+          Setup
         </button>
         <button
           class="text-gray-50 p-1 rounded-xl w-3xs bg-zinc-700 hover:cursor-pointer"
@@ -151,7 +152,128 @@ const addString = () => {
         </button>
       </div>
     </div>
+    <div class="flex flex-wrap justify-center">
+      <div
+        class="flex flex-row-reverse flex-wrap justify-around p-1 rounded-2xl border-2 border-gray-400 bg-gray-950"
+      >
+        <div class="text-gray-50 text-2xl flex flex-col px-2 py-2 items-center">
+          <div
+            class="bg-zinc-700 p-2 rounded-2xl w-full h-full flex flex-col justify-center relative"
+          >
+            <p class="text-[18px] text-center mb-2">
+              Select a specific note to open the color palette
+            </p>
+            <div class="flex h-12 items-center justify-around">
+              <button
+                v-for="(note, index) in musicalNotes"
+                @click="openPalette(index)"
+                :key="note"
+                :class="[
+                  'cursor-pointer w-[46px] h-[46px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 transition transform hover:scale-105 duration-200 ease-in-out',
+                  highlightedNotes[index] ? highlightedNotes[index] : '',
+                ]"
+              >
+                <p>{{ musicalNotes[index] }}</p>
+              </button>
+            </div>
+            <div
+              v-if="paletteVisible"
+              class="w-[600px] rounded-xl bg-zinc-900 fixed bottom-2 left-1/2 -translate-x-1/2 border z-30"
+            >
+              <div class="flex justify-between p-3 text-lg">
+                <h5>
+                  Add or remove highlighting to "{{
+                    musicalNotes[selectedNote]
+                  }}"
+                </h5>
+                <button
+                  @click="closePalette"
+                  class="cursor-pointer border-2 w-[40px] h-[40px] rounded-lg bg-rose-700 hover:bg-rose-800"
+                >
+                  <img :src="closeSVG" alt="Close Icon" />
+                </button>
+              </div>
+              <div class="flex flex-wrap">
+                <button
+                  class="cursor-pointer flex flex-col justify-center items-center mx-2 mb-3 transition transform hover:scale-105 duration-200 ease-in-out"
+                  @click="highlightSelectedNote(selectedNote, null)"
+                >
+                  <div class="h-[68px] w-[68px] border-2 rounded-2xl">
+                    <img :src="closeSVG" alt="" />
+                  </div>
+                  <p class="text-sm">Remove</p>
+                </button>
+                <button
+                  v-for="(value, key) in paletteColors"
+                  :key="key"
+                  class="cursor-pointer flex flex-col justify-center items-center mx-2 mb-3 transition transform hover:scale-105 duration-200 ease-in-out"
+                  @click="highlightSelectedNote(selectedNote, value)"
+                >
+                  <div
+                    :class="[
+                      'h-[68px] w-[68px] border-2 rounded-2xl  flex items-center justify-center',
+                      value,
+                    ]"
+                  >
+                    <p
+                      class="border-2 rounded-full w-10 h-10 flex items-center justify-center text-[18px]"
+                    >
+                      {{ musicalNotes[selectedNote] }}
+                    </p>
+                  </div>
+                  <p class="text-sm">
+                    {{ key.substring(0, 1).toUpperCase() + key.substring(1) }}
+                  </p>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex flex-wrap bg-gray-950 justify-around border-2 border-gray-400 rounded-2xl"
+      >
+        <div class="text-gray-50 text-2xl flex flex-col px-2 py-2 items-center">
+          <div class="flex text-gray-50 p-3 my-2 rounded-2xl bg-zinc-700">
+            <div
+              v-for="(string, index) in tuningIndexes"
+              :key="index"
+              class="w-[68px] flex flex-col items-center"
+            >
+              <button
+                @click="raiseString(index)"
+                class="cursor-pointer border-2 rounded-xl bg-rose-800 hover:bg-rose-900"
+              >
+                ⬆
+              </button>
+              <p>{{ musicalNotes[string] }}</p>
+              <button
+                @click="lowerString(index)"
+                class="cursor-pointer border-2 rounded-xl bg-rose-800 hover:bg-rose-900"
+              >
+                ⬇
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-col items-center px-2 py-2 justify-center">
+          <button
+            @click="addString"
+            class="cursor-pointer text-gray-100 bg-rose-700 hover:bg-rose-800 p-3 my-2 rounded-xl w-3xs"
+          >
+            Add String
+          </button>
+          <button
+            @click="removeString"
+            class="cursor-pointer text-gray-100 bg-rose-700 hover:bg-rose-800 p-3 my-2 rounded-xl w-3xs"
+          >
+            Remove String
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
+
   <div :class="['p-5 flex', horizontalFlip ? 'flex-row-reverse' : 'flex-row']">
     <div class="w-1/25">
       <div class="w-full flex flex-col justify-between h-full">
@@ -296,26 +418,12 @@ const addString = () => {
     </div>
   </div>
 
-  <div class="max-w-[1560px] w-full px-5 m-auto flex flex-col items-center">
-    <h3 class="text-gray-50 text-5xl p-3">Core Options</h3>
+  <div
+    class="max-w-[1560px] w-full px-5 m-auto flex justify-center items-center"
+  >
     <div
-      class="flex flex-wrap justify-around p-5 rounded-2xl border-2 border-gray-400 bg-gray-950"
+      class="flex flex-row flex-wrap items-center justify-around z-50 bg-gray-950 border-2 border-gray-400 rounded-2xl"
     >
-      <div class="flex flex-col items-center px-2 py-2 justify-center">
-        <h4 class="text-gray-50 text-2xl">String Count</h4>
-        <button
-          @click="addString"
-          class="cursor-pointer text-gray-100 bg-rose-700 hover:bg-rose-800 p-3 my-2 rounded-xl w-3xs"
-        >
-          Add String
-        </button>
-        <button
-          @click="removeString"
-          class="cursor-pointer text-gray-100 bg-rose-700 hover:bg-rose-800 p-3 my-2 rounded-xl w-3xs"
-        >
-          Remove String
-        </button>
-      </div>
       <div class="flex flex-col justify-center px-2 py-2 items-center">
         <h4 class="text-gray-50 text-2xl">♯ / ♭?</h4>
         <button
@@ -323,6 +431,31 @@ const addString = () => {
           class="cursor-pointer text-gray-50 p-3 my-2 rounded-xl w-3xs bg-rose-700 hover:bg-rose-800"
         >
           Toggle ♯/♭
+        </button>
+      </div>
+      <div class="flex flex-col justify-center px-2 py-2 items-center">
+        <h4 class="text-gray-50 text-2xl">Visibility</h4>
+        <button
+          :class="[
+            'text-gray-50 p-3 my-2 rounded-xl w-3xs',
+            onlyHighlighted
+              ? 'bg-rose-700 cursor-not-allowed'
+              : 'bg-zinc-700 hover:bg-zinc-800 cursor-pointer',
+          ]"
+          @click="toggleHighlighted(true)"
+        >
+          Show Only Highlighted
+        </button>
+        <button
+          :class="[
+            'text-gray-50 p-3 my-2 rounded-xl w-3xs',
+            !onlyHighlighted
+              ? 'bg-rose-700 cursor-not-allowed'
+              : 'bg-zinc-700 hover:bg-zinc-800 cursor-pointer',
+          ]"
+          @click="toggleHighlighted(false)"
+        >
+          Show All Notes
         </button>
       </div>
       <div class="flex flex-col justify-center px-2 py-2 items-center">
@@ -363,128 +496,6 @@ const addString = () => {
           ]"
         >
           Full 24
-        </button>
-      </div>
-      <div class="text-gray-50 text-2xl flex flex-col px-2 py-2 items-center">
-        <h4>Adjust Tuning</h4>
-        <div class="flex text-gray-50 p-3 my-2 rounded-2xl bg-zinc-700">
-          <div
-            v-for="(string, index) in tuningIndexes"
-            :key="index"
-            class="w-[68px] flex flex-col items-center"
-          >
-            <button
-              @click="raiseString(index)"
-              class="cursor-pointer border-2 rounded-xl bg-rose-800 hover:bg-rose-900"
-            >
-              ⬆
-            </button>
-            <p>{{ musicalNotes[string] }}</p>
-            <button
-              @click="lowerString(index)"
-              class="cursor-pointer border-2 rounded-xl bg-rose-800 hover:bg-rose-900"
-            >
-              ⬇
-            </button>
-          </div>
-        </div>
-      </div>
-      <div class="text-gray-50 text-2xl flex flex-col px-2 py-2 items-center">
-        <h4 class="mb-2">Highlighting</h4>
-        <div
-          class="bg-zinc-700 p-2 rounded-2xl w-full h-full flex flex-col justify-center relative"
-        >
-          <p class="text-[18px] text-center mb-2">
-            Select a specific note to open the color palette
-          </p>
-          <div class="flex h-12 items-center justify-around">
-            <button
-              v-for="(note, index) in musicalNotes"
-              @click="openPalette(index)"
-              :key="note"
-              :class="[
-                'cursor-pointer w-[46px] h-[46px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 transition transform hover:scale-105 duration-200 ease-in-out',
-                highlightedNotes[index] ? highlightedNotes[index] : '',
-              ]"
-            >
-              <p>{{ musicalNotes[index] }}</p>
-            </button>
-          </div>
-          <div
-            v-if="paletteVisible"
-            class="w-[600px] rounded-xl bg-zinc-900 fixed bottom-2 left-1/2 -translate-x-1/2 border z-30"
-          >
-            <div class="flex justify-between p-3 text-lg">
-              <h5>
-                Add or remove highlighting to "{{ musicalNotes[selectedNote] }}"
-              </h5>
-              <button
-                @click="closePalette"
-                class="cursor-pointer border-2 w-[40px] h-[40px] rounded-lg bg-rose-700 hover:bg-rose-800"
-              >
-                <img :src="closeSVG" alt="Close Icon" />
-              </button>
-            </div>
-            <div class="flex flex-wrap">
-              <button
-                class="cursor-pointer flex flex-col justify-center items-center mx-2 mb-3 transition transform hover:scale-105 duration-200 ease-in-out"
-                @click="highlightSelectedNote(selectedNote, null)"
-              >
-                <div class="h-[68px] w-[68px] border-2 rounded-2xl">
-                  <img :src="closeSVG" alt="" />
-                </div>
-                <p class="text-sm">Remove</p>
-              </button>
-              <button
-                v-for="(value, key) in paletteColors"
-                :key="key"
-                class="cursor-pointer flex flex-col justify-center items-center mx-2 mb-3 transition transform hover:scale-105 duration-200 ease-in-out"
-                @click="highlightSelectedNote(selectedNote, value)"
-              >
-                <div
-                  :class="[
-                    'h-[68px] w-[68px] border-2 rounded-2xl  flex items-center justify-center',
-                    value,
-                  ]"
-                >
-                  <p
-                    class="border-2 rounded-full w-10 h-10 flex items-center justify-center text-[18px]"
-                  >
-                    {{ musicalNotes[selectedNote] }}
-                  </p>
-                </div>
-                <p class="text-sm">
-                  {{ key.substring(0, 1).toUpperCase() + key.substring(1) }}
-                </p>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="flex flex-col justify-center px-2 py-2 items-center">
-        <h4 class="text-gray-50 text-2xl">Visibility</h4>
-        <button
-          :class="[
-            'text-gray-50 p-3 my-2 rounded-xl w-3xs',
-            onlyHighlighted
-              ? 'bg-rose-700 cursor-not-allowed'
-              : 'bg-zinc-700 hover:bg-zinc-800 cursor-pointer',
-          ]"
-          @click="toggleHighlighted(true)"
-        >
-          Show Only Highlighted
-        </button>
-        <button
-          :class="[
-            'text-gray-50 p-3 my-2 rounded-xl w-3xs',
-            !onlyHighlighted
-              ? 'bg-rose-700 cursor-not-allowed'
-              : 'bg-zinc-700 hover:bg-zinc-800 cursor-pointer',
-          ]"
-          @click="toggleHighlighted(false)"
-        >
-          Show All Notes
         </button>
       </div>
     </div>
