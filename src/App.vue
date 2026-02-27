@@ -136,6 +136,22 @@ const addString = () => {
 
 <template>
   <Navigation />
+  <div class="flex flex-col items-center justify-center">
+    <div class="bg-gray-950 p-3 rounded-2xl border-1 border-gray-400 mt-2">
+      <div class="bg-zinc-700 rounded-2xl text-2xl">
+        <button
+          class="text-gray-50 p-1 rounded-xl w-3xs bg-rose-700 hover:cursor-pointer"
+        >
+          Core
+        </button>
+        <button
+          class="text-gray-50 p-1 rounded-xl w-3xs bg-zinc-700 hover:cursor-pointer"
+        >
+          Focus
+        </button>
+      </div>
+    </div>
+  </div>
   <div :class="['p-5 flex', horizontalFlip ? 'flex-row-reverse' : 'flex-row']">
     <div class="w-1/25">
       <div class="w-full flex flex-col justify-between h-full">
@@ -280,8 +296,8 @@ const addString = () => {
     </div>
   </div>
 
-  <div class="max-w-[1560px] w-full px-5 m-auto">
-    <h3 class="text-center text-gray-50 text-5xl py-2">Options</h3>
+  <div class="max-w-[1560px] w-full px-5 m-auto flex flex-col items-center">
+    <h3 class="text-gray-50 text-5xl p-3">Core Options</h3>
     <div
       class="flex flex-wrap justify-around p-5 rounded-2xl border-2 border-gray-400 bg-gray-950"
     >
