@@ -3,6 +3,8 @@ import { ref, computed } from "vue";
 import Navigation from "@/components/Navigation.vue";
 import FooterComponent from "@/components/Footer.vue";
 import closeSVG from "@/assets/close.svg";
+import caretUpSVG from "@/assets/caret-up.svg";
+import caretDownSVG from "@/assets/caret-down.svg";
 
 const paletteColors = {
   rose: "bg-rose-700",
@@ -159,40 +161,56 @@ const addString = () => {
       </div>
       <h2 class="text-gray-50 text-3xl p-1 text-center">Core</h2>
       <p class="text-gray-50 pb-1 text-center">
-        Define your instrument and select notes
+        Define your instrument and define the base scale
       </p>
     </div>
-    <div class="my-2 mx-5">
+    <div class="my-2 flex mx-5">
       <div
         class="p-1 rounded-2xl flex flex-wrap justify-center border border-gray-400 bg-gray-950"
       >
         <div
           class="text-gray-50 my-auto text-2xl flex border-gray-400 flex-col py-2 items-center"
         >
-          <p>Guitar Settings</p>
+          <h3 class="text-3xl">Guitar Configurator</h3>
           <div class="flex flex-col">
             <div
               class="text-gray-50 text-2xl flex flex-col px-2 py-2 items-center"
             >
-              <div class="flex text-gray-50 p-3 my-2 rounded-2xl bg-zinc-700">
+              <div
+                class="flex flex-wrap max-w-[568px] min-h-[260px] items-center justify-around text-gray-50 p-3 my-2 rounded-2xl bg-zinc-700"
+              >
+                <h4 class="w-full text-center text-2xl">Adjust Tuning</h4>
                 <div
                   v-for="(string, index) in tuningIndexes"
                   :key="index"
-                  class="w-[68px] flex flex-col items-center"
+                  class="flex items-center max-h-[40px] w-[164px] justify-start m-2"
                 >
-                  <button
-                    @click="raiseString(index)"
-                    class="cursor-pointer border-2 rounded-xl bg-rose-800 hover:bg-rose-900"
+                  <p
+                    class="rounded-full border-2 text-lg w-[32px] h-[32px] text-center"
                   >
-                    ⬆
-                  </button>
-                  <p>{{ musicalNotes[string] }}</p>
-                  <button
-                    @click="lowerString(index)"
-                    class="cursor-pointer border-2 rounded-xl bg-rose-800 hover:bg-rose-900"
+                    {{ index + 1 }}
+                  </p>
+                  <div
+                    class="flex w-[160px] border-gray-400 border-2 rounded-lg justify-between items-center"
                   >
-                    ⬇
-                  </button>
+                    <button
+                      @click="raiseString(index)"
+                      class="cursor-pointer text-xl border-2 w-[36px] h-[36px] mx-1 rounded-xl bg-rose-800 hover:bg-rose-900"
+                    >
+                      <img class="w-full" :src="caretUpSVG" alt="Up Arrow" />
+                    </button>
+                    <p class="">{{ musicalNotes[string] }}</p>
+                    <button
+                      @click="lowerString(index)"
+                      class="cursor-pointer text-xl border-2 w-[36px] h-[36px] mx-1 rounded-xl bg-rose-800 hover:bg-rose-900"
+                    >
+                      <img
+                        class="w-full"
+                        :src="caretDownSVG"
+                        alt="Down Arrow"
+                      />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -212,106 +230,122 @@ const addString = () => {
             </div>
           </div>
         </div>
+      </div>
+      <div class="bg-gray-950 flex border rounded-2xl border-gray-400">
         <div
           class="text-gray-50 text-2xl border-gray-400 flex flex-col pl-3 pr-2 py-2 items-center"
         >
-          <div
-            class="p-2 rounded-2xl bg-zinc-700 h-full flex flex-col justify-center relative"
-          >
-            <h5 class="text-center text-2xl mb-2">Note Mapping</h5>
-            <p class="text-[17px] text-center mb-4">
-              Select a note to assign a color and highlight it across the
-              fretboard
-            </p>
-
-            <div class="flex flex-wrap h-12 items-center justify-around">
-              <button
-                v-for="(note, index) in musicalNotes"
-                @click="openPalette(index)"
-                :key="note"
-                :class="[
-                  'cursor-pointer w-[46px] h-[46px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 transition transform hover:scale-105 duration-200 ease-in-out',
-                  highlightedNotes[index] ? highlightedNotes[index] : '',
-                ]"
-              >
-                <p>{{ musicalNotes[index] }}</p>
-              </button>
-            </div>
+          <h4 class="mb-2 text-3xl">Scale Builder</h4>
+          <div class="max-w-[664px] flex flex-col">
             <div
-              v-if="paletteVisible"
-              class="w-[600px] rounded-xl bg-zinc-900 fixed left-1/2 -translate-x-1/2 border z-50"
+              class="p-2 rounded-2xl bg-zinc-700 h-full flex flex-col justify-center relative"
             >
-              <div class="flex justify-between p-3 text-lg">
-                <h5>
-                  Add or remove highlighting to "{{
-                    musicalNotes[selectedNote]
-                  }}"
-                </h5>
+              <h5 class="text-center text-2xl mb-2">Note Mapping</h5>
+              <p class="text-[17px] text-wrap text-center mb-4">
+                This is where you define the overall musical scale of what you
+                want to do defining the base scale is what is important at this
+                stage!
+              </p>
+              <p class="text-[18px] text-center mb-4">
+                Define a scale by selecting the notes below
+              </p>
+
+              <div class="flex flex-wrap h-12 items-center justify-around">
                 <button
-                  @click="closePalette"
-                  class="cursor-pointer border-2 w-[40px] h-[40px] rounded-lg bg-rose-700 hover:bg-rose-800"
+                  v-for="(note, index) in musicalNotes"
+                  @click="openPalette(index)"
+                  :key="note"
+                  :class="[
+                    'cursor-pointer w-[46px] h-[46px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 transition transform hover:scale-105 duration-200 ease-in-out',
+                    highlightedNotes[index] ? highlightedNotes[index] : '',
+                  ]"
                 >
-                  <img :src="closeSVG" alt="Close Icon" />
+                  <p>{{ musicalNotes[index] }}</p>
                 </button>
               </div>
-              <div class="flex flex-wrap">
-                <button
-                  class="cursor-pointer flex flex-col justify-center items-center mx-2 mb-3 transition transform hover:scale-105 duration-200 ease-in-out"
-                  @click="highlightSelectedNote(selectedNote, null)"
-                >
-                  <div class="h-[68px] w-[68px] border-2 rounded-2xl">
-                    <img :src="closeSVG" alt="" />
-                  </div>
-                  <p class="text-sm">Remove</p>
-                </button>
-                <button
-                  v-for="(value, key) in paletteColors"
-                  :key="key"
-                  class="cursor-pointer flex flex-col justify-center items-center mx-2 mb-3 transition transform hover:scale-105 duration-200 ease-in-out"
-                  @click="highlightSelectedNote(selectedNote, value)"
-                >
-                  <div
-                    :class="[
-                      'h-[68px] w-[68px] border-2 rounded-2xl  flex items-center justify-center',
-                      value,
-                    ]"
+              <p class="text-[17px] text-center mt-4">
+                (If you are a first time user try a 7-note (heptatonic) scale to
+                begin with)
+              </p>
+              <div
+                v-if="paletteVisible"
+                class="w-[600px] rounded-xl bg-zinc-900 fixed left-1/2 -translate-x-1/2 border z-50"
+              >
+                <div class="flex justify-between p-3 text-lg">
+                  <h5>
+                    Add or remove highlighting to "{{
+                      musicalNotes[selectedNote]
+                    }}"
+                  </h5>
+                  <button
+                    @click="closePalette"
+                    class="cursor-pointer border-2 w-[40px] h-[40px] rounded-lg bg-rose-700 hover:bg-rose-800"
                   >
-                    <p
-                      class="border-2 rounded-full w-10 h-10 flex items-center justify-center text-[18px]"
+                    <img :src="closeSVG" alt="Close Icon" />
+                  </button>
+                </div>
+                <div class="flex flex-wrap">
+                  <button
+                    class="cursor-pointer flex flex-col justify-center items-center mx-2 mb-3 transition transform hover:scale-105 duration-200 ease-in-out"
+                    @click="highlightSelectedNote(selectedNote, null)"
+                  >
+                    <div class="h-[68px] w-[68px] border-2 rounded-2xl">
+                      <img :src="closeSVG" alt="" />
+                    </div>
+                    <p class="text-sm">Remove</p>
+                  </button>
+                  <button
+                    v-for="(value, key) in paletteColors"
+                    :key="key"
+                    class="cursor-pointer flex flex-col justify-center items-center mx-2 mb-3 transition transform hover:scale-105 duration-200 ease-in-out"
+                    @click="highlightSelectedNote(selectedNote, value)"
+                  >
+                    <div
+                      :class="[
+                        'h-[68px] w-[68px] border-2 rounded-2xl  flex items-center justify-center',
+                        value,
+                      ]"
                     >
-                      {{ musicalNotes[selectedNote] }}
+                      <p
+                        class="border-2 rounded-full w-10 h-10 flex items-center justify-center text-[18px]"
+                      >
+                        {{ musicalNotes[selectedNote] }}
+                      </p>
+                    </div>
+                    <p class="text-sm">
+                      {{ key.substring(0, 1).toUpperCase() + key.substring(1) }}
                     </p>
-                  </div>
-                  <p class="text-sm">
-                    {{ key.substring(0, 1).toUpperCase() + key.substring(1) }}
-                  </p>
-                </button>
+                  </button>
+                </div>
               </div>
             </div>
-            <div
-              class="w-19/20 p-0.5 bg-gray-100 mx-auto rounded-full m-5"
-            ></div>
-            <h5 class="text-center text-2xl mb-2">Interval Engine</h5>
+            <div class="bg-zinc-700 mt-2 p-3 rounded-2xl">
+              <h5 class="text-center text-2xl mb-2">Interval Engine</h5>
 
-            <p
-              v-if="selectedNotes.length > 1"
-              class="text-[17px] text-center mb-4"
-            >
-              Select the root note to display its interval relationships on the
-              fretboard.
-            </p>
-            <p v-else class="text-[17px] text-center mb-4">
-              Highlight more than one note in Note Mapping to enable Interval
-              Engine
-            </p>
-            <div v-if="selectedNotes.length > 1" class="flex justify-center">
-              <button
-                v-for="note in selectedNotes"
-                :key="note.index"
-                class="cursor-pointer w-[46px] h-[46px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 transition transform hover:scale-105 duration-200 ease-in-out"
+              <p
+                v-if="selectedNotes.length > 1"
+                class="text-[17px] text-center mb-4"
               >
-                <p>{{ note }}</p>
-              </button>
+                Select the root note to display its interval relationships on
+                the fretboard
+              </p>
+              <p v-else class="text-[17px] text-center mb-4">
+                Highlight more than one note in Note Mapping to enable Interval
+                Engine
+              </p>
+              <div v-if="selectedNotes.length > 1" class="flex justify-center">
+                <button
+                  v-for="note in selectedNotes"
+                  :key="note.index"
+                  class="cursor-pointer w-[46px] h-[46px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 transition transform hover:scale-105 duration-200 ease-in-out"
+                >
+                  <p>{{ note }}</p>
+                </button>
+              </div>
+              <p class="text-[17px] text-wrap text-center mt-4">
+                pick a root relative to the scale chosen, this stage is defining
+                the overall key
+              </p>
             </div>
           </div>
         </div>
