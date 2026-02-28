@@ -87,6 +87,12 @@ const musicalNotes = computed(() => [
   sharpsEnabled.value ? "G#" : "A♭",
 ]);
 
+const selectedNotes = computed(() => {
+  return musicalNotes.value.filter((note, index) => {
+    return highlightedNotes.value[index];
+  });
+});
+
 const getNote = (stringCount, n) => {
   const index = verticalFlip.value
     ? tuningIndexes.value[stringCount - 1]
@@ -161,9 +167,8 @@ const addString = () => {
         class="p-1 rounded-2xl flex flex-wrap justify-center border border-gray-400 bg-gray-950"
       >
         <div
-          class="text-gray-50 mb-1 text-2xl flex border-gray-400 flex-col py-2 items-center"
+          class="text-gray-50 my-auto text-2xl flex border-gray-400 flex-col py-2 items-center"
         >
-          
           <p>Guitar Settings</p>
           <div class="flex flex-col">
             <div
@@ -210,16 +215,16 @@ const addString = () => {
         <div
           class="text-gray-50 text-2xl border-gray-400 flex flex-col pl-3 pr-2 py-2 items-center"
         >
-          
           <div
-            class="p-2 rounded-2xl bg-zinc-700  h-full flex flex-col justify-center relative"
+            class="p-2 rounded-2xl bg-zinc-700 h-full flex flex-col justify-center relative"
           >
-            <h5 class="text-center text-3xl mb-2">Highlight Notes On Fretboard</h5>
-            <p class="text-[17px] text-center mb-2">
-              Select a specific note to open the color palette
+            <h5 class="text-center text-2xl mb-2">Note Mapping</h5>
+            <p class="text-[17px] text-center mb-4">
+              Select a note to assign a color and highlight it across the
+              fretboard
             </p>
 
-            <div class="flex h-12  items-center justify-around">
+            <div class="flex flex-wrap h-12 items-center justify-around">
               <button
                 v-for="(note, index) in musicalNotes"
                 @click="openPalette(index)"
@@ -282,6 +287,31 @@ const addString = () => {
                   </p>
                 </button>
               </div>
+            </div>
+            <div
+              class="w-19/20 p-0.5 bg-gray-100 mx-auto rounded-full m-5"
+            ></div>
+            <h5 class="text-center text-2xl mb-2">Interval Engine</h5>
+
+            <p
+              v-if="selectedNotes.length > 1"
+              class="text-[17px] text-center mb-4"
+            >
+              Select the root note to display its interval relationships on the
+              fretboard.
+            </p>
+            <p v-else class="text-[17px] text-center mb-4">
+              Highlight more than one note in Note Mapping to enable Interval
+              Engine
+            </p>
+            <div v-if="selectedNotes.length > 1" class="flex justify-center">
+              <button
+                v-for="note in selectedNotes"
+                :key="note.index"
+                class="cursor-pointer w-[46px] h-[46px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 transition transform hover:scale-105 duration-200 ease-in-out"
+              >
+                <p>{{ note }}</p>
+              </button>
             </div>
           </div>
         </div>
