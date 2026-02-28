@@ -179,7 +179,11 @@ const addString = () => {
               <div
                 class="flex flex-wrap max-w-[568px] min-h-[260px] items-center justify-around text-gray-50 p-3 my-2 rounded-2xl bg-zinc-700"
               >
-                <h4 class="w-full text-center text-2xl">Adjust Tuning</h4>
+                <div class="w-full flex flex-col items-center">
+                  <h3 class="text-gray-50 pt-2">Tuning</h3>
+                  <div class="w-19/20 h-1 mt-2 bg-gray-100 rounded-full"></div>
+                </div>
+
                 <div
                   v-for="(string, index) in tuningIndexes"
                   :key="index"
@@ -191,7 +195,7 @@ const addString = () => {
                     {{ index + 1 }}
                   </p>
                   <div
-                    class="flex w-[160px] border-gray-400 border-2 rounded-lg justify-between items-center"
+                    class="flex w-[160px] border-gray-400 border-y-2 rounded justify-between items-center"
                   >
                     <button
                       @click="raiseString(index)"
@@ -213,20 +217,38 @@ const addString = () => {
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="flex text-lg items-center px-2 py-2 justify-center">
-              <button
-                @click="addString"
-                class="cursor-pointer text-gray-100 bg-rose-700 hover:bg-rose-800 p-3 m-2 rounded-xl"
+              <div
+                class="bg-zinc-700 w-full rounded-2xl flex flex-col items-center"
               >
-                Add String
-              </button>
-              <button
-                @click="removeString"
-                class="cursor-pointer text-gray-100 bg-rose-700 hover:bg-rose-800 p-3 m-2 rounded-xl"
-              >
-                Remove String
-              </button>
+                <h3 class="text-gray-50 pt-2">String Count</h3>
+                <div class="w-19/20 h-1 mt-2 bg-gray-100 rounded-full"></div>
+                <div
+                  class="flex text-lg w-full items-center px-2 py-2 justify-center"
+                >
+                  <button
+                    @click="addString"
+                    :class="[
+                      'text-gray-100 w-1/2 p-3 m-2 rounded-xl',
+                      tuningIndexes.length === 9
+                        ? 'bg-zinc-900 cursor-not-allowed'
+                        : 'bg-rose-700 hover:bg-rose-800 cursor-pointer',
+                    ]"
+                  >
+                    Add String
+                  </button>
+                  <button
+                    @click="removeString"
+                    :class="[
+                      'text-gray-100 w-1/2  p-3 m-2 rounded-xl',
+                      tuningIndexes.length === 5
+                        ? 'bg-zinc-900 cursor-not-allowed'
+                        : 'bg-rose-700 hover:bg-rose-800 cursor-pointer',
+                    ]"
+                  >
+                    Remove String
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -243,7 +265,7 @@ const addString = () => {
               <h5 class="text-center text-2xl mb-2">Note Mapping</h5>
               <p class="text-[17px] text-wrap text-center mb-4">
                 This is where you define the overall musical scale of what you
-                want to do defining the base scale is what is important at this
+                want to do! defining the base scale is what is important at this
                 stage!
               </p>
               <p class="text-[18px] text-center mb-4">
@@ -264,8 +286,8 @@ const addString = () => {
                 </button>
               </div>
               <p class="text-[17px] text-center mt-4">
-                (If you are a first time user try a 7-note (heptatonic) scale to
-                begin with)
+                If you are a first time user try a 7-note (heptatonic) scale to
+                begin with
               </p>
               <div
                 v-if="paletteVisible"
@@ -342,7 +364,10 @@ const addString = () => {
                   <p>{{ note }}</p>
                 </button>
               </div>
-              <p class="text-[17px] text-wrap text-center mt-4">
+              <p
+                v-if="selectedNotes.length > 1"
+                class="text-[17px] text-wrap text-center mt-4"
+              >
                 pick a root relative to the scale chosen, this stage is defining
                 the overall key
               </p>
