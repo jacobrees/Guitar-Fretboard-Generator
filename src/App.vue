@@ -151,7 +151,7 @@ const addString = () => {
         <button
           class="text-gray-50 p-1 rounded-xl w-3xs bg-rose-700 hover:cursor-pointer"
         >
-          Core
+          Config
         </button>
         <button
           class="text-gray-50 p-1 rounded-xl w-3xs bg-zinc-700 hover:cursor-pointer"
@@ -159,7 +159,7 @@ const addString = () => {
           Focus
         </button>
       </div>
-      <h2 class="text-gray-50 text-3xl p-1 text-center">Core</h2>
+      <h2 class="text-gray-50 text-3xl p-1 text-center">Config</h2>
       <p class="text-gray-50 pb-1 text-center">
         Define your instrument and define the base scale
       </p>
@@ -265,11 +265,10 @@ const addString = () => {
               <h5 class="text-center text-2xl mb-2">Note Mapping</h5>
               <p class="text-[17px] text-wrap text-center mb-4">
                 This is where you define the overall musical scale of what you
-                want to do! defining the base scale is what is important at this
-                stage!
+                want to do!
               </p>
               <p class="text-[18px] text-center mb-4">
-                Define a scale by selecting the notes below
+                Define a scale by selecting notes below
               </p>
 
               <div class="flex flex-wrap h-12 items-center justify-around">
@@ -286,8 +285,8 @@ const addString = () => {
                 </button>
               </div>
               <p class="text-[17px] text-center mt-4">
-                If you are a first time user try a 7-note (heptatonic) scale to
-                begin with
+                (If you are a first time user try a 7-note (heptatonic) scale to
+                begin with)
               </p>
               <div
                 v-if="paletteVisible"
