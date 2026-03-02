@@ -285,8 +285,8 @@ const addString = () => {
                 </button>
               </div>
               <p class="text-[17px] text-center mt-4">
-                (If you are a first time user try a 7-note (heptatonic) scale to
-                begin with)
+                (If you are a first time user start with a scale you are
+                familiar with)
               </p>
               <div
                 v-if="paletteVisible"
