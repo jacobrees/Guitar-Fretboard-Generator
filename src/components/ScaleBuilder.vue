@@ -130,8 +130,8 @@ const fretboard = useFretboardStore();
             v-if="fretboard.selectedNotes.length > 1"
             class="text-[17px] text-wrap text-center mt-4"
           >
-            Pick one root relative to the chosen scale. Click the active root
-            again to clear it, or choose another note to switch immediately.
+            Click the active root again to clear it, or choose another note to
+            switch immediately.
           </p>
         </div>
       </div>
