@@ -34,10 +34,10 @@ const handleFocusClick = () => {
       class="w-full max-w-lg rounded-2xl border border-gray-400 bg-gray-950 p-4 text-gray-50 shadow-2xl"
     >
       <div class="rounded-2xl bg-zinc-700 p-4">
-        <h3 class="text-center text-3xl">Sandbox Locked</h3>
+        <h3 class="text-center text-3xl">Focus Locked</h3>
         <p class="mt-3 text-center text-[17px]">
           Configure Note Mapping and choose a root note inside Interval Engine
-          before continuing into Sandbox mode.
+          before continuing into Focus mode.
         </p>
         <div class="mt-4 flex justify-center">
           <button
@@ -63,7 +63,7 @@ const handleFocusClick = () => {
           @click="handleFocusClick"
           class="text-gray-50 p-1 rounded-xl w-3xs bg-zinc-700 hover:cursor-pointer"
         >
-          Sandbox
+          Focus
         </button>
       </div>
       <h2 class="text-gray-50 text-3xl p-1 text-center">Config</h2>
