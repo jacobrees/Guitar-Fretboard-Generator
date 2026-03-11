@@ -18,8 +18,6 @@ export const useFretboardStore = defineStore("fretboard", () => {
 
   const onlyHighlighted = ref(true);
   const sharpsEnabled = ref(true);
-  const selectedNote = ref(null);
-  const paletteVisible = ref(false);
   const verticalFlip = ref(true);
   const horizontalFlip = ref(false);
   const highlightedNotes = ref(Array(12).fill(null));
@@ -55,9 +53,12 @@ export const useFretboardStore = defineStore("fretboard", () => {
     onlyHighlighted.value = value;
   };
 
-  const highlightSelectedNote = (note, color) => {
-    highlightedNotes.value.splice(note, 1, color);
-    paletteVisible.value = false;
+  const toggleNoteHighlight = (note) => {
+    highlightedNotes.value.splice(
+      note,
+      1,
+      highlightedNotes.value[note] ? null : paletteColors.rose,
+    );
   };
 
   const flipVertically = () => {
@@ -66,15 +67,6 @@ export const useFretboardStore = defineStore("fretboard", () => {
 
   const flipHorizontally = () => {
     horizontalFlip.value = !horizontalFlip.value;
-  };
-
-  const openPalette = (index) => {
-    selectedNote.value = index;
-    paletteVisible.value = true;
-  };
-
-  const closePalette = () => {
-    paletteVisible.value = false;
   };
 
   const toggleSharpsEnabled = () => {
@@ -123,7 +115,6 @@ export const useFretboardStore = defineStore("fretboard", () => {
 
   return {
     addString,
-    closePalette,
     flipHorizontally,
     flipVertically,
     fretView,
@@ -131,20 +122,17 @@ export const useFretboardStore = defineStore("fretboard", () => {
     fretViewTo24,
     fretboardMarkers,
     getNote,
-    highlightSelectedNote,
     highlightedNotes,
     horizontalFlip,
     lowerString,
     musicalNotes,
     onlyHighlighted,
-    openPalette,
     paletteColors,
-    paletteVisible,
     raiseString,
     removeString,
-    selectedNote,
     selectedNotes,
     sharpsEnabled,
+    toggleNoteHighlight,
     toggleHighlighted,
     toggleSharpsEnabled,
     tuningIndexes,

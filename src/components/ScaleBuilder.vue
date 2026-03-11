@@ -1,6 +1,5 @@
 <script setup>
 import { useFretboardStore } from "@/stores/fretboard";
-import closeSVG from "@/assets/close.svg";
 
 const fretboard = useFretboardStore();
 </script>
@@ -28,7 +27,7 @@ const fretboard = useFretboardStore();
             <button
               v-for="(note, index) in fretboard.musicalNotes"
               :key="note"
-              @click="fretboard.openPalette(index)"
+              @click="fretboard.toggleNoteHighlight(index)"
               :class="[
                 'cursor-pointer w-[46px] h-[46px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 transition transform hover:scale-105 duration-200 ease-in-out',
                 fretboard.highlightedNotes[index]
@@ -45,18 +44,14 @@ const fretboard = useFretboardStore();
             with)
           </p>
 
+          <!--
+          Palette modal kept here temporarily for later reuse.
           <div
-            v-if="fretboard.paletteVisible"
             class="w-[600px] rounded-xl bg-zinc-900 fixed left-1/2 -translate-x-1/2 border z-50"
           >
             <div class="flex justify-between p-3 text-lg">
-              <h5>
-                Add or remove highlighting to "{{
-                  fretboard.musicalNotes[fretboard.selectedNote]
-                }}"
-              </h5>
+              <h5>Add or remove highlighting to the selected note</h5>
               <button
-                @click="fretboard.closePalette"
                 class="cursor-pointer border-2 w-[40px] h-[40px] rounded-lg bg-rose-700 hover:bg-rose-800"
               >
                 <img :src="closeSVG" alt="Close Icon" />
@@ -66,9 +61,6 @@ const fretboard = useFretboardStore();
             <div class="flex flex-wrap">
               <button
                 class="cursor-pointer flex flex-col justify-center items-center mx-2 mb-3 transition transform hover:scale-105 duration-200 ease-in-out"
-                @click="
-                  fretboard.highlightSelectedNote(fretboard.selectedNote, null)
-                "
               >
                 <div class="h-[68px] w-[68px] border-2 rounded-2xl">
                   <img :src="closeSVG" alt="Remove Highlighting" />
@@ -80,9 +72,6 @@ const fretboard = useFretboardStore();
                 v-for="(value, key) in fretboard.paletteColors"
                 :key="key"
                 class="cursor-pointer flex flex-col justify-center items-center mx-2 mb-3 transition transform hover:scale-105 duration-200 ease-in-out"
-                @click="
-                  fretboard.highlightSelectedNote(fretboard.selectedNote, value)
-                "
               >
                 <div
                   :class="[
@@ -93,7 +82,7 @@ const fretboard = useFretboardStore();
                   <p
                     class="border-2 rounded-full w-10 h-10 flex items-center justify-center text-[18px]"
                   >
-                    {{ fretboard.musicalNotes[fretboard.selectedNote] }}
+                    Selected
                   </p>
                 </div>
                 <p class="text-sm">
@@ -102,6 +91,7 @@ const fretboard = useFretboardStore();
               </button>
             </div>
           </div>
+          -->
         </div>
 
         <div class="bg-zinc-700 mt-2 p-3 rounded-2xl">
