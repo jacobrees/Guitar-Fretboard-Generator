@@ -114,11 +114,15 @@ const fretboard = useFretboardStore();
             class="flex justify-center"
           >
             <button
-              v-for="note in fretboard.selectedNotes"
-              :key="note"
-              class="cursor-pointer w-[46px] h-[46px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 transition transform hover:scale-105 duration-200 ease-in-out"
+              v-for="intervalNote in fretboard.intervalNotes"
+              :key="intervalNote.index"
+              @click="fretboard.toggleRootNote(intervalNote.index)"
+              :class="[
+                'cursor-pointer w-[46px] h-[46px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 transition transform hover:scale-105 duration-200 ease-in-out',
+                intervalNote.isRoot ? 'bg-rose-700' : 'bg-zinc-800',
+              ]"
             >
-              <p>{{ note }}</p>
+              <p>{{ intervalNote.note }}</p>
             </button>
           </div>
 
@@ -126,8 +130,8 @@ const fretboard = useFretboardStore();
             v-if="fretboard.selectedNotes.length > 1"
             class="text-[17px] text-wrap text-center mt-4"
           >
-            Pick a root relative to the chosen scale. This stage defines the
-            overall key.
+            Pick one root relative to the chosen scale. Click the active root
+            again to clear it, or choose another note to switch immediately.
           </p>
         </div>
       </div>

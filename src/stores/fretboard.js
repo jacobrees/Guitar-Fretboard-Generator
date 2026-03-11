@@ -21,6 +21,7 @@ export const useFretboardStore = defineStore("fretboard", () => {
   const verticalFlip = ref(true);
   const horizontalFlip = ref(false);
   const highlightedNotes = ref(Array(12).fill(null));
+  const selectedRootNote = ref(null);
   const tuningIndexes = ref([7, 2, 10, 5, 0, 7]);
   const fretView = ref(12);
 
@@ -43,6 +44,24 @@ export const useFretboardStore = defineStore("fretboard", () => {
     musicalNotes.value.filter((note, index) => highlightedNotes.value[index]),
   );
 
+  const selectedNoteIndexes = computed(() =>
+    highlightedNotes.value.reduce((indexes, value, index) => {
+      if (value) {
+        indexes.push(index);
+      }
+
+      return indexes;
+    }, []),
+  );
+
+  const intervalNotes = computed(() =>
+    selectedNoteIndexes.value.map((index) => ({
+      index,
+      note: musicalNotes.value[index],
+      isRoot: selectedRootNote.value === index,
+    })),
+  );
+
   const visibleTuningIndexes = computed(() =>
     verticalFlip.value
       ? tuningIndexes.value
@@ -54,11 +73,23 @@ export const useFretboardStore = defineStore("fretboard", () => {
   };
 
   const toggleNoteHighlight = (note) => {
+    if (highlightedNotes.value[note] && selectedRootNote.value === note) {
+      selectedRootNote.value = null;
+    }
+
     highlightedNotes.value.splice(
       note,
       1,
       highlightedNotes.value[note] ? null : paletteColors.rose,
     );
+  };
+
+  const toggleRootNote = (note) => {
+    if (!highlightedNotes.value[note]) {
+      return;
+    }
+
+    selectedRootNote.value = selectedRootNote.value === note ? null : note;
   };
 
   const flipVertically = () => {
@@ -130,13 +161,17 @@ export const useFretboardStore = defineStore("fretboard", () => {
     paletteColors,
     raiseString,
     removeString,
+    selectedNoteIndexes,
     selectedNotes,
+    selectedRootNote,
     sharpsEnabled,
+    toggleRootNote,
     toggleNoteHighlight,
     toggleHighlighted,
     toggleSharpsEnabled,
     tuningIndexes,
     verticalFlip,
     visibleTuningIndexes,
+    intervalNotes,
   };
 });
