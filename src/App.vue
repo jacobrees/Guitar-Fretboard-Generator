@@ -12,6 +12,7 @@ const fretboard = useFretboardStore();
 const activeMode = ref("config");
 const showFocusWarning = ref(false);
 const showFocusPrompt = ref(false);
+const hasShownFocusPrompt = ref(false);
 
 const canEnterFocus = computed(
   () =>
@@ -31,8 +32,13 @@ const modeDescription = computed(() =>
 watch(
   () => fretboard.selectedRootNote,
   (nextRoot, previousRoot) => {
-    if (nextRoot !== null && previousRoot === null) {
+    if (
+      nextRoot !== null &&
+      previousRoot === null &&
+      !hasShownFocusPrompt.value
+    ) {
       showFocusPrompt.value = true;
+      hasShownFocusPrompt.value = true;
     }
   },
 );
