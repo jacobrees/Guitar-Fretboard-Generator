@@ -1,6 +1,97 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 
+const intervalDefinitions = {
+  R: "Root",
+  b2: "Minor 2nd",
+  2: "Major 2nd",
+  b3: "Minor 3rd",
+  3: "Major 3rd",
+  4: "Perfect 4th",
+  "#4": "Augmented 4th",
+  b5: "Diminished 5th",
+  5: "Perfect 5th",
+  b6: "Minor 6th",
+  6: "Major 6th",
+  b7: "Minor 7th",
+  7: "Major 7th",
+};
+
+const defaultIntervalLabels = {
+  0: "R",
+  1: "b2",
+  2: "2",
+  3: "b3",
+  4: "3",
+  5: "4",
+  6: "b5",
+  7: "5",
+  8: "b6",
+  9: "6",
+  10: "b7",
+  11: "7",
+};
+
+const chromaticIntervalLegend = [
+  { label: "R", name: "Root" },
+  { label: "b2", name: "Minor 2nd" },
+  { label: "2", name: "Major 2nd" },
+  { label: "b3", name: "Minor 3rd" },
+  { label: "3", name: "Major 3rd" },
+  { label: "4", name: "Perfect 4th" },
+  { label: "#4 / b5", name: "Augmented 4th / Diminished 5th" },
+  { label: "5", name: "Perfect 5th" },
+  { label: "b6", name: "Minor 6th" },
+  { label: "6", name: "Major 6th" },
+  { label: "b7", name: "Minor 7th" },
+  { label: "7", name: "Major 7th" },
+];
+
+const scaleDefinitions = [
+  {
+    id: "ionian",
+    name: "Major (Ionian)",
+    intervals: [0, 2, 4, 5, 7, 9, 11],
+    labels: ["R", "2", "3", "4", "5", "6", "7"],
+  },
+  {
+    id: "dorian",
+    name: "Dorian",
+    intervals: [0, 2, 3, 5, 7, 9, 10],
+    labels: ["R", "2", "b3", "4", "5", "6", "b7"],
+  },
+  {
+    id: "phrygian",
+    name: "Phrygian",
+    intervals: [0, 1, 3, 5, 7, 8, 10],
+    labels: ["R", "b2", "b3", "4", "5", "b6", "b7"],
+  },
+  {
+    id: "lydian",
+    name: "Lydian",
+    intervals: [0, 2, 4, 6, 7, 9, 11],
+    labels: ["R", "2", "3", "#4", "5", "6", "7"],
+  },
+  {
+    id: "mixolydian",
+    name: "Mixolydian",
+    intervals: [0, 2, 4, 5, 7, 9, 10],
+    labels: ["R", "2", "3", "4", "5", "6", "b7"],
+  },
+  {
+    id: "aeolian",
+    name: "Minor (Aeolian)",
+    intervals: [0, 2, 3, 5, 7, 8, 10],
+    labels: ["R", "2", "b3", "4", "5", "b6", "b7"],
+  },
+  {
+    id: "locrian",
+    name: "Locrian",
+    intervals: [0, 1, 3, 5, 6, 8, 10],
+    labels: ["R", "b2", "b3", "4", "b5", "b6", "b7"],
+  },
+];
+
 export const useFretboardStore = defineStore("fretboard", () => {
   const paletteColors = {
     rose: "bg-rose-700",
@@ -61,6 +152,65 @@ export const useFretboardStore = defineStore("fretboard", () => {
       isRoot: selectedRootNote.value === index,
     })),
   );
+
+  const selectedIntervals = computed(() => {
+    if (selectedRootNote.value === null) {
+      return [];
+    }
+
+    return selectedNoteIndexes.value
+      .map((index) => ({
+        noteIndex: index,
+        semitones: (index - selectedRootNote.value + 12) % 12,
+      }))
+      .sort((left, right) => left.semitones - right.semitones);
+  });
+
+  const matchedScaleDefinition = computed(
+    () =>
+      scaleDefinitions.find(
+        (scale) =>
+          scale.intervals.length === selectedIntervals.value.length &&
+          scale.intervals.every(
+            (interval, index) =>
+              interval === selectedIntervals.value[index]?.semitones,
+          ),
+      ) ?? null,
+  );
+
+  const selectedScaleSummary = computed(() => {
+    if (selectedRootNote.value === null) {
+      return null;
+    }
+
+    const root = musicalNotes.value[selectedRootNote.value];
+    const intervalLabels =
+      matchedScaleDefinition.value?.labels ??
+      selectedIntervals.value.map(
+        (interval) => defaultIntervalLabels[interval.semitones],
+      );
+
+    return {
+      root,
+      modeName: matchedScaleDefinition.value?.name ?? "Custom Selection",
+      name: matchedScaleDefinition.value
+        ? `${root} ${matchedScaleDefinition.value.name}`
+        : `${root} Custom Selection`,
+      isKnownScale: matchedScaleDefinition.value !== null,
+      formula: intervalLabels.join(" - "),
+      intervals: selectedIntervals.value.map((interval, index) => {
+        const label = intervalLabels[index];
+
+        return {
+          label,
+          name: intervalDefinitions[label],
+          note: musicalNotes.value[interval.noteIndex],
+        };
+      }),
+    };
+  });
+
+  const intervalLegend = computed(() => chromaticIntervalLegend);
 
   const visibleTuningIndexes = computed(() =>
     verticalFlip.value
@@ -163,6 +313,8 @@ export const useFretboardStore = defineStore("fretboard", () => {
     removeString,
     selectedNoteIndexes,
     selectedNotes,
+    selectedScaleSummary,
+    intervalLegend,
     selectedRootNote,
     sharpsEnabled,
     toggleRootNote,

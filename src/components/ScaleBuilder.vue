@@ -5,41 +5,77 @@ const fretboard = useFretboardStore();
 </script>
 
 <template>
-  <div class="bg-gray-950 flex border rounded-2xl border-gray-400">
-    <div
-      class="text-gray-50 text-2xl border-gray-400 flex flex-col pl-3 pr-2 py-2 items-center"
-    >
-      <h4 class="mb-2 text-3xl">Scale Builder</h4>
-      <div class="max-w-[664px] flex flex-col">
-        <div
-          class="p-2 rounded-2xl bg-zinc-700 h-full flex flex-col justify-center relative"
-        >
-          <h5 class="text-center text-2xl mb-2">Note Mapping</h5>
-          <p class="text-[17px] text-wrap text-center mb-4">
-            This is where you define the overall musical scale of what you want
-            to do!
-          </p>
-          <p class="text-[18px] text-center mb-4">
-            Define a scale by selecting notes below
-          </p>
+  <div
+    class="w-full max-w-2xl rounded-2xl border border-gray-400 bg-gray-950 p-3"
+  >
+    <div class="rounded-2xl bg-zinc-700 p-5 text-gray-50">
+      <div class="border-b border-gray-500 pb-4 text-center">
+        <p class="text-xs font-semibold uppercase tracking-wider text-gray-300">
+          Scale Setup
+        </p>
+        <h3 class="mt-1 text-3xl font-semibold">Scale Builder</h3>
+        <p class="mt-2 text-base text-gray-200">
+          Map the notes that define the song&apos;s tonal center, then choose
+          the root that best describes the overall mood.
+        </p>
+      </div>
 
-          <div class="flex flex-wrap h-12 items-center justify-around">
+      <div class="mt-5 space-y-4">
+        <div class="rounded-2xl bg-zinc-800 p-4">
+          <div class="border-b border-gray-500 pb-3 text-center">
+            <h4 class="text-2xl font-semibold">Note Mapping</h4>
+            <p class="mt-2 text-lg text-gray-200">
+              Choose the notes that best describe the song&apos;s tonal center
+              and overall mood.
+            </p>
+          </div>
+
+          <div
+            class="mt-4 flex items-center justify-center gap-2 text-center text-lg text-gray-200"
+          >
+            <p>
+              Minor songs often borrow notes, so aim for the home sound rather
+              than a perfect textbook match.
+            </p>
+
+            <div class="group relative flex shrink-0 items-center">
+              <button
+                type="button"
+                class="flex size-7 cursor-help items-center justify-center rounded-full border border-gray-300 bg-zinc-900 text-sm font-semibold text-gray-100"
+                aria-label="Explain borrowed notes in minor keys"
+              >
+                ?
+              </button>
+
+              <div
+                class="pointer-events-none absolute left-1/2 top-full z-20 mt-2 hidden w-72 -translate-x-1/2 rounded-xl border border-gray-500 bg-gray-950 p-3 text-left text-sm text-gray-200 shadow-xl group-hover:block"
+              >
+                Songs in a minor key often mix notes from natural minor,
+                harmonic minor, and melodic minor. Pick the note set that best
+                captures the overall home sound of the music.
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 flex flex-wrap items-center justify-center gap-2">
             <button
               v-for="(note, index) in fretboard.musicalNotes"
               :key="note"
               @click="fretboard.toggleNoteHighlight(index)"
               :class="[
-                'cursor-pointer w-[46px] h-[46px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 transition transform hover:scale-105 duration-200 ease-in-out',
+                'flex size-14 cursor-pointer items-center justify-center rounded-xl border-2 border-gray-200 transition transform duration-200 ease-in-out hover:scale-105',
                 fretboard.highlightedNotes[index]
-                  ? fretboard.highlightedNotes[index]
-                  : '',
+                  ? `${fretboard.highlightedNotes[index]} text-gray-50 shadow-lg shadow-black/30`
+                  : 'bg-zinc-900 text-gray-100',
               ]"
             >
-              <p>{{ fretboard.musicalNotes[index] }}</p>
+              <p class="text-lg font-semibold">
+                {{ fretboard.musicalNotes[index] }}
+              </p>
             </button>
           </div>
 
-          <p class="text-[17px] text-center mt-4">
+          <p class="mt-4 text-center text-sm text-gray-300">
             (If you are a first time user start with a scale you are familiar
             with)
           </p>
@@ -47,12 +83,12 @@ const fretboard = useFretboardStore();
           <!--
           Palette modal kept here temporarily for later reuse.
           <div
-            class="w-[600px] rounded-xl bg-zinc-900 fixed left-1/2 -translate-x-1/2 border z-50"
+            class="fixed left-1/2 z-50 w-full max-w-xl -translate-x-1/2 rounded-xl border bg-zinc-900"
           >
             <div class="flex justify-between p-3 text-lg">
               <h5>Add or remove highlighting to the selected note</h5>
               <button
-                class="cursor-pointer border-2 w-[40px] h-[40px] rounded-lg bg-rose-700 hover:bg-rose-800"
+                class="size-10 cursor-pointer rounded-lg border-2 bg-rose-700 hover:bg-rose-800"
               >
                 <img :src="closeSVG" alt="Close Icon" />
               </button>
@@ -62,7 +98,7 @@ const fretboard = useFretboardStore();
               <button
                 class="cursor-pointer flex flex-col justify-center items-center mx-2 mb-3 transition transform hover:scale-105 duration-200 ease-in-out"
               >
-                <div class="h-[68px] w-[68px] border-2 rounded-2xl">
+                <div class="size-16 rounded-2xl border-2">
                   <img :src="closeSVG" alt="Remove Highlighting" />
                 </div>
                 <p class="text-sm">Remove</p>
@@ -75,12 +111,12 @@ const fretboard = useFretboardStore();
               >
                 <div
                   :class="[
-                    'h-[68px] w-[68px] border-2 rounded-2xl flex items-center justify-center',
+                    'flex size-16 items-center justify-center rounded-2xl border-2',
                     value,
                   ]"
                 >
                   <p
-                    class="border-2 rounded-full w-10 h-10 flex items-center justify-center text-[18px]"
+                    class="flex size-10 items-center justify-center rounded-full border-2 text-lg"
                   >
                     Selected
                   </p>
@@ -94,41 +130,47 @@ const fretboard = useFretboardStore();
           -->
         </div>
 
-        <div class="bg-zinc-700 mt-2 p-3 rounded-2xl">
-          <h5 class="text-center text-2xl mb-2">Interval Engine</h5>
+        <div class="rounded-2xl bg-zinc-800 p-4">
+          <div class="border-b border-gray-500 pb-3 text-center">
+            <h4 class="text-2xl font-semibold">Interval Engine</h4>
+            <p class="mt-2 text-sm text-gray-300">
+              Pick the root note that turns your selection into a mode-aware
+              interval map.
+            </p>
+          </div>
 
           <p
             v-if="fretboard.selectedNotes.length > 1"
-            class="text-[17px] text-center mb-4"
+            class="mt-4 text-center text-lg text-gray-200"
           >
             Select the root note to display its interval relationships on the
             fretboard
           </p>
-          <p v-else class="text-[17px] text-center mb-4">
+          <p v-else class="mt-4 text-center text-lg text-gray-200">
             Highlight more than one note in Note Mapping to enable Interval
             Engine
           </p>
 
           <div
             v-if="fretboard.selectedNotes.length > 1"
-            class="flex justify-center"
+            class="mt-4 flex flex-wrap justify-center gap-2"
           >
             <button
               v-for="intervalNote in fretboard.intervalNotes"
               :key="intervalNote.index"
               @click="fretboard.toggleRootNote(intervalNote.index)"
               :class="[
-                'cursor-pointer w-[46px] h-[46px] border-2 flex justify-center items-center border-gray-200 rounded-xl ml-2 transition transform hover:scale-105 duration-200 ease-in-out',
-                intervalNote.isRoot ? 'bg-rose-700' : 'bg-zinc-800',
+                'flex size-12 cursor-pointer items-center justify-center rounded-xl border-2 border-gray-200 transition transform duration-200 ease-in-out hover:scale-105',
+                intervalNote.isRoot ? 'bg-rose-700' : 'bg-zinc-900',
               ]"
             >
-              <p>{{ intervalNote.note }}</p>
+              <p class="font-semibold">{{ intervalNote.note }}</p>
             </button>
           </div>
 
           <p
             v-if="fretboard.selectedNotes.length > 1"
-            class="text-[17px] text-wrap text-center mt-4"
+            class="mt-4 text-center text-sm text-gray-300"
           >
             Click the active root again to clear it, or choose another note to
             switch immediately.

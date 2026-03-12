@@ -7,22 +7,22 @@ const fretboard = useFretboardStore();
 <template>
   <div
     :class="[
-      'p-5 flex z-0',
+      'z-0 mx-auto flex w-full max-w-screen-2xl p-5',
       fretboard.horizontalFlip ? 'flex-row-reverse' : 'flex-row',
     ]"
   >
     <div class="w-1/25">
       <div class="w-full flex flex-col justify-between h-full">
-        <div class="h-[54px]"></div>
+        <div class="h-14"></div>
 
         <div
           v-for="(note, index) in fretboard.visibleTuningIndexes"
           :key="index"
-          class="h-[54px] relative"
+          class="h-14 relative"
         >
           <div
             :class="[
-              'absolute -top-5 flex items-center justify-center border-2 border-gray-50 w-[42px] h-[42px] rounded-full',
+              'absolute -top-5 flex size-11 items-center justify-center rounded-full border-2 border-gray-50',
               fretboard.horizontalFlip ? 'left-1' : 'right-1',
               fretboard.highlightedNotes[note]
                 ? fretboard.highlightedNotes[note]
@@ -40,7 +40,7 @@ const fretboard = useFretboardStore();
     <div class="w-24/25 h-auto relative">
       <div
         :class="[
-          'w-full h-[44px] absolute top-0 left-0 bg-gray-800 flex items-center z-10',
+          'absolute top-0 left-0 z-10 flex h-11 w-full items-center bg-gray-800',
           fretboard.horizontalFlip ? 'flex-row-reverse' : 'flex-row',
         ]"
       >
@@ -48,7 +48,7 @@ const fretboard = useFretboardStore();
           v-for="n in fretboard.fretView"
           :key="n"
           :class="[
-            'h-[24px] flex justify-center',
+            'flex h-6 justify-center',
             fretboard.horizontalFlip
               ? 'border-l-4 border-l-gray-500'
               : 'border-r-4 border-r-gray-500',
@@ -61,13 +61,13 @@ const fretboard = useFretboardStore();
       </div>
 
       <div
-        class="w-full h-[44px] absolute bottom-0 left-0 bg-gray-800 flex items-center z-10"
+        class="absolute bottom-0 left-0 z-10 flex h-11 w-full items-center bg-gray-800"
       >
         <div
           v-for="n in fretboard.fretView"
           :key="n"
           :class="[
-            'h-[24px] flex justify-center',
+            'flex h-6 justify-center',
             fretboard.horizontalFlip
               ? 'border-l-4 border-l-gray-500'
               : 'border-r-4 border-r-gray-500',
@@ -76,15 +76,15 @@ const fretboard = useFretboardStore();
         ></div>
       </div>
 
-      <div class="w-full h-[54px] border-b-2 border-t-2 flex">
+      <div class="flex h-14 w-full border-y-2">
         <div
           v-for="n in fretboard.fretView"
           :key="n"
           :class="[
-            'h-full border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black',
+            'h-full border-y-2 border-y-gray-200 bg-black',
             fretboard.horizontalFlip
-              ? 'border-l-5 border-l-amber-200'
-              : 'border-r-5 border-r-amber-200',
+              ? 'border-l-4 border-l-amber-200'
+              : 'border-r-4 border-r-amber-200',
             fretboard.fretView === 24 ? 'w-1/24' : 'w-2/24',
           ]"
         ></div>
@@ -94,7 +94,7 @@ const fretboard = useFretboardStore();
         v-for="stringCount in fretboard.tuningIndexes.length"
         :key="stringCount"
         :class="[
-          'w-full h-[54px] bg-white border-b-2 border-t-2 flex',
+          'flex h-14 w-full border-y-2 bg-white',
           fretboard.horizontalFlip ? 'flex-row-reverse' : 'flex-row',
         ]"
       >
@@ -102,10 +102,10 @@ const fretboard = useFretboardStore();
           v-for="n in fretboard.fretView"
           :key="n"
           :class="[
-            'relative h-full border-t-2 border-t-gray-200 border-b-2 border-b-gray-200 bg-black',
+            'relative h-full border-y-2 border-y-gray-200 bg-black',
             fretboard.horizontalFlip
-              ? 'border-l-5 border-l-amber-200'
-              : 'border-r-5 border-r-amber-200',
+              ? 'border-l-4 border-l-amber-200'
+              : 'border-r-4 border-r-amber-200',
             fretboard.fretView === 24 ? 'w-1/24' : 'w-2/24',
           ]"
         >
@@ -137,7 +137,7 @@ const fretboard = useFretboardStore();
             "
             class="rounded-full w-6 h-6 bg-amber-50 absolute -top-4 left-1/2 -translate-x-1/2 flex items-center"
           >
-            <div class="w-full h-[4px] bg-gray-800"></div>
+            <div class="h-1 w-full bg-gray-800"></div>
           </div>
 
           <div
@@ -149,7 +149,7 @@ const fretboard = useFretboardStore();
               !fretboard.onlyHighlighted
             "
             :class="[
-              'z-20 border-gray-100 border-2 w-[38px] h-[38px] absolute -top-5 rounded-full flex justify-center items-center',
+              'absolute -top-5 z-20 flex size-10 items-center justify-center rounded-full border-2 border-gray-100',
               fretboard.horizontalFlip ? 'left-0.5' : 'right-0.5',
               fretboard.highlightedNotes[fretboard.getNote(stringCount, n)]
                 ? fretboard.highlightedNotes[fretboard.getNote(stringCount, n)]
