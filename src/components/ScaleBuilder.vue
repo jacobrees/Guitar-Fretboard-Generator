@@ -24,35 +24,30 @@ const fretboard = useFretboardStore();
         <div class="rounded-2xl bg-zinc-800 p-4">
           <div class="border-b border-gray-500 pb-3 text-center">
             <h4 class="text-2xl font-semibold">Note Mapping</h4>
-            <p class="mt-2 text-lg text-gray-200">
-              Choose the notes that best describe the song&apos;s tonal center
-              and overall mood.
-            </p>
-          </div>
+            <div
+              class="mt-2 flex items-center justify-center gap-2 text-center text-lg text-gray-200"
+            >
+              <p>
+                Choose the notes that best describe the song&apos;s tonal center
+                and overall mood.
+              </p>
 
-          <div
-            class="mt-4 flex items-center justify-center gap-2 text-center text-lg text-gray-200"
-          >
-            <p>
-              Minor songs often borrow notes, so aim for the home sound rather
-              than a perfect textbook match.
-            </p>
+              <div class="group relative flex shrink-0 items-center">
+                <button
+                  type="button"
+                  class="flex size-7 cursor-help items-center justify-center rounded-full border border-gray-300 bg-zinc-900 text-sm font-semibold text-gray-100"
+                  aria-label="Explain borrowed notes in minor keys"
+                >
+                  ?
+                </button>
 
-            <div class="group relative flex shrink-0 items-center">
-              <button
-                type="button"
-                class="flex size-7 cursor-help items-center justify-center rounded-full border border-gray-300 bg-zinc-900 text-sm font-semibold text-gray-100"
-                aria-label="Explain borrowed notes in minor keys"
-              >
-                ?
-              </button>
-
-              <div
-                class="pointer-events-none absolute left-1/2 top-full z-20 mt-2 hidden w-72 -translate-x-1/2 rounded-xl border border-gray-500 bg-gray-950 p-3 text-left text-sm text-gray-200 shadow-xl group-hover:block"
-              >
-                Songs in a minor key often mix notes from natural minor,
-                harmonic minor, and melodic minor. Pick the note set that best
-                captures the overall home sound of the music.
+                <div
+                  class="pointer-events-none absolute left-1/2 top-full z-20 mt-2 hidden w-72 -translate-x-1/2 rounded-xl border border-gray-500 bg-gray-950 p-3 text-left text-sm text-gray-200 shadow-xl group-hover:block"
+                >
+                  Songs in a minor key often mix notes from natural minor,
+                  harmonic minor, and melodic minor. Pick the note set that best
+                  captures the overall home sound of the music.
+                </div>
               </div>
             </div>
           </div>

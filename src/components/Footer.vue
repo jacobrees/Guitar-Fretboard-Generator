@@ -16,7 +16,7 @@
         </div>
 
         <p class="text-sm text-gray-200">
-          Made with &lt;3 by
+          Made by
           <span class="font-semibold">NeedThickerStrings</span>
         </p>
       </div>

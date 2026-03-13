@@ -30,6 +30,17 @@ const modeDescription = computed(() =>
     : "Set your instrument, map the scale, and choose the root",
 );
 
+const selectedIntervalLabels = computed(
+  () =>
+    fretboard.selectedScaleSummary?.intervals.map(({ label }) => label) ?? [],
+);
+
+const isSelectedInterval = (legendLabel) =>
+  legendLabel
+    .split("/")
+    .map((label) => label.trim())
+    .some((label) => selectedIntervalLabels.value.includes(label));
+
 watch(
   () => fretboard.selectedRootNote,
   (nextRoot, previousRoot) => {
@@ -141,6 +152,13 @@ const goToFocus = () => {
         >
           <div>
             <h3 class="text-3xl font-semibold">Interval Formula Helper</h3>
+            <p
+              class="mt-2 text-sm font-semibold uppercase tracking-wide text-rose-200"
+            >
+              {{
+                fretboard.selectedScaleSummary?.modeName ?? "Custom Selection"
+              }}
+            </p>
             <p class="mt-2 text-base text-gray-200">
               Use this chromatic interval reference to decode the shorthand used
               in interval formulas.
@@ -159,10 +177,24 @@ const goToFocus = () => {
           <div
             v-for="interval in fretboard.intervalLegend"
             :key="interval.label"
-            class="rounded-xl border border-gray-600 bg-zinc-900 px-3 py-3 text-center"
+            :class="[
+              'rounded-xl border px-3 py-3 text-center transition',
+              isSelectedInterval(interval.label)
+                ? 'border-rose-300 bg-rose-950/70 text-rose-50 shadow-lg shadow-rose-950/35'
+                : 'border-gray-600 bg-zinc-900',
+            ]"
           >
             <p class="text-xl font-semibold">{{ interval.label }}</p>
-            <p class="mt-1 text-sm text-gray-300">{{ interval.name }}</p>
+            <p
+              :class="[
+                'mt-1 text-sm',
+                isSelectedInterval(interval.label)
+                  ? 'text-rose-200'
+                  : 'text-gray-300',
+              ]"
+            >
+              {{ interval.name }}
+            </p>
           </div>
         </div>
       </div>
