@@ -13,6 +13,92 @@ export const useScaleStore = defineStore("scale", () => {
   const instrument = useInstrumentStore();
   const highlightedNotes = ref(Array(12).fill(null));
   const selectedRootNote = ref(null);
+  const scaleBuilderMode = ref("preset");
+  const presetRootNote = ref(3);
+  const presetScaleDefinitionId = ref(scaleDefinitions[0]?.id ?? null);
+  const customHighlightedNotes = ref(Array(12).fill(null));
+  const customSelectedRootNote = ref(null);
+
+  const presetScaleDefinitions = computed(() => scaleDefinitions);
+
+  const selectedPresetScaleDefinition = computed(
+    () =>
+      scaleDefinitions.find(
+        (scaleDefinition) =>
+          scaleDefinition.id === presetScaleDefinitionId.value,
+      ) ?? null,
+  );
+
+  const buildPresetHighlights = (rootNote, scaleDefinition) => {
+    const nextHighlights = Array(12).fill(null);
+
+    if (!scaleDefinition) {
+      return nextHighlights;
+    }
+
+    scaleDefinition.intervals.forEach((interval) => {
+      const noteIndex = (rootNote + interval) % 12;
+      nextHighlights[noteIndex] = paletteColors.rose;
+    });
+
+    return nextHighlights;
+  };
+
+  const applyPresetSelection = () => {
+    highlightedNotes.value = buildPresetHighlights(
+      presetRootNote.value,
+      selectedPresetScaleDefinition.value,
+    );
+    selectedRootNote.value =
+      selectedPresetScaleDefinition.value === null
+        ? null
+        : presetRootNote.value;
+  };
+
+  const applyCustomSelection = () => {
+    highlightedNotes.value = [...customHighlightedNotes.value];
+
+    const hasValidRoot =
+      customSelectedRootNote.value !== null &&
+      Boolean(customHighlightedNotes.value[customSelectedRootNote.value]);
+
+    selectedRootNote.value = hasValidRoot ? customSelectedRootNote.value : null;
+
+    if (!hasValidRoot) {
+      customSelectedRootNote.value = null;
+    }
+  };
+
+  const setScaleBuilderMode = (mode) => {
+    if (mode === scaleBuilderMode.value) {
+      return;
+    }
+
+    scaleBuilderMode.value = mode;
+
+    if (scaleBuilderMode.value === "preset") {
+      applyPresetSelection();
+      return;
+    }
+
+    applyCustomSelection();
+  };
+
+  const setPresetRootNote = (noteIndex) => {
+    presetRootNote.value = noteIndex;
+
+    if (scaleBuilderMode.value === "preset") {
+      applyPresetSelection();
+    }
+  };
+
+  const setPresetScaleDefinition = (definitionId) => {
+    presetScaleDefinitionId.value = definitionId;
+
+    if (scaleBuilderMode.value === "preset") {
+      applyPresetSelection();
+    }
+  };
 
   const selectedNotes = computed(() =>
     instrument.musicalNotes.filter(
@@ -140,30 +226,53 @@ export const useScaleStore = defineStore("scale", () => {
   });
 
   const toggleNoteHighlight = (note) => {
-    if (highlightedNotes.value[note] && selectedRootNote.value === note) {
-      selectedRootNote.value = null;
-    }
-
-    highlightedNotes.value.splice(
-      note,
-      1,
-      highlightedNotes.value[note] ? null : paletteColors.rose,
-    );
-  };
-
-  const toggleRootNote = (note) => {
-    if (!highlightedNotes.value[note]) {
+    if (scaleBuilderMode.value !== "custom") {
       return;
     }
 
-    selectedRootNote.value = selectedRootNote.value === note ? null : note;
+    if (
+      customHighlightedNotes.value[note] &&
+      customSelectedRootNote.value === note
+    ) {
+      customSelectedRootNote.value = null;
+    }
+
+    customHighlightedNotes.value.splice(
+      note,
+      1,
+      customHighlightedNotes.value[note] ? null : paletteColors.rose,
+    );
+
+    applyCustomSelection();
   };
+
+  const toggleRootNote = (note) => {
+    if (
+      scaleBuilderMode.value !== "custom" ||
+      !customHighlightedNotes.value[note]
+    ) {
+      return;
+    }
+
+    customSelectedRootNote.value =
+      customSelectedRootNote.value === note ? null : note;
+    selectedRootNote.value = customSelectedRootNote.value;
+  };
+
+  applyPresetSelection();
 
   return {
     chromaticIntervalRows,
+    customHighlightedNotes,
+    customSelectedRootNote,
     highlightedNotes,
     intervalLegend,
     intervalNotes,
+    presetRootNote,
+    presetScaleDefinitionId,
+    presetScaleDefinitions,
+    scaleBuilderMode,
+    selectedPresetScaleDefinition,
     selectedIntervalLabelMap,
     selectedIntervalSemitoneSet,
     selectedIntervals,
@@ -171,6 +280,9 @@ export const useScaleStore = defineStore("scale", () => {
     selectedNotes,
     selectedRootNote,
     selectedScaleSummary,
+    setPresetRootNote,
+    setPresetScaleDefinition,
+    setScaleBuilderMode,
     toggleNoteHighlight,
     toggleRootNote,
   };

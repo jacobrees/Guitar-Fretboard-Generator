@@ -15,9 +15,7 @@ const scale = useScaleStore();
 const explore = useExploreStore();
 const activeMode = ref("config");
 const showFocusWarning = ref(false);
-const showFocusPrompt = ref(false);
 const showIntervalHelper = ref(false);
-const hasShownFocusPrompt = ref(false);
 const activeIntervalPalette = ref(null);
 
 const canEnterFocus = computed(
@@ -60,22 +58,12 @@ const isSelectedInterval = (legendLabel) =>
     .some((label) => selectedIntervalLabels.value.includes(label));
 
 watch(
-  () => scale.selectedRootNote,
-  (nextRoot, previousRoot) => {
-    if (
-      nextRoot !== null &&
-      previousRoot === null &&
-      !hasShownFocusPrompt.value
-    ) {
-      showFocusPrompt.value = true;
-      hasShownFocusPrompt.value = true;
-    }
-  },
-);
-
-watch(
   activeMode,
   (mode) => {
+    if (mode === "config") {
+      instrument.fretViewTo12();
+    }
+
     explore.setWorkspaceMode(mode);
   },
   { immediate: true },
@@ -97,7 +85,6 @@ const goToConfig = () => {
 };
 
 const goToFocus = () => {
-  showFocusPrompt.value = false;
   activeMode.value = "focus";
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
@@ -309,41 +296,6 @@ const getExploreIntervalColorName = (semitones) => {
   </div>
 
   <div
-    v-if="showFocusPrompt"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/65 px-4"
-  >
-    <div
-      class="w-full max-w-xl rounded-2xl border border-gray-400 bg-gray-950 p-4 text-gray-50 shadow-2xl"
-    >
-      <div class="rounded-2xl bg-zinc-700 p-5">
-        <h3 class="text-center text-3xl">Interval Engine Ready</h3>
-        <p class="mt-3 text-center text-lg">
-          Your note mapping lines up with
-          <span class="font-semibold">
-            {{ scale.selectedScaleSummary?.modeName ?? "a custom selection" }},
-          </span>
-          head to Explore Fretboard to see how those intervals behave across the
-          neck.
-        </p>
-        <div class="mt-5 flex flex-wrap justify-center gap-3">
-          <button
-            @click="goToFocus"
-            class="cursor-pointer rounded-xl bg-rose-700 px-6 py-2 text-gray-50 hover:bg-rose-800"
-          >
-            Explore Fretboard
-          </button>
-          <button
-            @click="showFocusPrompt = false"
-            class="cursor-pointer rounded-xl bg-zinc-900 px-6 py-2 text-gray-50 hover:bg-zinc-800"
-          >
-            Back To Config
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div
     v-if="showIntervalHelper"
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/65 px-4"
   >
@@ -457,75 +409,7 @@ const getExploreIntervalColorName = (semitones) => {
         class="rounded-2xl border border-gray-400 bg-gray-950 p-3 text-gray-50"
       >
         <div class="rounded-2xl bg-zinc-700 p-5">
-          <div class="grid gap-4">
-            <div class="rounded-2xl border border-gray-500 bg-zinc-900 p-4">
-              <div class="border-b border-gray-500 pb-4 text-center">
-                <h4 class="text-3xl font-semibold">
-                  {{ scale.selectedScaleSummary.name }}
-                </h4>
-                <p class="mt-2 text-base text-gray-200">
-                  Reference the detected scale and interval formula while
-                  exploring the fretboard.
-                </p>
-              </div>
-
-              <div
-                class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
-              >
-                <div>
-                  <p
-                    class="text-sm font-semibold uppercase tracking-wide text-gray-400"
-                  >
-                    Interval Formula
-                  </p>
-                  <p class="mt-1 text-base text-gray-300">
-                    These interval codes define the scale shape selected above.
-                  </p>
-                  <p class="mt-1 text-xs text-gray-400">
-                    Hover or focus an interval to reveal its note.
-                  </p>
-                </div>
-
-                <button
-                  @click="showIntervalHelper = true"
-                  class="cursor-pointer rounded-xl bg-zinc-800 px-4 py-2 text-sm font-semibold text-gray-100 transition hover:bg-zinc-950"
-                >
-                  Open Formula Helper
-                </button>
-              </div>
-
-              <div class="mt-4 flex flex-wrap gap-2">
-                <div
-                  v-for="interval in scale.selectedScaleSummary.intervals"
-                  :key="`focus-formula-${interval.label}`"
-                  class="group relative"
-                >
-                  <div
-                    :title="`${interval.label}: ${interval.note}`"
-                    :aria-label="`${interval.label} maps to ${interval.note}`"
-                    tabindex="0"
-                    class="flex min-w-9 cursor-help items-center justify-center rounded-lg border border-gray-300 bg-zinc-800 px-2 py-1.5 text-lg font-semibold shadow-sm shadow-black/20 transition hover:border-rose-300 hover:text-rose-100 focus:border-rose-300 focus:text-rose-100 focus:outline-none"
-                  >
-                    {{ interval.label }}
-                  </div>
-
-                  <div
-                    class="pointer-events-none absolute left-1/2 top-full z-10 mt-2 hidden -translate-x-1/2 whitespace-nowrap rounded-lg border border-gray-500 bg-gray-950 px-3 py-1.5 text-sm font-medium text-gray-100 shadow-xl group-hover:block group-focus-within:block"
-                  >
-                    {{ interval.note }}
-                  </div>
-                </div>
-              </div>
-
-              <p
-                v-if="!scale.selectedScaleSummary.isKnownScale"
-                class="mt-4 text-sm text-gray-300"
-              >
-                This selection is shown as a custom note collection because it
-                does not exactly match one of the seven diatonic modes.
-              </p>
-            </div>
-
+          <div class="grid gap-4 lg:grid-cols-[1.65fr_1fr] lg:items-start">
             <div class="rounded-2xl border border-gray-500 bg-zinc-900 p-4">
               <div
                 class="flex flex-col gap-3 border-b border-gray-500 pb-4 sm:flex-row sm:items-start sm:justify-between"
@@ -582,7 +466,7 @@ const getExploreIntervalColorName = (semitones) => {
               </div>
 
               <div
-                class="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
+                class="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
               >
                 <div
                   v-for="interval in intervalHighlightRows"
@@ -626,6 +510,79 @@ const getExploreIntervalColorName = (semitones) => {
                   </button>
                 </div>
               </div>
+            </div>
+
+            <div class="rounded-2xl border border-gray-500 bg-zinc-900 p-4">
+              <div class="border-b border-gray-500 pb-4 text-center">
+                <p
+                  class="text-xs font-semibold uppercase tracking-wider text-gray-400"
+                >
+                  Interval Helper
+                </p>
+                <h4 class="mt-1 text-3xl font-semibold">
+                  {{ scale.selectedScaleSummary.name }}
+                </h4>
+                <p class="mt-2 text-base text-gray-200">
+                  Reference the detected scale and interval formula while
+                  exploring the fretboard.
+                </p>
+              </div>
+
+              <div
+                class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between lg:flex-col lg:items-start"
+              >
+                <div>
+                  <p
+                    class="text-sm font-semibold uppercase tracking-wide text-gray-400"
+                  >
+                    Interval Formula
+                  </p>
+                  <p class="mt-1 text-base text-gray-300">
+                    These interval codes define the scale shape selected above.
+                  </p>
+                  <p class="mt-1 text-xs text-gray-400">
+                    Hover or focus an interval to reveal its note.
+                  </p>
+                </div>
+
+                <button
+                  @click="showIntervalHelper = true"
+                  class="cursor-pointer rounded-xl bg-zinc-800 px-4 py-2 text-sm font-semibold text-gray-100 transition hover:bg-zinc-950"
+                >
+                  Open Formula Helper
+                </button>
+              </div>
+
+              <div class="mt-4 flex flex-wrap gap-2">
+                <div
+                  v-for="interval in scale.selectedScaleSummary.intervals"
+                  :key="`focus-formula-${interval.label}`"
+                  class="group relative"
+                >
+                  <div
+                    :title="`${interval.label}: ${interval.note}`"
+                    :aria-label="`${interval.label} maps to ${interval.note}`"
+                    tabindex="0"
+                    class="flex min-w-9 cursor-help items-center justify-center rounded-lg border border-gray-300 bg-zinc-800 px-2 py-1.5 text-lg font-semibold shadow-sm shadow-black/20 transition hover:border-rose-300 hover:text-rose-100 focus:border-rose-300 focus:text-rose-100 focus:outline-none"
+                  >
+                    {{ interval.label }}
+                  </div>
+
+                  <div
+                    class="pointer-events-none absolute left-1/2 top-full z-10 mt-2 hidden -translate-x-1/2 whitespace-nowrap rounded-lg border border-gray-500 bg-gray-950 px-3 py-1.5 text-sm font-medium text-gray-100 shadow-xl group-hover:block group-focus-within:block"
+                  >
+                    {{ interval.note }}
+                  </div>
+                </div>
+              </div>
+
+              <p
+                v-if="!scale.selectedScaleSummary.isKnownScale"
+                class="mt-4 text-sm text-gray-300"
+              >
+                This selection is shown as a custom note collection because it
+                does not exactly match one of the seven diatonic modes.
+              </p>
             </div>
           </div>
         </div>

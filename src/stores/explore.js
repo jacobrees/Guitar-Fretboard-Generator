@@ -21,6 +21,10 @@ export const useExploreStore = defineStore("explore", () => {
 
   const setWorkspaceMode = (mode) => {
     currentWorkspaceMode.value = mode;
+
+    if (mode === "config") {
+      onlyHighlighted.value = true;
+    }
   };
 
   const setPreferredExploreLabelMode = (mode) => {
@@ -99,6 +103,12 @@ export const useExploreStore = defineStore("explore", () => {
       const semitones = (noteIndex - scale.selectedRootNote + 12) % 12;
 
       return getExploreIntervalColor(semitones) ?? "bg-zinc-600";
+    }
+
+    if (currentWorkspaceMode.value === "config") {
+      return scale.highlightedNotes[noteIndex]
+        ? paletteColors.rose
+        : "bg-zinc-600";
     }
 
     return scale.highlightedNotes[noteIndex] ?? "bg-zinc-600";
