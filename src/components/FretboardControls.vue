@@ -1,7 +1,26 @@
 <script setup>
+import { computed } from "vue";
 import { useFretboardStore } from "@/stores/fretboard";
 
 const fretboard = useFretboardStore();
+
+const noteSpellingState = computed(() =>
+  fretboard.sharpsEnabled ? "Sharps Active" : "Flats Active",
+);
+
+const visibilityState = computed(() =>
+  fretboard.onlyHighlighted ? "Only Highlighted" : "Show All",
+);
+
+const verticalOrientationState = computed(() =>
+  fretboard.verticalFlip ? "Strings: Standard" : "Strings: Reversed",
+);
+
+const horizontalOrientationState = computed(() =>
+  fretboard.horizontalFlip ? "Frets: Mirrored" : "Frets: Standard",
+);
+
+const fretViewState = computed(() => `${fretboard.fretView} Frets`);
 </script>
 
 <template>
@@ -11,17 +30,18 @@ const fretboard = useFretboardStore();
     <div
       class="w-full rounded-2xl border border-gray-400 bg-gray-950 p-3 text-gray-50"
     >
-      <div class="rounded-2xl bg-zinc-700 p-4">
+      <div class="rounded-2xl bg-zinc-700 p-5">
         <div class="border-b border-gray-500 pb-4 text-center">
           <p
-            class="text-xs font-semibold uppercase tracking-wider text-gray-300"
+            class="text-xs font-semibold uppercase tracking-[0.28em] text-rose-200"
           >
             Fretboard Tools
           </p>
-          <h3 class="mt-1 text-3xl font-semibold">Display Controls</h3>
+          <h3 class="mt-2 text-3xl font-semibold tracking-tight">
+            Display Controls
+          </h3>
           <p class="mt-2 text-base text-gray-200">
-            Adjust pitch spelling, visibility, orientation, and fret range for
-            the current view.
+            Choose how the fretboard is labeled, shown, and framed.
           </p>
         </div>
 
@@ -29,31 +49,90 @@ const fretboard = useFretboardStore();
           :class="[
             'mt-5 grid gap-3',
             fretboard.effectiveFretLabelMode === 'intervals'
-              ? 'lg:grid-cols-3'
-              : 'lg:grid-cols-4',
+              ? 'md:grid-cols-2 xl:grid-cols-4'
+              : 'md:grid-cols-2 xl:grid-cols-5',
           ]"
         >
+          <div class="rounded-2xl bg-zinc-800 p-4">
+            <h4 class="text-xl font-semibold text-center">Explore View</h4>
+            <div class="mt-2 flex justify-center">
+              <span
+                class="rounded-full border border-rose-400/35 bg-rose-950/55 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-rose-100"
+              >
+                {{ fretboard.preferredExploreLabelMode }} Active
+              </span>
+            </div>
+            <p class="mt-2 text-sm text-center text-gray-300">
+              Switch between note names and interval shorthand.
+            </p>
+
+            <div class="mt-4 rounded-xl bg-zinc-900 p-1">
+              <div class="grid grid-cols-2 gap-1">
+                <button
+                  @click="fretboard.setPreferredExploreLabelMode('notes')"
+                  :class="[
+                    'rounded-lg px-3 py-2.5 font-semibold transition',
+                    fretboard.preferredExploreLabelMode === 'notes'
+                      ? 'cursor-default bg-rose-700 text-gray-50'
+                      : 'cursor-pointer text-gray-300 hover:bg-zinc-800 hover:text-gray-100',
+                  ]"
+                >
+                  Notes
+                </button>
+                <button
+                  @click="fretboard.setPreferredExploreLabelMode('intervals')"
+                  :class="[
+                    'rounded-lg px-3 py-2.5 font-semibold transition',
+                    fretboard.preferredExploreLabelMode === 'intervals'
+                      ? 'cursor-default bg-rose-700 text-gray-50'
+                      : 'cursor-pointer text-gray-300 hover:bg-zinc-800 hover:text-gray-100',
+                  ]"
+                >
+                  Intervals
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div
             v-if="fretboard.effectiveFretLabelMode !== 'intervals'"
-            class="rounded-2xl bg-zinc-800 p-4 text-center"
+            class="rounded-2xl bg-zinc-800 p-4"
           >
-            <h4 class="text-2xl font-semibold">♯ / ♭</h4>
-            <p class="mt-2 text-sm text-gray-300">
-              Switch enharmonic spelling when the board is showing note names.
+            <h4 class="text-xl font-semibold text-center">♯ / ♭</h4>
+            <div class="mt-2 flex justify-center">
+              <span
+                class="rounded-full border border-rose-400/35 bg-rose-950/55 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-rose-100"
+              >
+                {{ noteSpellingState }}
+              </span>
+            </div>
+            <p class="mt-2 text-sm text-center text-gray-300">
+              Switch enharmonic spelling for note labels across the fretboard,
+              open strings, and helper note mappings.
             </p>
+
             <button
               @click="fretboard.toggleSharpsEnabled"
               class="mt-4 w-full cursor-pointer rounded-xl bg-rose-700 p-3 font-semibold text-gray-50 transition hover:bg-rose-800"
             >
-              Toggle ♯/♭
+              Switch To {{ fretboard.sharpsEnabled ? "Flats" : "Sharps" }}
             </button>
           </div>
 
-          <div class="rounded-2xl bg-zinc-800 p-4 text-center">
-            <h4 class="text-2xl font-semibold">Visibility</h4>
-            <p class="mt-2 text-sm text-gray-300">
-              Focus only on the selected tones or show the full board.
+          <div class="rounded-2xl bg-zinc-800 p-4">
+            <h4 class="text-xl font-semibold text-center">Visibility</h4>
+            <div class="mt-2 flex justify-center">
+              <span
+                class="rounded-full border border-gray-500 bg-zinc-900 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gray-200"
+              >
+                {{ visibilityState }}
+              </span>
+            </div>
+            <p class="mt-2 text-sm text-center text-gray-300">
+              Focus only on the intervals you have highlighted, or widen the
+              view to see the full chromatic neck.
             </p>
+
             <div class="mt-4 grid gap-2">
               <button
                 :class="[
@@ -80,32 +159,59 @@ const fretboard = useFretboardStore();
             </div>
           </div>
 
-          <div class="rounded-2xl bg-zinc-800 p-4 text-center">
-            <h4 class="text-2xl font-semibold">Orientation</h4>
-            <p class="mt-2 text-sm text-gray-300">
+          <div class="rounded-2xl bg-zinc-800 p-4">
+            <h4 class="text-xl font-semibold text-center">Orientation</h4>
+            <div class="mt-2 flex flex-wrap justify-center gap-2">
+              <span
+                class="rounded-full border border-gray-500 bg-zinc-900 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gray-200"
+              >
+                {{ verticalOrientationState }}
+              </span>
+              <span
+                class="rounded-full border border-gray-500 bg-zinc-900 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gray-200"
+              >
+                {{ horizontalOrientationState }}
+              </span>
+            </div>
+            <p class="mt-2 text-sm text-center text-gray-300">
               Flip the layout to match your preferred fretboard perspective.
             </p>
-            <div class="mt-4 grid gap-2">
+
+            <div class="mt-4 grid gap-2 sm:grid-cols-2">
               <button
                 @click="fretboard.flipVertically"
-                class="w-full cursor-pointer rounded-xl bg-rose-700 p-3 font-semibold text-gray-50 transition hover:bg-rose-800"
+                class="w-full cursor-pointer rounded-xl bg-zinc-900 p-4 text-left font-semibold text-gray-50 transition hover:bg-zinc-950"
               >
-                Flip Vertically
+                <span class="block text-base">Flip Vertically</span>
+                <span class="mt-1 block text-sm font-normal text-gray-300">
+                  Reorder the strings from top to bottom.
+                </span>
               </button>
               <button
                 @click="fretboard.flipHorizontally"
-                class="w-full cursor-pointer rounded-xl bg-rose-700 p-3 font-semibold text-gray-50 transition hover:bg-rose-800"
+                class="w-full cursor-pointer rounded-xl bg-zinc-900 p-4 text-left font-semibold text-gray-50 transition hover:bg-zinc-950"
               >
-                Flip Horizontally
+                <span class="block text-base">Flip Horizontally</span>
+                <span class="mt-1 block text-sm font-normal text-gray-300">
+                  Mirror fret travel from left to right.
+                </span>
               </button>
             </div>
           </div>
 
-          <div class="rounded-2xl bg-zinc-800 p-4 text-center">
-            <h4 class="text-2xl font-semibold">Fret View</h4>
-            <p class="mt-2 text-sm text-gray-300">
+          <div class="rounded-2xl bg-zinc-800 p-4">
+            <h4 class="text-xl font-semibold text-center">Fret View</h4>
+            <div class="mt-2 flex justify-center">
+              <span
+                class="rounded-full border border-gray-500 bg-zinc-900 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gray-200"
+              >
+                {{ fretViewState }}
+              </span>
+            </div>
+            <p class="mt-2 text-sm text-center text-gray-300">
               Choose between a compact octave view or the full 24-fret layout.
             </p>
+
             <div class="mt-4 grid gap-2">
               <button
                 @click="fretboard.fretViewTo12"

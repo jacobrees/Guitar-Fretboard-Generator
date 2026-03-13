@@ -459,7 +459,7 @@ const getExploreIntervalColorName = (semitones) => {
         class="rounded-2xl border border-gray-400 bg-gray-950 p-3 text-gray-50"
       >
         <div class="rounded-2xl bg-zinc-700 p-5">
-          <div class="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+          <div class="grid gap-4">
             <div class="rounded-2xl border border-gray-500 bg-zinc-900 p-4">
               <div class="border-b border-gray-500 pb-4 text-center">
                 <h4 class="text-3xl font-semibold">
@@ -469,51 +469,6 @@ const getExploreIntervalColorName = (semitones) => {
                   Reference the detected scale and interval formula while
                   exploring the fretboard.
                 </p>
-              </div>
-
-              <div
-                class="mt-4 flex flex-col gap-3 rounded-2xl border border-gray-500 bg-zinc-800 p-4 lg:flex-row lg:items-center lg:justify-between"
-              >
-                <div>
-                  <p
-                    class="text-sm font-semibold uppercase tracking-wide text-gray-400"
-                  >
-                    Explore View
-                  </p>
-                  <p class="mt-1 text-base text-gray-200">
-                    Choose whether the fretboard speaks in note names or
-                    interval relationships.
-                  </p>
-                </div>
-
-                <div class="rounded-xl bg-zinc-900 p-1">
-                  <div class="grid grid-cols-2 gap-1">
-                    <button
-                      @click="fretboard.setPreferredExploreLabelMode('notes')"
-                      :class="[
-                        'rounded-lg px-4 py-2 font-semibold transition',
-                        fretboard.preferredExploreLabelMode === 'notes'
-                          ? 'cursor-default bg-rose-700 text-gray-50'
-                          : 'cursor-pointer text-gray-300 hover:bg-zinc-800 hover:text-gray-100',
-                      ]"
-                    >
-                      Notes
-                    </button>
-                    <button
-                      @click="
-                        fretboard.setPreferredExploreLabelMode('intervals')
-                      "
-                      :class="[
-                        'rounded-lg px-4 py-2 font-semibold transition',
-                        fretboard.preferredExploreLabelMode === 'intervals'
-                          ? 'cursor-default bg-rose-700 text-gray-50'
-                          : 'cursor-pointer text-gray-300 hover:bg-zinc-800 hover:text-gray-100',
-                      ]"
-                    >
-                      Intervals
-                    </button>
-                  </div>
-                </div>
               </div>
 
               <div
@@ -629,7 +584,7 @@ const getExploreIntervalColorName = (semitones) => {
               </div>
 
               <div
-                class="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4 xl:grid-cols-3 2xl:grid-cols-4"
+                class="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
               >
                 <div
                   v-for="interval in intervalHighlightRows"
