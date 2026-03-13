@@ -111,6 +111,8 @@ export const useFretboardStore = defineStore("fretboard", () => {
   const sharpsEnabled = ref(true);
   const verticalFlip = ref(true);
   const horizontalFlip = ref(false);
+  const currentWorkspaceMode = ref("config");
+  const preferredExploreLabelMode = ref("intervals");
   const highlightedNotes = ref(Array(12).fill(null));
   const selectedRootNote = ref(null);
   const tuningIndexes = ref([7, 2, 10, 5, 0, 7]);
@@ -194,8 +196,8 @@ export const useFretboardStore = defineStore("fretboard", () => {
       root,
       modeName: matchedScaleDefinition.value?.name ?? "Custom Selection",
       name: matchedScaleDefinition.value
-        ? `${root} ${matchedScaleDefinition.value.name}`
-        : `${root} Custom Selection`,
+        ? `${root} - ${matchedScaleDefinition.value.name}`
+        : `${root} - Custom Selection`,
       isKnownScale: matchedScaleDefinition.value !== null,
       formula: intervalLabels.join(" - "),
       intervals: selectedIntervals.value.map((interval, index) => {
@@ -212,11 +214,40 @@ export const useFretboardStore = defineStore("fretboard", () => {
 
   const intervalLegend = computed(() => chromaticIntervalLegend);
 
+  const selectedIntervalLabelMap = computed(() => {
+    if (selectedRootNote.value === null) {
+      return {};
+    }
+
+    return selectedIntervals.value.reduce((labels, interval, index) => {
+      const label =
+        matchedScaleDefinition.value?.labels[index] ??
+        defaultIntervalLabels[interval.semitones];
+
+      labels[interval.semitones] = label;
+      return labels;
+    }, {});
+  });
+
+  const effectiveFretLabelMode = computed(() =>
+    currentWorkspaceMode.value === "focus"
+      ? preferredExploreLabelMode.value
+      : "notes",
+  );
+
   const visibleTuningIndexes = computed(() =>
     verticalFlip.value
       ? tuningIndexes.value
       : tuningIndexes.value.slice().reverse(),
   );
+
+  const setWorkspaceMode = (mode) => {
+    currentWorkspaceMode.value = mode;
+  };
+
+  const setPreferredExploreLabelMode = (mode) => {
+    preferredExploreLabelMode.value = mode;
+  };
 
   const toggleHighlighted = (value) => {
     onlyHighlighted.value = value;
@@ -263,6 +294,22 @@ export const useFretboardStore = defineStore("fretboard", () => {
     return (index + fret) % 12;
   };
 
+  const getDisplayLabel = (noteIndex) => {
+    if (
+      effectiveFretLabelMode.value !== "intervals" ||
+      selectedRootNote.value === null
+    ) {
+      return musicalNotes.value[noteIndex];
+    }
+
+    const semitones = (noteIndex - selectedRootNote.value + 12) % 12;
+
+    return (
+      selectedIntervalLabelMap.value[semitones] ??
+      defaultIntervalLabels[semitones]
+    );
+  };
+
   const fretViewTo12 = () => {
     fretView.value = 12;
   };
@@ -302,20 +349,27 @@ export const useFretboardStore = defineStore("fretboard", () => {
     fretViewTo12,
     fretViewTo24,
     fretboardMarkers,
+    currentWorkspaceMode,
+    effectiveFretLabelMode,
     getNote,
+    getDisplayLabel,
     highlightedNotes,
     horizontalFlip,
+    intervalLegend,
+    intervalNotes,
     lowerString,
     musicalNotes,
     onlyHighlighted,
     paletteColors,
+    preferredExploreLabelMode,
     raiseString,
     removeString,
     selectedNoteIndexes,
     selectedNotes,
-    selectedScaleSummary,
-    intervalLegend,
     selectedRootNote,
+    selectedScaleSummary,
+    setPreferredExploreLabelMode,
+    setWorkspaceMode,
     sharpsEnabled,
     toggleRootNote,
     toggleNoteHighlight,
@@ -324,6 +378,5 @@ export const useFretboardStore = defineStore("fretboard", () => {
     tuningIndexes,
     verticalFlip,
     visibleTuningIndexes,
-    intervalNotes,
   };
 });

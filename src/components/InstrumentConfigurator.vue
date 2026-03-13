@@ -8,7 +8,7 @@ const fretboard = useFretboardStore();
 
 <template>
   <div
-    class="w-full max-w-2xl rounded-2xl border border-gray-400 bg-gray-950 p-3"
+    class="my-auto w-full max-w-2xl rounded-2xl border border-gray-400 bg-gray-950 p-3"
   >
     <div class="rounded-2xl bg-zinc-700 p-5 text-gray-50">
       <div class="border-b border-gray-500 pb-4 text-center">

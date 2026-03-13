@@ -29,8 +29,8 @@ const fretboard = useFretboardStore();
                 : 'bg-zinc-600',
             ]"
           >
-            <p class="font-bold text-gray-50">
-              {{ fretboard.musicalNotes[note] }}
+            <p class="text-sm font-semibold text-gray-50">
+              {{ fretboard.getDisplayLabel(note) }}
             </p>
           </div>
         </div>
@@ -156,8 +156,8 @@ const fretboard = useFretboardStore();
                 : 'bg-zinc-600',
             ]"
           >
-            <p class="text-gray-100">
-              {{ fretboard.musicalNotes[fretboard.getNote(stringCount, n)] }}
+            <p class="text-sm font-semibold text-gray-100">
+              {{ fretboard.getDisplayLabel(fretboard.getNote(stringCount, n)) }}
             </p>
           </div>
         </div>

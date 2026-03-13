@@ -20,16 +20,26 @@ const fretboard = useFretboardStore();
           </p>
           <h3 class="mt-1 text-3xl font-semibold">Display Controls</h3>
           <p class="mt-2 text-base text-gray-200">
-            Adjust note naming, visibility, orientation, and fret range for the
-            current view.
+            Adjust pitch spelling, visibility, orientation, and fret range for
+            the current view.
           </p>
         </div>
 
-        <div class="mt-5 grid gap-3 lg:grid-cols-4">
-          <div class="rounded-2xl bg-zinc-800 p-4 text-center">
+        <div
+          :class="[
+            'mt-5 grid gap-3',
+            fretboard.effectiveFretLabelMode === 'intervals'
+              ? 'lg:grid-cols-3'
+              : 'lg:grid-cols-4',
+          ]"
+        >
+          <div
+            v-if="fretboard.effectiveFretLabelMode !== 'intervals'"
+            class="rounded-2xl bg-zinc-800 p-4 text-center"
+          >
             <h4 class="text-2xl font-semibold">♯ / ♭</h4>
             <p class="mt-2 text-sm text-gray-300">
-              Switch enharmonic spelling across the board.
+              Switch enharmonic spelling when the board is showing note names.
             </p>
             <button
               @click="fretboard.toggleSharpsEnabled"
@@ -42,7 +52,7 @@ const fretboard = useFretboardStore();
           <div class="rounded-2xl bg-zinc-800 p-4 text-center">
             <h4 class="text-2xl font-semibold">Visibility</h4>
             <p class="mt-2 text-sm text-gray-300">
-              Focus only on the selected notes or show the full board.
+              Focus only on the selected tones or show the full board.
             </p>
             <div class="mt-4 grid gap-2">
               <button
@@ -65,7 +75,7 @@ const fretboard = useFretboardStore();
                 ]"
                 @click="fretboard.toggleHighlighted(false)"
               >
-                Show All Notes
+                Show All
               </button>
             </div>
           </div>
@@ -73,7 +83,7 @@ const fretboard = useFretboardStore();
           <div class="rounded-2xl bg-zinc-800 p-4 text-center">
             <h4 class="text-2xl font-semibold">Orientation</h4>
             <p class="mt-2 text-sm text-gray-300">
-              Flip the layout to match your preferred visual perspective.
+              Flip the layout to match your preferred fretboard perspective.
             </p>
             <div class="mt-4 grid gap-2">
               <button
