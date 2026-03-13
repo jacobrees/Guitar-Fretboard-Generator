@@ -1,5 +1,34 @@
-# Vue 3 + Vite
+# Guitar Fretboard Generator
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+A Vue 3 + Pinia sandbox for building scales, selecting roots, and exploring
+interval relationships across the fretboard.
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+## Development
+
+```bash
+npm install
+npm run dev
+```
+
+Build:
+
+```bash
+npm run build
+```
+
+## State Architecture
+
+The app now uses split Pinia stores instead of a single global store:
+
+- `src/stores/instrument.js`
+  - Owns instrument and board geometry state:
+  - tuning, fret range, orientation, enharmonic spelling.
+- `src/stores/scale.js`
+  - Owns note selection and interval/scale derivations:
+  - selected notes/root, recognized mode, interval summaries.
+- `src/stores/explore.js`
+  - Owns Explore-mode display behavior:
+  - note vs interval labeling, highlight visibility mode, interval color overrides.
+- `src/stores/constants.js`
+  - Shared immutable constants:
+  - interval labels/definitions, mode definitions, marker/palette constants.

@@ -1,26 +1,28 @@
 <script setup>
 import { computed } from "vue";
-import { useFretboardStore } from "@/stores/fretboard";
+import { useExploreStore } from "@/stores/explore";
+import { useInstrumentStore } from "@/stores/instrument";
 
-const fretboard = useFretboardStore();
+const explore = useExploreStore();
+const instrument = useInstrumentStore();
 
 const noteSpellingState = computed(() =>
-  fretboard.sharpsEnabled ? "Sharps Active" : "Flats Active",
+  instrument.sharpsEnabled ? "Sharps Active" : "Flats Active",
 );
 
 const visibilityState = computed(() =>
-  fretboard.onlyHighlighted ? "Only Highlighted" : "Show All",
+  explore.onlyHighlighted ? "Only Highlighted" : "Show All",
 );
 
 const verticalOrientationState = computed(() =>
-  fretboard.verticalFlip ? "Strings: Standard" : "Strings: Reversed",
+  instrument.verticalFlip ? "Strings: Standard" : "Strings: Reversed",
 );
 
 const horizontalOrientationState = computed(() =>
-  fretboard.horizontalFlip ? "Frets: Mirrored" : "Frets: Standard",
+  instrument.horizontalFlip ? "Frets: Mirrored" : "Frets: Standard",
 );
 
-const fretViewState = computed(() => `${fretboard.fretView} Frets`);
+const fretViewState = computed(() => `${instrument.fretView} Frets`);
 </script>
 
 <template>
@@ -48,7 +50,7 @@ const fretViewState = computed(() => `${fretboard.fretView} Frets`);
         <div
           :class="[
             'mt-5 grid gap-3',
-            fretboard.effectiveFretLabelMode === 'intervals'
+            explore.effectiveFretLabelMode === 'intervals'
               ? 'md:grid-cols-2 xl:grid-cols-4'
               : 'md:grid-cols-2 xl:grid-cols-5',
           ]"
@@ -59,7 +61,7 @@ const fretViewState = computed(() => `${fretboard.fretView} Frets`);
               <span
                 class="rounded-full border border-rose-400/35 bg-rose-950/55 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-rose-100"
               >
-                {{ fretboard.preferredExploreLabelMode }} Active
+                {{ explore.preferredExploreLabelMode }} Active
               </span>
             </div>
             <p class="mt-2 text-sm text-center text-gray-300">
@@ -69,10 +71,10 @@ const fretViewState = computed(() => `${fretboard.fretView} Frets`);
             <div class="mt-4 rounded-xl bg-zinc-900 p-1">
               <div class="grid grid-cols-2 gap-1">
                 <button
-                  @click="fretboard.setPreferredExploreLabelMode('notes')"
+                  @click="explore.setPreferredExploreLabelMode('notes')"
                   :class="[
                     'rounded-lg px-3 py-2.5 font-semibold transition',
-                    fretboard.preferredExploreLabelMode === 'notes'
+                    explore.preferredExploreLabelMode === 'notes'
                       ? 'cursor-default bg-rose-700 text-gray-50'
                       : 'cursor-pointer text-gray-300 hover:bg-zinc-800 hover:text-gray-100',
                   ]"
@@ -80,10 +82,10 @@ const fretViewState = computed(() => `${fretboard.fretView} Frets`);
                   Notes
                 </button>
                 <button
-                  @click="fretboard.setPreferredExploreLabelMode('intervals')"
+                  @click="explore.setPreferredExploreLabelMode('intervals')"
                   :class="[
                     'rounded-lg px-3 py-2.5 font-semibold transition',
-                    fretboard.preferredExploreLabelMode === 'intervals'
+                    explore.preferredExploreLabelMode === 'intervals'
                       ? 'cursor-default bg-rose-700 text-gray-50'
                       : 'cursor-pointer text-gray-300 hover:bg-zinc-800 hover:text-gray-100',
                   ]"
@@ -95,7 +97,7 @@ const fretViewState = computed(() => `${fretboard.fretView} Frets`);
           </div>
 
           <div
-            v-if="fretboard.effectiveFretLabelMode !== 'intervals'"
+            v-if="explore.effectiveFretLabelMode !== 'intervals'"
             class="rounded-2xl bg-zinc-800 p-4"
           >
             <h4 class="text-xl font-semibold text-center">♯ / ♭</h4>
@@ -112,10 +114,10 @@ const fretViewState = computed(() => `${fretboard.fretView} Frets`);
             </p>
 
             <button
-              @click="fretboard.toggleSharpsEnabled"
+              @click="instrument.toggleSharpsEnabled"
               class="mt-4 w-full cursor-pointer rounded-xl bg-rose-700 p-3 font-semibold text-gray-50 transition hover:bg-rose-800"
             >
-              Switch To {{ fretboard.sharpsEnabled ? "Flats" : "Sharps" }}
+              Switch To {{ instrument.sharpsEnabled ? "Flats" : "Sharps" }}
             </button>
           </div>
 
@@ -137,22 +139,22 @@ const fretViewState = computed(() => `${fretboard.fretView} Frets`);
               <button
                 :class="[
                   'w-full rounded-xl p-3 font-semibold text-gray-50 transition',
-                  fretboard.onlyHighlighted
+                  explore.onlyHighlighted
                     ? 'cursor-not-allowed bg-rose-700'
                     : 'cursor-pointer bg-zinc-900 hover:bg-zinc-950',
                 ]"
-                @click="fretboard.toggleHighlighted(true)"
+                @click="explore.toggleHighlighted(true)"
               >
                 Show Only Highlighted
               </button>
               <button
                 :class="[
                   'w-full rounded-xl p-3 font-semibold text-gray-50 transition',
-                  !fretboard.onlyHighlighted
+                  !explore.onlyHighlighted
                     ? 'cursor-not-allowed bg-rose-700'
                     : 'cursor-pointer bg-zinc-900 hover:bg-zinc-950',
                 ]"
-                @click="fretboard.toggleHighlighted(false)"
+                @click="explore.toggleHighlighted(false)"
               >
                 Show All
               </button>
@@ -179,7 +181,7 @@ const fretViewState = computed(() => `${fretboard.fretView} Frets`);
 
             <div class="mt-4 grid gap-2 sm:grid-cols-2">
               <button
-                @click="fretboard.flipVertically"
+                @click="instrument.flipVertically"
                 class="w-full cursor-pointer rounded-xl bg-zinc-900 p-4 text-left font-semibold text-gray-50 transition hover:bg-zinc-950"
               >
                 <span class="block text-base">Flip Vertically</span>
@@ -188,7 +190,7 @@ const fretViewState = computed(() => `${fretboard.fretView} Frets`);
                 </span>
               </button>
               <button
-                @click="fretboard.flipHorizontally"
+                @click="instrument.flipHorizontally"
                 class="w-full cursor-pointer rounded-xl bg-zinc-900 p-4 text-left font-semibold text-gray-50 transition hover:bg-zinc-950"
               >
                 <span class="block text-base">Flip Horizontally</span>
@@ -214,10 +216,10 @@ const fretViewState = computed(() => `${fretboard.fretView} Frets`);
 
             <div class="mt-4 grid gap-2">
               <button
-                @click="fretboard.fretViewTo12"
+                @click="instrument.fretViewTo12"
                 :class="[
                   'w-full rounded-xl p-3 font-semibold text-gray-50 transition',
-                  fretboard.fretView === 12
+                  instrument.fretView === 12
                     ? 'cursor-not-allowed bg-rose-700'
                     : 'cursor-pointer bg-zinc-900 hover:bg-zinc-950',
                 ]"
@@ -225,10 +227,10 @@ const fretViewState = computed(() => `${fretboard.fretView} Frets`);
                 0...12
               </button>
               <button
-                @click="fretboard.fretViewTo24"
+                @click="instrument.fretViewTo24"
                 :class="[
                   'w-full rounded-xl p-3 font-semibold text-gray-50 transition',
-                  fretboard.fretView === 24
+                  instrument.fretView === 24
                     ? 'cursor-not-allowed bg-rose-700'
                     : 'cursor-pointer bg-zinc-900 hover:bg-zinc-950',
                 ]"

@@ -1,6 +1,8 @@
 <script setup>
 import { computed, ref, watch } from "vue";
-import { useFretboardStore } from "@/stores/fretboard";
+import { useExploreStore } from "@/stores/explore";
+import { useInstrumentStore } from "@/stores/instrument";
+import { useScaleStore } from "@/stores/scale";
 import Navigation from "@/components/Navigation.vue";
 import FooterComponent from "@/components/Footer.vue";
 import InstrumentConfigurator from "@/components/InstrumentConfigurator.vue";
@@ -8,7 +10,9 @@ import ScaleBuilder from "@/components/ScaleBuilder.vue";
 import FretboardDisplay from "@/components/FretboardDisplay.vue";
 import FretboardControls from "@/components/FretboardControls.vue";
 
-const fretboard = useFretboardStore();
+const instrument = useInstrumentStore();
+const scale = useScaleStore();
+const explore = useExploreStore();
 const activeMode = ref("config");
 const showFocusWarning = ref(false);
 const showFocusPrompt = ref(false);
@@ -17,8 +21,7 @@ const hasShownFocusPrompt = ref(false);
 const activeIntervalPalette = ref(null);
 
 const canEnterFocus = computed(
-  () =>
-    fretboard.selectedNotes.length > 1 && fretboard.selectedRootNote !== null,
+  () => scale.selectedNotes.length > 1 && scale.selectedRootNote !== null,
 );
 
 const modeTitle = computed(() =>
@@ -32,21 +35,20 @@ const modeDescription = computed(() =>
 );
 
 const selectedIntervalLabels = computed(
-  () =>
-    fretboard.selectedScaleSummary?.intervals.map(({ label }) => label) ?? [],
+  () => scale.selectedScaleSummary?.intervals.map(({ label }) => label) ?? [],
 );
 
 const noteNamingPreview = computed(() =>
-  fretboard.sharpsEnabled
+  instrument.sharpsEnabled
     ? ["A#", "C#", "D#", "F#", "G#"]
     : ["B♭", "D♭", "E♭", "G♭", "A♭"],
 );
 
-const intervalHighlightRows = computed(() => fretboard.chromaticIntervalRows);
+const intervalHighlightRows = computed(() => scale.chromaticIntervalRows);
 
 const activeIntervalHighlight = computed(
   () =>
-    fretboard.chromaticIntervalRows.find(
+    scale.chromaticIntervalRows.find(
       (interval) => interval.semitones === activeIntervalPalette.value,
     ) ?? null,
 );
@@ -58,7 +60,7 @@ const isSelectedInterval = (legendLabel) =>
     .some((label) => selectedIntervalLabels.value.includes(label));
 
 watch(
-  () => fretboard.selectedRootNote,
+  () => scale.selectedRootNote,
   (nextRoot, previousRoot) => {
     if (
       nextRoot !== null &&
@@ -74,7 +76,7 @@ watch(
 watch(
   activeMode,
   (mode) => {
-    fretboard.setWorkspaceMode(mode);
+    explore.setWorkspaceMode(mode);
   },
   { immediate: true },
 );
@@ -106,12 +108,12 @@ const toggleIntervalPalette = (semitones) => {
 };
 
 const setIntervalHighlightColor = (semitones, colorClass) => {
-  fretboard.setExploreIntervalColor(semitones, colorClass);
+  explore.setExploreIntervalColor(semitones, colorClass);
   activeIntervalPalette.value = null;
 };
 
 const clearIntervalHighlightColor = (semitones) => {
-  fretboard.clearExploreIntervalColor(semitones);
+  explore.clearExploreIntervalColor(semitones);
   activeIntervalPalette.value = null;
 };
 
@@ -119,13 +121,13 @@ const formatPaletteName = (colorName) =>
   colorName.charAt(0).toUpperCase() + colorName.slice(1);
 
 const getExploreIntervalColorName = (semitones) => {
-  const activeColor = fretboard.getExploreIntervalColor(semitones);
+  const activeColor = explore.getExploreIntervalColor(semitones);
 
   if (!activeColor) {
     return "None";
   }
 
-  const paletteEntry = Object.entries(fretboard.paletteColors).find(
+  const paletteEntry = Object.entries(explore.paletteColors).find(
     ([, colorClass]) => colorClass === activeColor,
   );
 
@@ -217,7 +219,7 @@ const getExploreIntervalColorName = (semitones) => {
               <div
                 :class="[
                   'flex h-14 w-12 items-center justify-center rounded-xl border text-lg font-semibold text-gray-50 shadow-lg shadow-black/30',
-                  fretboard.getExploreIntervalColor(
+                  explore.getExploreIntervalColor(
                     activeIntervalHighlight.semitones,
                   ) ?? 'bg-zinc-950',
                   activeIntervalHighlight.isInScale
@@ -248,7 +250,7 @@ const getExploreIntervalColorName = (semitones) => {
           <div class="mt-4">
             <div class="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-3">
               <button
-                v-for="(colorClass, colorName) in fretboard.paletteColors"
+                v-for="(colorClass, colorName) in explore.paletteColors"
                 :key="`modal-${activeIntervalHighlight.semitones}-${colorName}`"
                 @click="
                   setIntervalHighlightColor(
@@ -258,7 +260,7 @@ const getExploreIntervalColorName = (semitones) => {
                 "
                 :class="[
                   'cursor-pointer rounded-2xl border p-3 text-center transition hover:-translate-y-0.5 hover:border-gray-300',
-                  fretboard.getExploreIntervalColor(
+                  explore.getExploreIntervalColor(
                     activeIntervalHighlight.semitones,
                   ) === colorClass
                     ? 'border-white bg-zinc-800 shadow-lg shadow-black/30'
@@ -270,7 +272,7 @@ const getExploreIntervalColorName = (semitones) => {
                   :class="[
                     'mx-auto size-11 rounded-full border-2',
                     colorClass,
-                    fretboard.getExploreIntervalColor(
+                    explore.getExploreIntervalColor(
                       activeIntervalHighlight.semitones,
                     ) === colorClass
                       ? 'border-white'
@@ -318,9 +320,7 @@ const getExploreIntervalColorName = (semitones) => {
         <p class="mt-3 text-center text-lg">
           Your note mapping lines up with
           <span class="font-semibold">
-            {{
-              fretboard.selectedScaleSummary?.modeName ?? "a custom selection"
-            }},
+            {{ scale.selectedScaleSummary?.modeName ?? "a custom selection" }},
           </span>
           head to Explore Fretboard to see how those intervals behave across the
           neck.
@@ -359,9 +359,7 @@ const getExploreIntervalColorName = (semitones) => {
             <p
               class="mt-2 text-sm font-semibold uppercase tracking-wide text-rose-200"
             >
-              {{
-                fretboard.selectedScaleSummary?.modeName ?? "Custom Selection"
-              }}
+              {{ scale.selectedScaleSummary?.modeName ?? "Custom Selection" }}
             </p>
             <p class="mt-2 text-base text-gray-200">
               Use this chromatic interval reference to decode the shorthand used
@@ -379,7 +377,7 @@ const getExploreIntervalColorName = (semitones) => {
 
         <div class="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           <div
-            v-for="interval in fretboard.intervalLegend"
+            v-for="interval in scale.intervalLegend"
             :key="interval.label"
             :class="[
               'rounded-xl border px-3 py-3 text-center transition',
@@ -452,7 +450,7 @@ const getExploreIntervalColorName = (semitones) => {
     </div>
 
     <div
-      v-if="activeMode === 'focus' && fretboard.selectedScaleSummary"
+      v-if="activeMode === 'focus' && scale.selectedScaleSummary"
       class="my-2 mx-5 w-full max-w-screen-2xl"
     >
       <div
@@ -463,7 +461,7 @@ const getExploreIntervalColorName = (semitones) => {
             <div class="rounded-2xl border border-gray-500 bg-zinc-900 p-4">
               <div class="border-b border-gray-500 pb-4 text-center">
                 <h4 class="text-3xl font-semibold">
-                  {{ fretboard.selectedScaleSummary.name }}
+                  {{ scale.selectedScaleSummary.name }}
                 </h4>
                 <p class="mt-2 text-base text-gray-200">
                   Reference the detected scale and interval formula while
@@ -498,7 +496,7 @@ const getExploreIntervalColorName = (semitones) => {
 
               <div class="mt-4 flex flex-wrap gap-2">
                 <div
-                  v-for="interval in fretboard.selectedScaleSummary.intervals"
+                  v-for="interval in scale.selectedScaleSummary.intervals"
                   :key="`focus-formula-${interval.label}`"
                   class="group relative"
                 >
@@ -520,7 +518,7 @@ const getExploreIntervalColorName = (semitones) => {
               </div>
 
               <p
-                v-if="!fretboard.selectedScaleSummary.isKnownScale"
+                v-if="!scale.selectedScaleSummary.isKnownScale"
                 class="mt-4 text-sm text-gray-300"
               >
                 This selection is shown as a custom note collection because it
@@ -546,7 +544,7 @@ const getExploreIntervalColorName = (semitones) => {
                 <div class="flex flex-wrap gap-2">
                   <button
                     @click="
-                      fretboard.resetExploreIntervalHighlightsToScale();
+                      explore.resetExploreIntervalHighlightsToScale();
                       activeIntervalPalette = null;
                     "
                     class="cursor-pointer rounded-xl bg-rose-700 px-4 py-2 text-sm font-semibold text-gray-50 transition hover:bg-rose-800"
@@ -555,7 +553,7 @@ const getExploreIntervalColorName = (semitones) => {
                   </button>
                   <button
                     @click="
-                      fretboard.clearAllExploreIntervalHighlights();
+                      explore.clearAllExploreIntervalHighlights();
                       activeIntervalPalette = null;
                     "
                     class="cursor-pointer rounded-xl bg-zinc-800 px-4 py-2 text-sm font-semibold text-gray-100 transition hover:bg-zinc-950"
@@ -614,7 +612,7 @@ const getExploreIntervalColorName = (semitones) => {
                     @click="toggleIntervalPalette(interval.semitones)"
                     :class="[
                       'mx-auto mt-3 block w-18 cursor-pointer rounded-xl border px-2 py-4 text-xl font-semibold text-gray-50 transition hover:scale-105',
-                      fretboard.getExploreIntervalColor(interval.semitones) ??
+                      explore.getExploreIntervalColor(interval.semitones) ??
                         'bg-zinc-950',
                       activeIntervalPalette === interval.semitones
                         ? 'border-white shadow-lg shadow-black/40'
@@ -676,7 +674,7 @@ const getExploreIntervalColorName = (semitones) => {
                   class="rounded-full border border-rose-400/35 bg-rose-950/60 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-rose-100"
                 >
                   {{
-                    fretboard.sharpsEnabled ? "Sharps Active" : "Flats Active"
+                    instrument.sharpsEnabled ? "Sharps Active" : "Flats Active"
                   }}
                 </div>
               </div>
@@ -692,10 +690,10 @@ const getExploreIntervalColorName = (semitones) => {
               </div>
 
               <button
-                @click="fretboard.toggleSharpsEnabled"
+                @click="instrument.toggleSharpsEnabled"
                 class="mt-4 w-full cursor-pointer rounded-xl bg-rose-700 px-5 py-3 text-base font-semibold text-gray-50 transition hover:bg-rose-800"
               >
-                Switch To {{ fretboard.sharpsEnabled ? "Flats" : "Sharps" }}
+                Switch To {{ instrument.sharpsEnabled ? "Flats" : "Sharps" }}
               </button>
             </div>
 
@@ -722,7 +720,7 @@ const getExploreIntervalColorName = (semitones) => {
                     class="rounded-full border border-gray-500 bg-zinc-950 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gray-200"
                   >
                     {{
-                      fretboard.verticalFlip
+                      instrument.verticalFlip
                         ? "String Order: Standard"
                         : "String Order: Reversed"
                     }}
@@ -731,7 +729,7 @@ const getExploreIntervalColorName = (semitones) => {
                     class="rounded-full border border-gray-500 bg-zinc-950 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gray-200"
                   >
                     {{
-                      fretboard.horizontalFlip
+                      instrument.horizontalFlip
                         ? "Frets: Mirrored"
                         : "Frets: Standard"
                     }}
@@ -741,7 +739,7 @@ const getExploreIntervalColorName = (semitones) => {
 
               <div class="mt-4 grid gap-3 sm:grid-cols-2">
                 <button
-                  @click="fretboard.flipVertically"
+                  @click="instrument.flipVertically"
                   class="cursor-pointer rounded-xl border border-rose-400/30 bg-zinc-900 px-5 py-4 text-left font-semibold text-gray-50 transition hover:border-rose-300 hover:bg-zinc-950"
                 >
                   <span class="block text-base">Flip Vertically</span>
@@ -750,7 +748,7 @@ const getExploreIntervalColorName = (semitones) => {
                   </span>
                 </button>
                 <button
-                  @click="fretboard.flipHorizontally"
+                  @click="instrument.flipHorizontally"
                   class="cursor-pointer rounded-xl border border-rose-400/30 bg-zinc-900 px-5 py-4 text-left font-semibold text-gray-50 transition hover:border-rose-300 hover:bg-zinc-950"
                 >
                   <span class="block text-base">Flip Horizontally</span>
@@ -776,8 +774,8 @@ const getExploreIntervalColorName = (semitones) => {
     <div
       v-if="
         activeMode === 'config' &&
-        fretboard.selectedRootNote !== null &&
-        fretboard.selectedScaleSummary
+        scale.selectedRootNote !== null &&
+        scale.selectedScaleSummary
       "
       class="mb-2 mx-5 w-full max-w-screen-2xl"
     >
@@ -792,7 +790,7 @@ const getExploreIntervalColorName = (semitones) => {
               Scale Helper
             </p>
             <h4 class="mt-1 text-3xl font-semibold">
-              {{ fretboard.selectedScaleSummary.name }}
+              {{ scale.selectedScaleSummary.name }}
             </h4>
             <p class="mt-2 text-base text-gray-200">
               Confirm the detected scale and interval formula before exploring
@@ -831,7 +829,7 @@ const getExploreIntervalColorName = (semitones) => {
 
               <div class="mt-4 flex flex-wrap gap-2">
                 <div
-                  v-for="interval in fretboard.selectedScaleSummary.intervals"
+                  v-for="interval in scale.selectedScaleSummary.intervals"
                   :key="`config-formula-${interval.label}`"
                   class="group relative"
                 >

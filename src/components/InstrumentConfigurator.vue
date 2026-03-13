@@ -1,9 +1,9 @@
 <script setup>
-import { useFretboardStore } from "@/stores/fretboard";
+import { useInstrumentStore } from "@/stores/instrument";
 import caretUpSVG from "@/assets/caret-up.svg";
 import caretDownSVG from "@/assets/caret-down.svg";
 
-const fretboard = useFretboardStore();
+const instrument = useInstrumentStore();
 </script>
 
 <template>
@@ -34,13 +34,13 @@ const fretboard = useFretboardStore();
             </div>
 
             <p class="rounded-full bg-zinc-900 px-3 py-1 text-sm text-gray-200">
-              {{ fretboard.tuningIndexes.length }} strings active
+              {{ instrument.tuningIndexes.length }} strings active
             </p>
           </div>
 
           <div class="mt-4 grid gap-3 sm:grid-cols-2">
             <div
-              v-for="(string, index) in fretboard.tuningIndexes"
+              v-for="(string, index) in instrument.tuningIndexes"
               :key="index"
               class="flex items-center gap-3 rounded-2xl border border-gray-500 bg-zinc-900 px-3 py-3"
             >
@@ -54,7 +54,7 @@ const fretboard = useFretboardStore();
                 class="flex min-w-0 flex-1 items-center justify-between gap-2"
               >
                 <button
-                  @click="fretboard.raiseString(index)"
+                  @click="instrument.raiseString(index)"
                   class="flex size-10 cursor-pointer items-center justify-center rounded-xl border-2 border-rose-500 bg-rose-800 transition hover:bg-rose-900"
                 >
                   <img
@@ -69,12 +69,12 @@ const fretboard = useFretboardStore();
                     Open Note
                   </p>
                   <p class="text-xl font-semibold">
-                    {{ fretboard.musicalNotes[string] }}
+                    {{ instrument.musicalNotes[string] }}
                   </p>
                 </div>
 
                 <button
-                  @click="fretboard.lowerString(index)"
+                  @click="instrument.lowerString(index)"
                   class="flex size-10 cursor-pointer items-center justify-center rounded-xl border-2 border-rose-500 bg-rose-800 transition hover:bg-rose-900"
                 >
                   <img
@@ -100,16 +100,16 @@ const fretboard = useFretboardStore();
             </div>
 
             <p class="rounded-full bg-zinc-900 px-3 py-1 text-sm text-gray-200">
-              Current: {{ fretboard.tuningIndexes.length }}
+              Current: {{ instrument.tuningIndexes.length }}
             </p>
           </div>
 
           <div class="mt-4 flex flex-col gap-3 sm:flex-row">
             <button
-              @click="fretboard.addString"
+              @click="instrument.addString"
               :class="[
                 'flex-1 rounded-xl px-4 py-3 text-base font-semibold text-gray-100 transition',
-                fretboard.tuningIndexes.length === 9
+                instrument.tuningIndexes.length === 9
                   ? 'cursor-not-allowed bg-zinc-900'
                   : 'cursor-pointer bg-rose-700 hover:bg-rose-800',
               ]"
@@ -117,10 +117,10 @@ const fretboard = useFretboardStore();
               Add String
             </button>
             <button
-              @click="fretboard.removeString"
+              @click="instrument.removeString"
               :class="[
                 'flex-1 rounded-xl px-4 py-3 text-base font-semibold text-gray-100 transition',
-                fretboard.tuningIndexes.length === 5
+                instrument.tuningIndexes.length === 5
                   ? 'cursor-not-allowed bg-zinc-900'
                   : 'cursor-pointer bg-rose-700 hover:bg-rose-800',
               ]"

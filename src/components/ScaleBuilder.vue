@@ -1,7 +1,9 @@
 <script setup>
-import { useFretboardStore } from "@/stores/fretboard";
+import { useInstrumentStore } from "@/stores/instrument";
+import { useScaleStore } from "@/stores/scale";
 
-const fretboard = useFretboardStore();
+const instrument = useInstrumentStore();
+const scale = useScaleStore();
 </script>
 
 <template>
@@ -54,18 +56,18 @@ const fretboard = useFretboardStore();
 
           <div class="mt-4 flex flex-wrap items-center justify-center gap-2">
             <button
-              v-for="(note, index) in fretboard.musicalNotes"
+              v-for="(note, index) in instrument.musicalNotes"
               :key="note"
-              @click="fretboard.toggleNoteHighlight(index)"
+              @click="scale.toggleNoteHighlight(index)"
               :class="[
                 'flex size-14 cursor-pointer items-center justify-center rounded-xl border-2 border-gray-200 transition transform duration-200 ease-in-out hover:scale-105',
-                fretboard.highlightedNotes[index]
-                  ? `${fretboard.highlightedNotes[index]} text-gray-50 shadow-lg shadow-black/30`
+                scale.highlightedNotes[index]
+                  ? `${scale.highlightedNotes[index]} text-gray-50 shadow-lg shadow-black/30`
                   : 'bg-zinc-900 text-gray-100',
               ]"
             >
               <p class="text-lg font-semibold">
-                {{ fretboard.musicalNotes[index] }}
+                {{ instrument.musicalNotes[index] }}
               </p>
             </button>
           </div>
@@ -74,55 +76,6 @@ const fretboard = useFretboardStore();
             (If you are a first time user start with a scale you are familiar
             with)
           </p>
-
-          <!--
-          Palette modal kept here temporarily for later reuse.
-          <div
-            class="fixed left-1/2 z-50 w-full max-w-xl -translate-x-1/2 rounded-xl border bg-zinc-900"
-          >
-            <div class="flex justify-between p-3 text-lg">
-              <h5>Add or remove highlighting to the selected note</h5>
-              <button
-                class="size-10 cursor-pointer rounded-lg border-2 bg-rose-700 hover:bg-rose-800"
-              >
-                <img :src="closeSVG" alt="Close Icon" />
-              </button>
-            </div>
-
-            <div class="flex flex-wrap">
-              <button
-                class="cursor-pointer flex flex-col justify-center items-center mx-2 mb-3 transition transform hover:scale-105 duration-200 ease-in-out"
-              >
-                <div class="size-16 rounded-2xl border-2">
-                  <img :src="closeSVG" alt="Remove Highlighting" />
-                </div>
-                <p class="text-sm">Remove</p>
-              </button>
-
-              <button
-                v-for="(value, key) in fretboard.paletteColors"
-                :key="key"
-                class="cursor-pointer flex flex-col justify-center items-center mx-2 mb-3 transition transform hover:scale-105 duration-200 ease-in-out"
-              >
-                <div
-                  :class="[
-                    'flex size-16 items-center justify-center rounded-2xl border-2',
-                    value,
-                  ]"
-                >
-                  <p
-                    class="flex size-10 items-center justify-center rounded-full border-2 text-lg"
-                  >
-                    Selected
-                  </p>
-                </div>
-                <p class="text-sm">
-                  {{ key.substring(0, 1).toUpperCase() + key.substring(1) }}
-                </p>
-              </button>
-            </div>
-          </div>
-          -->
         </div>
 
         <div class="rounded-2xl bg-zinc-800 p-4">
@@ -135,7 +88,7 @@ const fretboard = useFretboardStore();
           </div>
 
           <p
-            v-if="fretboard.selectedNotes.length > 1"
+            v-if="scale.selectedNotes.length > 1"
             class="mt-4 text-center text-lg text-gray-200"
           >
             Select the root note to display its interval relationships on the
@@ -147,13 +100,13 @@ const fretboard = useFretboardStore();
           </p>
 
           <div
-            v-if="fretboard.selectedNotes.length > 1"
+            v-if="scale.selectedNotes.length > 1"
             class="mt-4 flex flex-wrap justify-center gap-2"
           >
             <button
-              v-for="intervalNote in fretboard.intervalNotes"
+              v-for="intervalNote in scale.intervalNotes"
               :key="intervalNote.index"
-              @click="fretboard.toggleRootNote(intervalNote.index)"
+              @click="scale.toggleRootNote(intervalNote.index)"
               :class="[
                 'flex size-12 cursor-pointer items-center justify-center rounded-xl border-2 border-gray-200 transition transform duration-200 ease-in-out hover:scale-105',
                 intervalNote.isRoot ? 'bg-rose-700' : 'bg-zinc-900',
@@ -164,7 +117,7 @@ const fretboard = useFretboardStore();
           </div>
 
           <p
-            v-if="fretboard.selectedNotes.length > 1"
+            v-if="scale.selectedNotes.length > 1"
             class="mt-4 text-center text-sm text-gray-300"
           >
             Click the active root again to clear it, or choose another note to
