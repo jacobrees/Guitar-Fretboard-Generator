@@ -24,9 +24,7 @@ const fretboard = useFretboardStore();
             :class="[
               'absolute -top-5 flex size-11 items-center justify-center rounded-full border-2 border-gray-50',
               fretboard.horizontalFlip ? 'left-1' : 'right-1',
-              fretboard.highlightedNotes[note]
-                ? fretboard.highlightedNotes[note]
-                : 'bg-zinc-600',
+              fretboard.getDisplayColor(note),
             ]"
           >
             <p class="text-sm font-semibold text-gray-50">
@@ -141,19 +139,11 @@ const fretboard = useFretboardStore();
           </div>
 
           <div
-            v-if="
-              (fretboard.onlyHighlighted &&
-                fretboard.highlightedNotes[
-                  fretboard.getNote(stringCount, n)
-                ]) ||
-              !fretboard.onlyHighlighted
-            "
+            v-if="fretboard.isNoteVisible(fretboard.getNote(stringCount, n))"
             :class="[
               'absolute -top-5 z-20 flex size-10 items-center justify-center rounded-full border-2 border-gray-100',
               fretboard.horizontalFlip ? 'left-0.5' : 'right-0.5',
-              fretboard.highlightedNotes[fretboard.getNote(stringCount, n)]
-                ? fretboard.highlightedNotes[fretboard.getNote(stringCount, n)]
-                : 'bg-zinc-600',
+              fretboard.getDisplayColor(fretboard.getNote(stringCount, n)),
             ]"
           >
             <p class="text-sm font-semibold text-gray-100">

@@ -113,6 +113,8 @@ export const useFretboardStore = defineStore("fretboard", () => {
   const horizontalFlip = ref(false);
   const currentWorkspaceMode = ref("config");
   const preferredExploreLabelMode = ref("intervals");
+  const exploreIntervalColorOverrides = ref({});
+  const useDefaultExploreScaleHighlights = ref(true);
   const highlightedNotes = ref(Array(12).fill(null));
   const selectedRootNote = ref(null);
   const tuningIndexes = ref([7, 2, 10, 5, 0, 7]);
@@ -167,6 +169,11 @@ export const useFretboardStore = defineStore("fretboard", () => {
       }))
       .sort((left, right) => left.semitones - right.semitones);
   });
+
+  const selectedIntervalSemitoneSet = computed(
+    () =>
+      new Set(selectedIntervals.value.map((interval) => interval.semitones)),
+  );
 
   const matchedScaleDefinition = computed(
     () =>
@@ -235,6 +242,26 @@ export const useFretboardStore = defineStore("fretboard", () => {
       : "notes",
   );
 
+  const chromaticIntervalRows = computed(() => {
+    if (selectedRootNote.value === null) {
+      return [];
+    }
+
+    return Array.from({ length: 12 }, (_, semitones) => {
+      const label =
+        selectedIntervalLabelMap.value[semitones] ??
+        defaultIntervalLabels[semitones];
+
+      return {
+        semitones,
+        label,
+        name: intervalDefinitions[label],
+        note: musicalNotes.value[(selectedRootNote.value + semitones) % 12],
+        isInScale: selectedIntervalSemitoneSet.value.has(semitones),
+      };
+    });
+  });
+
   const visibleTuningIndexes = computed(() =>
     verticalFlip.value
       ? tuningIndexes.value
@@ -247,6 +274,50 @@ export const useFretboardStore = defineStore("fretboard", () => {
 
   const setPreferredExploreLabelMode = (mode) => {
     preferredExploreLabelMode.value = mode;
+  };
+
+  const getExploreIntervalColor = (semitones) => {
+    if (
+      Object.prototype.hasOwnProperty.call(
+        exploreIntervalColorOverrides.value,
+        semitones,
+      )
+    ) {
+      return exploreIntervalColorOverrides.value[semitones];
+    }
+
+    if (
+      useDefaultExploreScaleHighlights.value &&
+      selectedIntervalSemitoneSet.value.has(semitones)
+    ) {
+      return paletteColors.rose;
+    }
+
+    return null;
+  };
+
+  const setExploreIntervalColor = (semitones, colorClass) => {
+    exploreIntervalColorOverrides.value = {
+      ...exploreIntervalColorOverrides.value,
+      [semitones]: colorClass,
+    };
+  };
+
+  const clearExploreIntervalColor = (semitones) => {
+    exploreIntervalColorOverrides.value = {
+      ...exploreIntervalColorOverrides.value,
+      [semitones]: null,
+    };
+  };
+
+  const resetExploreIntervalHighlightsToScale = () => {
+    useDefaultExploreScaleHighlights.value = true;
+    exploreIntervalColorOverrides.value = {};
+  };
+
+  const clearAllExploreIntervalHighlights = () => {
+    useDefaultExploreScaleHighlights.value = false;
+    exploreIntervalColorOverrides.value = {};
   };
 
   const toggleHighlighted = (value) => {
@@ -310,6 +381,36 @@ export const useFretboardStore = defineStore("fretboard", () => {
     );
   };
 
+  const getDisplayColor = (noteIndex) => {
+    if (
+      currentWorkspaceMode.value === "focus" &&
+      selectedRootNote.value !== null
+    ) {
+      const semitones = (noteIndex - selectedRootNote.value + 12) % 12;
+
+      return getExploreIntervalColor(semitones) ?? "bg-zinc-600";
+    }
+
+    return highlightedNotes.value[noteIndex] ?? "bg-zinc-600";
+  };
+
+  const isNoteVisible = (noteIndex) => {
+    if (!onlyHighlighted.value) {
+      return true;
+    }
+
+    if (
+      currentWorkspaceMode.value === "focus" &&
+      selectedRootNote.value !== null
+    ) {
+      const semitones = (noteIndex - selectedRootNote.value + 12) % 12;
+
+      return getExploreIntervalColor(semitones) !== null;
+    }
+
+    return Boolean(highlightedNotes.value[noteIndex]);
+  };
+
   const fretViewTo12 = () => {
     fretView.value = 12;
   };
@@ -349,10 +450,16 @@ export const useFretboardStore = defineStore("fretboard", () => {
     fretViewTo12,
     fretViewTo24,
     fretboardMarkers,
+    chromaticIntervalRows,
+    clearAllExploreIntervalHighlights,
+    clearExploreIntervalColor,
     currentWorkspaceMode,
     effectiveFretLabelMode,
+    getDisplayColor,
     getNote,
     getDisplayLabel,
+    getExploreIntervalColor,
+    isNoteVisible,
     highlightedNotes,
     horizontalFlip,
     intervalLegend,
@@ -364,10 +471,12 @@ export const useFretboardStore = defineStore("fretboard", () => {
     preferredExploreLabelMode,
     raiseString,
     removeString,
+    resetExploreIntervalHighlightsToScale,
     selectedNoteIndexes,
     selectedNotes,
     selectedRootNote,
     selectedScaleSummary,
+    setExploreIntervalColor,
     setPreferredExploreLabelMode,
     setWorkspaceMode,
     sharpsEnabled,
