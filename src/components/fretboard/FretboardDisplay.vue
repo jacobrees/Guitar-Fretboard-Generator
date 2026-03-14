@@ -46,7 +46,7 @@ const visibleStringStartNotes = computed(() => instrument.visibleTuningIndexes);
 <template>
   <div
     :class="[
-      'z-0 mx-auto flex w-full max-w-screen-2xl p-5',
+      'z-0 flex w-full min-w-0 p-5',
       instrument.horizontalFlip ? 'flex-row-reverse' : 'flex-row',
     ]"
   >

@@ -105,8 +105,8 @@ const noteNamingPreview = computed(() =>
                 >
                   {{
                     instrument.verticalFlip
-                      ? "String Order: Standard"
-                      : "String Order: Reversed"
+                      ? "Strings: Standard"
+                      : "Strings: Reversed"
                   }}
                 </div>
                 <div

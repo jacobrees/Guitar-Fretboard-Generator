@@ -86,7 +86,16 @@ const {
         @open-interval-helper="showIntervalHelper = true"
       />
 
-      <FretboardDisplay />
+      <div v-if="activeMode === 'focus'" class="w-full">
+        <div class="mx-auto w-full max-w-screen-2xl">
+          <FretboardDisplay />
+        </div>
+        <FretboardControls />
+      </div>
+
+      <div v-else class="mx-auto w-full max-w-screen-2xl">
+        <FretboardDisplay />
+      </div>
 
       <ConfigWorkspacePanel
         v-if="activeMode === 'config'"
@@ -94,7 +103,6 @@ const {
         @go-to-focus="goToFocus"
       />
     </div>
-    <FretboardControls v-if="activeMode === 'focus'" />
     <FooterComponent />
   </div>
 
