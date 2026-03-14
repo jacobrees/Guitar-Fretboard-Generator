@@ -14,8 +14,10 @@ const { isMinWidth: hasFullFretRangeAccess } = useMinWidth(1536);
 const fullFretViewId = "full-24";
 const fretViewOptions = [
   { id: "0-12", label: "0-12" },
-  { id: "6-18", label: "6-18" },
   { id: "12-24", label: "12-24" },
+  { id: "3-15", label: "3-15" },
+  { id: "6-18", label: "6-18" },
+  { id: "9-21", label: "9-21" },
   { id: fullFretViewId, label: "Full 24" },
 ];
 

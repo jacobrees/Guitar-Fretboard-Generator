@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from "vue";
 
+import ConfigFretboardControls from "@/components/fretboard/ConfigFretboardControls.vue";
 import FretboardControls from "@/components/fretboard/FretboardControls.vue";
 import FretboardDisplay from "@/components/fretboard/FretboardDisplay.vue";
 import FooterComponent from "@/components/layout/Footer.vue";
@@ -93,8 +94,11 @@ const {
         <FretboardControls />
       </div>
 
-      <div v-else class="mx-auto w-full max-w-screen-2xl">
-        <FretboardDisplay />
+      <div v-else class="w-full">
+        <div class="mx-auto w-full max-w-screen-2xl">
+          <FretboardDisplay />
+        </div>
+        <ConfigFretboardControls />
       </div>
 
       <ConfigWorkspacePanel
