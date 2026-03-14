@@ -98,7 +98,7 @@ onBeforeUnmount(() => {
 <template>
   <div
     ref="dockRef"
-    class="relative z-30 mx-auto w-full max-w-screen-2xl px-5 pb-3"
+    class="relative z-30 mx-auto mt-2 w-full max-w-screen-2xl px-5 pb-3"
   >
     <div class="grid grid-cols-2 gap-3">
       <div class="relative min-w-0">

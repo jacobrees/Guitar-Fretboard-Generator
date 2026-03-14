@@ -49,7 +49,7 @@ const {
 </script>
 
 <template>
-  <div class="hidden lg:block">
+  <div class="hidden min-h-screen lg:flex lg:flex-col">
     <Navigation />
 
     <FocusLockedModal v-model="showFocusWarning" />
@@ -70,7 +70,7 @@ const {
       :selected-interval-labels="selectedIntervalLabels"
     />
 
-    <div class="flex flex-col items-center justify-center">
+    <div class="flex flex-1 flex-col items-center">
       <WorkspaceModeSwitcher
         :mode-title="modeTitle"
         :mode-description="modeDescription"
@@ -107,7 +107,7 @@ const {
         @go-to-focus="goToFocus"
       />
     </div>
-    <FooterComponent />
+    <FooterComponent class="mt-auto" />
   </div>
 
   <div
