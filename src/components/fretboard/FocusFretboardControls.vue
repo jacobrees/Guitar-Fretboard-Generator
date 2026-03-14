@@ -120,7 +120,7 @@ onBeforeUnmount(() => {
 
         <div
           v-if="isControlOpen('interval-highlighting')"
-          class="absolute top-full left-0 z-40 mt-2 w-[36rem] max-w-[min(36rem,calc(100vw-4rem))] rounded-2xl border border-gray-500 bg-zinc-900 p-4 shadow-2xl shadow-black/45"
+          class="absolute top-full left-0 z-40 mt-2 w-xl max-w-[min(36rem,calc(100vw-4rem))] rounded-2xl border border-gray-500 bg-zinc-900 p-4 shadow-2xl shadow-black/45"
         >
           <div class="flex items-start justify-between gap-3">
             <div>
@@ -212,7 +212,7 @@ onBeforeUnmount(() => {
 
         <div
           v-if="isControlOpen('interval-helper')"
-          class="absolute top-full left-0 z-40 mt-2 w-[32rem] max-w-[min(32rem,calc(100vw-4rem))] rounded-2xl border border-gray-500 bg-zinc-900 p-4 shadow-2xl shadow-black/45"
+          class="absolute top-full left-0 z-40 mt-2 w-lg max-w-[min(32rem,calc(100vw-4rem))] rounded-2xl border border-gray-500 bg-zinc-900 p-4 shadow-2xl shadow-black/45"
         >
           <div class="border-b border-gray-700 pb-3">
             <p class="text-sm font-semibold text-gray-100">Interval Helper</p>
