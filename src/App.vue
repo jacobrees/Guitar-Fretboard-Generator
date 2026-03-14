@@ -2,6 +2,7 @@
 import { computed, ref } from "vue";
 
 import ConfigFretboardControls from "@/components/fretboard/ConfigFretboardControls.vue";
+import FocusFretboardControls from "@/components/fretboard/FocusFretboardControls.vue";
 import FretboardControls from "@/components/fretboard/FretboardControls.vue";
 import FretboardDisplay from "@/components/fretboard/FretboardDisplay.vue";
 import FooterComponent from "@/components/layout/Footer.vue";
@@ -11,7 +12,6 @@ import FocusLockedModal from "@/components/workspace/modals/FocusLockedModal.vue
 import IntervalColorModal from "@/components/workspace/modals/IntervalColorModal.vue";
 import IntervalFormulaHelperModal from "@/components/workspace/modals/IntervalFormulaHelperModal.vue";
 import ConfigWorkspacePanel from "@/components/workspace/panels/ConfigWorkspacePanel.vue";
-import FocusWorkspacePanel from "@/components/workspace/panels/FocusWorkspacePanel.vue";
 
 import { useIntervalPalette } from "@/composables/workspace/useIntervalPalette";
 import { useWorkspaceMode } from "@/composables/workspace/useWorkspaceMode";
@@ -79,15 +79,15 @@ const {
         @go-to-focus="handleFocusClick"
       />
 
-      <FocusWorkspacePanel
-        v-if="activeMode === 'focus' && scale.selectedScaleSummary"
-        :active-interval-palette="activeIntervalPalette"
-        @toggle-interval-palette="toggleIntervalPalette"
-        @close-interval-palette="closeIntervalPalette"
-        @open-interval-helper="showIntervalHelper = true"
-      />
-
       <div v-if="activeMode === 'focus'" class="w-full">
+        <FocusFretboardControls
+          v-if="scale.selectedScaleSummary"
+          :active-interval-palette="activeIntervalPalette"
+          @toggle-interval-palette="toggleIntervalPalette"
+          @close-interval-palette="closeIntervalPalette"
+          @open-interval-helper="showIntervalHelper = true"
+        />
+
         <div class="mx-auto w-full max-w-screen-2xl">
           <FretboardDisplay />
         </div>
