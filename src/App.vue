@@ -1,18 +1,21 @@
 <script setup>
 import { computed, ref } from "vue";
+
+import FretboardControls from "@/components/fretboard/FretboardControls.vue";
+import FretboardDisplay from "@/components/fretboard/FretboardDisplay.vue";
+import FooterComponent from "@/components/layout/Footer.vue";
+import Navigation from "@/components/layout/Navigation.vue";
+import WorkspaceModeSwitcher from "@/components/workspace/WorkspaceModeSwitcher.vue";
+import FocusLockedModal from "@/components/workspace/modals/FocusLockedModal.vue";
+import IntervalColorModal from "@/components/workspace/modals/IntervalColorModal.vue";
+import IntervalFormulaHelperModal from "@/components/workspace/modals/IntervalFormulaHelperModal.vue";
+import ConfigWorkspacePanel from "@/components/workspace/panels/ConfigWorkspacePanel.vue";
+import FocusWorkspacePanel from "@/components/workspace/panels/FocusWorkspacePanel.vue";
+
+import { useIntervalPalette } from "@/composables/workspace/useIntervalPalette";
+import { useWorkspaceMode } from "@/composables/workspace/useWorkspaceMode";
+
 import { useScaleStore } from "@/stores/scale";
-import Navigation from "@/components/Navigation.vue";
-import FooterComponent from "@/components/Footer.vue";
-import FretboardDisplay from "@/components/FretboardDisplay.vue";
-import FretboardControls from "@/components/FretboardControls.vue";
-import FocusLockedModal from "@/components/FocusLockedModal.vue";
-import IntervalColorModal from "@/components/IntervalColorModal.vue";
-import IntervalFormulaHelperModal from "@/components/IntervalFormulaHelperModal.vue";
-import FocusWorkspacePanel from "@/components/FocusWorkspacePanel.vue";
-import ConfigWorkspacePanel from "@/components/ConfigWorkspacePanel.vue";
-import WorkspaceModeSwitcher from "@/components/WorkspaceModeSwitcher.vue";
-import { useWorkspaceMode } from "@/composables/useWorkspaceMode";
-import { useIntervalPalette } from "@/composables/useIntervalPalette";
 
 const scale = useScaleStore();
 const showIntervalHelper = ref(false);

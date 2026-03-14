@@ -1,7 +1,8 @@
 <script setup>
-import { useInstrumentStore } from "@/stores/instrument";
-import caretUpSVG from "@/assets/caret-up.svg";
 import caretDownSVG from "@/assets/caret-down.svg";
+import caretUpSVG from "@/assets/caret-up.svg";
+
+import { useInstrumentStore } from "@/stores/instrument";
 
 const instrument = useInstrumentStore();
 </script>

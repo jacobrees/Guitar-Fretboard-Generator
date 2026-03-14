@@ -1,8 +1,10 @@
 <script setup>
 import { computed } from "vue";
-import InstrumentConfigurator from "@/components/InstrumentConfigurator.vue";
-import IntervalFormulaChips from "@/components/IntervalFormulaChips.vue";
-import ScaleBuilder from "@/components/ScaleBuilder.vue";
+
+import InstrumentConfigurator from "@/components/config/InstrumentConfigurator.vue";
+import ScaleBuilder from "@/components/config/ScaleBuilder.vue";
+import IntervalFormulaChips from "@/components/workspace/shared/IntervalFormulaChips.vue";
+
 import { useInstrumentStore } from "@/stores/instrument";
 import { useScaleStore } from "@/stores/scale";
 

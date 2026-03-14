@@ -1,5 +1,6 @@
 <script setup>
-import IntervalFormulaChips from "@/components/IntervalFormulaChips.vue";
+import IntervalFormulaChips from "@/components/workspace/shared/IntervalFormulaChips.vue";
+
 import { useExploreStore } from "@/stores/explore";
 import { useScaleStore } from "@/stores/scale";
 

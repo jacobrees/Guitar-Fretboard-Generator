@@ -1,4 +1,5 @@
 import { computed, ref } from "vue";
+
 import { useExploreStore } from "@/stores/explore";
 import { useScaleStore } from "@/stores/scale";
 

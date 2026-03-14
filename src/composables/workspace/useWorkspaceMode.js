@@ -1,4 +1,5 @@
 import { computed, ref, watch } from "vue";
+
 import { useExploreStore } from "@/stores/explore";
 import { useInstrumentStore } from "@/stores/instrument";
 import { useScaleStore } from "@/stores/scale";

@@ -1,6 +1,6 @@
 <script setup>
-import { useInstrumentStore } from "@/stores/instrument";
 import { useExploreStore } from "@/stores/explore";
+import { useInstrumentStore } from "@/stores/instrument";
 
 const instrument = useInstrumentStore();
 const explore = useExploreStore();
