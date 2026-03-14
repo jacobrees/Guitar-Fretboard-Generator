@@ -7,7 +7,38 @@ export const useInstrumentStore = defineStore("instrument", () => {
   const verticalFlip = ref(true);
   const horizontalFlip = ref(false);
   const tuningIndexes = ref([7, 2, 10, 5, 0, 7]);
-  const fretView = ref(12);
+  const defaultFretViewId = "0-12";
+  const fretViewPresets = Object.freeze({
+    "0-12": {
+      id: "0-12",
+      label: "0-12",
+      startFret: 0,
+      fretCount: 12,
+      showOpenStringMarkers: true,
+    },
+    "6-18": {
+      id: "6-18",
+      label: "6-18",
+      startFret: 6,
+      fretCount: 13,
+      showOpenStringMarkers: false,
+    },
+    "12-24": {
+      id: "12-24",
+      label: "12-24",
+      startFret: 12,
+      fretCount: 13,
+      showOpenStringMarkers: false,
+    },
+    "full-24": {
+      id: "full-24",
+      label: "Full 24",
+      startFret: 0,
+      fretCount: 24,
+      showOpenStringMarkers: true,
+    },
+  });
+  const fretView = ref(defaultFretViewId);
 
   const musicalNotes = computed(() => [
     "A",
@@ -51,12 +82,36 @@ export const useInstrumentStore = defineStore("instrument", () => {
     return (index + fret) % 12;
   };
 
+  const getFretViewPreset = (viewId = fretView.value) =>
+    fretViewPresets[viewId] ?? fretViewPresets[defaultFretViewId];
+
+  const getFretRange = (viewId = fretView.value) => {
+    const { startFret, fretCount, showOpenStringMarkers } =
+      getFretViewPreset(viewId);
+    const firstDisplayedFret = showOpenStringMarkers
+      ? startFret + 1
+      : startFret;
+
+    return Array.from(
+      { length: fretCount },
+      (_, index) => firstDisplayedFret + index,
+    );
+  };
+
+  const setFretView = (viewId) => {
+    if (!fretViewPresets[viewId]) {
+      return;
+    }
+
+    fretView.value = viewId;
+  };
+
   const fretViewTo12 = () => {
-    fretView.value = 12;
+    setFretView(defaultFretViewId);
   };
 
   const fretViewTo24 = () => {
-    fretView.value = 24;
+    setFretView("full-24");
   };
 
   const raiseString = (index) => {
@@ -86,7 +141,12 @@ export const useInstrumentStore = defineStore("instrument", () => {
     addString,
     flipHorizontally,
     flipVertically,
+    defaultFretViewId,
     fretView,
+    fretViewPresets,
+    getFretRange,
+    getFretViewPreset,
+    setFretView,
     fretViewTo12,
     fretViewTo24,
     fretboardMarkers,

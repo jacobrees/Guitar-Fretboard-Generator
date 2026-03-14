@@ -48,51 +48,68 @@ const {
 </script>
 
 <template>
-  <Navigation />
+  <div class="hidden lg:block">
+    <Navigation />
 
-  <FocusLockedModal v-model="showFocusWarning" />
+    <FocusLockedModal v-model="showFocusWarning" />
 
-  <IntervalColorModal
-    v-model="showIntervalColorModal"
-    :interval-highlight="activeIntervalHighlight"
-    :palette-colors="paletteColors"
-    :active-color="activeIntervalColor"
-    @select-color="setActiveIntervalHighlightColor"
-    @clear-color="clearActiveIntervalHighlightColor"
-  />
-
-  <IntervalFormulaHelperModal
-    v-model="showIntervalHelper"
-    :mode-name="scale.selectedScaleSummary?.modeName"
-    :interval-legend="scale.intervalLegend"
-    :selected-interval-labels="selectedIntervalLabels"
-  />
-
-  <div class="flex flex-col items-center justify-center">
-    <WorkspaceModeSwitcher
-      :mode-title="modeTitle"
-      :mode-description="modeDescription"
-      :active-mode="activeMode"
-      @go-to-config="goToConfig"
-      @go-to-focus="handleFocusClick"
+    <IntervalColorModal
+      v-model="showIntervalColorModal"
+      :interval-highlight="activeIntervalHighlight"
+      :palette-colors="paletteColors"
+      :active-color="activeIntervalColor"
+      @select-color="setActiveIntervalHighlightColor"
+      @clear-color="clearActiveIntervalHighlightColor"
     />
 
-    <FocusWorkspacePanel
-      v-if="activeMode === 'focus' && scale.selectedScaleSummary"
-      :active-interval-palette="activeIntervalPalette"
-      @toggle-interval-palette="toggleIntervalPalette"
-      @close-interval-palette="closeIntervalPalette"
-      @open-interval-helper="showIntervalHelper = true"
+    <IntervalFormulaHelperModal
+      v-model="showIntervalHelper"
+      :mode-name="scale.selectedScaleSummary?.modeName"
+      :interval-legend="scale.intervalLegend"
+      :selected-interval-labels="selectedIntervalLabels"
     />
 
-    <FretboardDisplay />
+    <div class="flex flex-col items-center justify-center">
+      <WorkspaceModeSwitcher
+        :mode-title="modeTitle"
+        :mode-description="modeDescription"
+        :active-mode="activeMode"
+        @go-to-config="goToConfig"
+        @go-to-focus="handleFocusClick"
+      />
 
-    <ConfigWorkspacePanel
-      v-if="activeMode === 'config'"
-      @open-interval-helper="showIntervalHelper = true"
-      @go-to-focus="goToFocus"
-    />
+      <FocusWorkspacePanel
+        v-if="activeMode === 'focus' && scale.selectedScaleSummary"
+        :active-interval-palette="activeIntervalPalette"
+        @toggle-interval-palette="toggleIntervalPalette"
+        @close-interval-palette="closeIntervalPalette"
+        @open-interval-helper="showIntervalHelper = true"
+      />
+
+      <FretboardDisplay />
+
+      <ConfigWorkspacePanel
+        v-if="activeMode === 'config'"
+        @open-interval-helper="showIntervalHelper = true"
+        @go-to-focus="goToFocus"
+      />
+    </div>
+    <FretboardControls v-if="activeMode === 'focus'" />
+    <FooterComponent />
   </div>
-  <FretboardControls v-if="activeMode === 'focus'" />
-  <FooterComponent />
+
+  <div
+    class="flex min-h-screen items-center justify-center bg-zinc-950 px-6 py-12 text-center text-gray-100 lg:hidden"
+  >
+    <div
+      class="max-w-md space-y-3 rounded-2xl border border-gray-700 bg-zinc-900/90 p-6"
+    >
+      <p class="text-lg font-semibold">Larger Screen Required</p>
+      <p class="text-sm text-gray-300">
+        Guitar Fretboard Generator currently works best on wider layouts. If
+        you're on a tablet, try landscape mode or a window width of at least
+        1024px.
+      </p>
+    </div>
+  </div>
 </template>

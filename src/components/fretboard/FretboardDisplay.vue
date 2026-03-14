@@ -1,9 +1,46 @@
 <script setup>
+import { computed, watch } from "vue";
+import { useMinWidth } from "@/composables/useMinWidth";
 import { useExploreStore } from "@/stores/explore";
 import { useInstrumentStore } from "@/stores/instrument";
 
 const instrument = useInstrumentStore();
 const explore = useExploreStore();
+const { isMinWidth: hasFullFretRangeAccess } = useMinWidth(1536);
+
+watch(
+  [hasFullFretRangeAccess, () => instrument.fretView],
+  ([hasAccess, fretView]) => {
+    if (!hasAccess && fretView === "full-24") {
+      instrument.fretViewTo12();
+    }
+  },
+  { immediate: true },
+);
+
+const effectiveFretViewId = computed(() =>
+  !hasFullFretRangeAccess.value && instrument.fretView === "full-24"
+    ? instrument.defaultFretViewId
+    : instrument.fretView,
+);
+
+const effectiveFretPreset = computed(() =>
+  instrument.getFretViewPreset(effectiveFretViewId.value),
+);
+
+const effectiveFrets = computed(() =>
+  instrument.getFretRange(effectiveFretViewId.value),
+);
+
+const showOpenStringMarkers = computed(
+  () => effectiveFretPreset.value.showOpenStringMarkers,
+);
+
+const fretCellStyle = computed(() => ({
+  width: `${100 / effectiveFrets.value.length}%`,
+}));
+
+const visibleStringStartNotes = computed(() => instrument.visibleTuningIndexes);
 </script>
 
 <template>
@@ -13,12 +50,12 @@ const explore = useExploreStore();
       instrument.horizontalFlip ? 'flex-row-reverse' : 'flex-row',
     ]"
   >
-    <div class="w-1/25">
+    <div :class="[showOpenStringMarkers ? 'w-1/25' : 'hidden']">
       <div class="w-full flex flex-col justify-between h-full">
         <div class="h-14"></div>
 
         <div
-          v-for="(note, index) in instrument.visibleTuningIndexes"
+          v-for="(note, index) in visibleStringStartNotes"
           :key="index"
           class="h-14 relative"
         >
@@ -37,7 +74,9 @@ const explore = useExploreStore();
       </div>
     </div>
 
-    <div class="w-24/25 h-auto relative">
+    <div
+      :class="[showOpenStringMarkers ? 'w-24/25' : 'w-full', 'h-auto relative']"
+    >
       <div
         :class="[
           'absolute top-0 left-0 z-10 flex h-11 w-full items-center bg-gray-800',
@@ -45,7 +84,7 @@ const explore = useExploreStore();
         ]"
       >
         <div
-          v-for="n in instrument.fretView"
+          v-for="n in effectiveFrets"
           :key="n"
           :class="[
             'flex h-6 justify-center',
@@ -53,8 +92,8 @@ const explore = useExploreStore();
               ? 'border-l-4 border-l-gray-500'
               : 'border-r-4 border-r-gray-500',
             instrument.fretboardMarkers.includes(n) ? 'bg-amber-50' : '',
-            instrument.fretView === 24 ? 'w-1/24' : 'w-2/24',
           ]"
+          :style="fretCellStyle"
         >
           <p v-if="instrument.fretboardMarkers.includes(n)">{{ n }}</p>
         </div>
@@ -64,29 +103,29 @@ const explore = useExploreStore();
         class="absolute bottom-0 left-0 z-10 flex h-11 w-full items-center bg-gray-800"
       >
         <div
-          v-for="n in instrument.fretView"
+          v-for="n in effectiveFrets"
           :key="n"
           :class="[
             'flex h-6 justify-center',
             instrument.horizontalFlip
               ? 'border-l-4 border-l-gray-500'
               : 'border-r-4 border-r-gray-500',
-            instrument.fretView === 24 ? 'w-1/24' : 'w-2/24',
           ]"
+          :style="fretCellStyle"
         ></div>
       </div>
 
       <div class="flex h-14 w-full border-y-2">
         <div
-          v-for="n in instrument.fretView"
+          v-for="n in effectiveFrets"
           :key="n"
           :class="[
             'h-full border-y-2 border-y-gray-200 bg-black',
             instrument.horizontalFlip
               ? 'border-l-4 border-l-amber-200'
               : 'border-r-4 border-r-amber-200',
-            instrument.fretView === 24 ? 'w-1/24' : 'w-2/24',
           ]"
+          :style="fretCellStyle"
         ></div>
       </div>
 
@@ -99,15 +138,15 @@ const explore = useExploreStore();
         ]"
       >
         <div
-          v-for="n in instrument.fretView"
+          v-for="n in effectiveFrets"
           :key="n"
           :class="[
             'relative h-full border-y-2 border-y-gray-200 bg-black',
             instrument.horizontalFlip
               ? 'border-l-4 border-l-amber-200'
               : 'border-r-4 border-r-amber-200',
-            instrument.fretView === 24 ? 'w-1/24' : 'w-2/24',
           ]"
+          :style="fretCellStyle"
         >
           <div
             v-if="

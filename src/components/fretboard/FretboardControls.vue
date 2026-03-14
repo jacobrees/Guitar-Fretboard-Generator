@@ -1,10 +1,19 @@
 <script setup>
 import { computed } from "vue";
+import { useMinWidth } from "@/composables/useMinWidth";
 import { useExploreStore } from "@/stores/explore";
 import { useInstrumentStore } from "@/stores/instrument";
 
 const explore = useExploreStore();
 const instrument = useInstrumentStore();
+const { isMinWidth: hasFullFretRangeAccess } = useMinWidth(1536);
+const fullFretViewId = "full-24";
+const fretViewOptions = [
+  { id: "0-12", label: "0-12" },
+  { id: "6-18", label: "6-18" },
+  { id: "12-24", label: "12-24" },
+  { id: fullFretViewId, label: "Full 24" },
+];
 
 const noteSpellingState = computed(() =>
   instrument.sharpsEnabled ? "Sharps Active" : "Flats Active",
@@ -22,7 +31,28 @@ const horizontalOrientationState = computed(() =>
   instrument.horizontalFlip ? "Frets: Mirrored" : "Frets: Standard",
 );
 
-const fretViewState = computed(() => `${instrument.fretView} Frets`);
+const effectiveFretViewId = computed(() =>
+  !hasFullFretRangeAccess.value && instrument.fretView === fullFretViewId
+    ? instrument.defaultFretViewId
+    : instrument.fretView,
+);
+
+const effectiveFretPreset = computed(() =>
+  instrument.getFretViewPreset(effectiveFretViewId.value),
+);
+
+const fretViewState = computed(() => effectiveFretPreset.value.label);
+
+const isFretViewDisabled = (viewId) =>
+  viewId === fullFretViewId && !hasFullFretRangeAccess.value;
+
+const applyFretView = (viewId) => {
+  if (isFretViewDisabled(viewId)) {
+    return;
+  }
+
+  instrument.setFretView(viewId);
+};
 </script>
 
 <template>
@@ -96,6 +126,52 @@ const fretViewState = computed(() => `${instrument.fretView} Frets`);
             </div>
           </div>
 
+          <div class="rounded-2xl bg-zinc-800 p-4">
+            <h4 class="text-xl font-semibold text-center">Fret View</h4>
+            <div class="mt-2 flex justify-center">
+              <span
+                class="rounded-full border border-gray-500 bg-zinc-900 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gray-200"
+              >
+                {{ fretViewState }}
+              </span>
+            </div>
+            <p class="mt-2 text-sm text-center text-gray-300">
+              Choose a focused 12-fret window. Full 24 is available on screens
+              that are at least 1536px wide.
+            </p>
+
+            <div class="mt-4 grid gap-2 sm:grid-cols-2">
+              <button
+                v-for="view in fretViewOptions"
+                :key="view.id"
+                :disabled="isFretViewDisabled(view.id)"
+                @click="applyFretView(view.id)"
+                :class="[
+                  'w-full rounded-xl p-3 font-semibold transition',
+                  isFretViewDisabled(view.id)
+                    ? 'cursor-not-allowed bg-zinc-900/70 text-gray-500'
+                    : effectiveFretViewId === view.id
+                      ? 'cursor-not-allowed bg-rose-700'
+                      : 'cursor-pointer bg-zinc-900 text-gray-50 hover:bg-zinc-950',
+                ]"
+              >
+                {{ view.label }}
+              </button>
+            </div>
+
+            <div
+              v-if="!hasFullFretRangeAccess"
+              class="mt-4 rounded-xl border border-amber-300/35 bg-amber-950/35 p-3 text-sm text-amber-100"
+            >
+              <p class="font-semibold">
+                Full 24 Fret View Is Not Available At This Size
+              </p>
+              <p class="mt-1 text-amber-50/90">
+                On screens below 1536px, Full 24 is limited to 12-fret spans.
+              </p>
+            </div>
+          </div>
+
           <div
             v-if="explore.effectiveFretLabelMode !== 'intervals'"
             class="rounded-2xl bg-zinc-800 p-4"
@@ -119,46 +195,6 @@ const fretViewState = computed(() => `${instrument.fretView} Frets`);
             >
               Switch To {{ instrument.sharpsEnabled ? "Flats" : "Sharps" }}
             </button>
-          </div>
-
-          <div class="rounded-2xl bg-zinc-800 p-4">
-            <h4 class="text-xl font-semibold text-center">Visibility</h4>
-            <div class="mt-2 flex justify-center">
-              <span
-                class="rounded-full border border-gray-500 bg-zinc-900 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gray-200"
-              >
-                {{ visibilityState }}
-              </span>
-            </div>
-            <p class="mt-2 text-sm text-center text-gray-300">
-              Focus only on the intervals you have highlighted, or widen the
-              view to see the full chromatic neck.
-            </p>
-
-            <div class="mt-4 grid gap-2">
-              <button
-                :class="[
-                  'w-full rounded-xl p-3 font-semibold text-gray-50 transition',
-                  explore.onlyHighlighted
-                    ? 'cursor-not-allowed bg-rose-700'
-                    : 'cursor-pointer bg-zinc-900 hover:bg-zinc-950',
-                ]"
-                @click="explore.toggleHighlighted(true)"
-              >
-                Show Only Highlighted
-              </button>
-              <button
-                :class="[
-                  'w-full rounded-xl p-3 font-semibold text-gray-50 transition',
-                  !explore.onlyHighlighted
-                    ? 'cursor-not-allowed bg-rose-700'
-                    : 'cursor-pointer bg-zinc-900 hover:bg-zinc-950',
-                ]"
-                @click="explore.toggleHighlighted(false)"
-              >
-                Show All
-              </button>
-            </div>
           </div>
 
           <div class="rounded-2xl bg-zinc-800 p-4">
@@ -202,40 +238,41 @@ const fretViewState = computed(() => `${instrument.fretView} Frets`);
           </div>
 
           <div class="rounded-2xl bg-zinc-800 p-4">
-            <h4 class="text-xl font-semibold text-center">Fret View</h4>
+            <h4 class="text-xl font-semibold text-center">Visibility</h4>
             <div class="mt-2 flex justify-center">
               <span
                 class="rounded-full border border-gray-500 bg-zinc-900 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gray-200"
               >
-                {{ fretViewState }}
+                {{ visibilityState }}
               </span>
             </div>
             <p class="mt-2 text-sm text-center text-gray-300">
-              Choose between a compact octave view or the full 24-fret layout.
+              Focus only on the intervals you have highlighted, or widen the
+              view to see the full chromatic neck.
             </p>
 
             <div class="mt-4 grid gap-2">
               <button
-                @click="instrument.fretViewTo12"
                 :class="[
                   'w-full rounded-xl p-3 font-semibold text-gray-50 transition',
-                  instrument.fretView === 12
+                  explore.onlyHighlighted
                     ? 'cursor-not-allowed bg-rose-700'
                     : 'cursor-pointer bg-zinc-900 hover:bg-zinc-950',
                 ]"
+                @click="explore.toggleHighlighted(true)"
               >
-                0...12
+                Show Only Highlighted
               </button>
               <button
-                @click="instrument.fretViewTo24"
                 :class="[
                   'w-full rounded-xl p-3 font-semibold text-gray-50 transition',
-                  instrument.fretView === 24
+                  !explore.onlyHighlighted
                     ? 'cursor-not-allowed bg-rose-700'
                     : 'cursor-pointer bg-zinc-900 hover:bg-zinc-950',
                 ]"
+                @click="explore.toggleHighlighted(false)"
               >
-                Full 24
+                Show All
               </button>
             </div>
           </div>
