@@ -118,9 +118,8 @@ const {
     >
       <p class="text-lg font-semibold">Larger Screen Required</p>
       <p class="text-sm text-gray-300">
-        Guitar Fretboard Generator currently works best on wider layouts. If
-        you're on a tablet, try landscape mode or a window width of at least
-        1024px.
+        This website currently works best on wider layouts. If you're on a
+        tablet, try landscape mode or a window width of at least 1024px.
       </p>
     </div>
   </div>
