@@ -1,3 +1,7 @@
+<script setup>
+import ntsIcon from "@/assets/nts-boxed-cutout-white.svg";
+</script>
+
 <template>
   <div class="w-full border-b border-gray-500 bg-gray-950 px-4 py-5">
     <div class="mx-auto w-full max-w-screen-2xl text-gray-50">
@@ -62,7 +66,3 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import ntsIcon from "@/assets/nts-boxed-cutout-white.svg";
-</script>
