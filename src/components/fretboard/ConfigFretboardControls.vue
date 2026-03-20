@@ -1,237 +1,90 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed } from "vue";
 
 import { useInstrumentStore } from "@/stores/instrument";
 
 const instrument = useInstrumentStore();
 
-const dockRef = ref(null);
-const activeControl = ref(null);
-
 const noteSpellingState = computed(() =>
   instrument.sharpsEnabled ? "Sharps Active" : "Flats Active",
 );
 
-const orientationState = computed(
-  () =>
-    `${instrument.verticalFlip ? "Strings: Standard" : "Strings: Reversed"} · ${
-      instrument.horizontalFlip ? "Frets: Mirrored" : "Frets: Standard"
-    }`,
-);
-
-const closeControls = () => {
-  activeControl.value = null;
-};
-
-const toggleControl = (controlKey) => {
-  activeControl.value = activeControl.value === controlKey ? null : controlKey;
-};
-
-const isControlOpen = (controlKey) => activeControl.value === controlKey;
+const noteNamingOptions = [
+  {
+    id: "sharps",
+    label: "Sharps",
+    examples: "A# C# F#",
+    usesSharps: true,
+  },
+  {
+    id: "flats",
+    label: "Flats",
+    examples: "B♭ D♭ G♭",
+    usesSharps: false,
+  },
+];
 
 const setNoteSpelling = (useSharps) => {
   if (instrument.sharpsEnabled !== useSharps) {
     instrument.toggleSharpsEnabled();
   }
-
-  closeControls();
 };
-
-const setVerticalFlip = (useStandardStringOrder) => {
-  if (instrument.verticalFlip !== useStandardStringOrder) {
-    instrument.flipVertically();
-  }
-
-  closeControls();
-};
-
-const setHorizontalFlip = (useMirroredFrets) => {
-  if (instrument.horizontalFlip !== useMirroredFrets) {
-    instrument.flipHorizontally();
-  }
-
-  closeControls();
-};
-
-const handleDocumentClick = (event) => {
-  if (!dockRef.value || dockRef.value.contains(event.target)) {
-    return;
-  }
-
-  closeControls();
-};
-
-const handleEscape = (event) => {
-  if (event.key === "Escape") {
-    closeControls();
-  }
-};
-
-onMounted(() => {
-  if (typeof document === "undefined") {
-    return;
-  }
-
-  document.addEventListener("click", handleDocumentClick);
-  document.addEventListener("keydown", handleEscape);
-});
-
-onBeforeUnmount(() => {
-  if (typeof document === "undefined") {
-    return;
-  }
-
-  document.removeEventListener("click", handleDocumentClick);
-  document.removeEventListener("keydown", handleEscape);
-});
 </script>
 
 <template>
-  <div
-    ref="dockRef"
-    class="relative z-30 mx-auto w-full max-w-screen-2xl px-5 pb-5"
-  >
-    <div class="grid grid-cols-2 gap-3">
-      <div class="relative min-w-0">
-        <button
-          type="button"
-          class="flex w-full items-center justify-between rounded-xl border border-gray-600 bg-zinc-900 px-3 py-2 text-left text-gray-100"
-          @click="toggleControl('note-spelling')"
-        >
-          <div>
-            <p class="text-xs uppercase tracking-[0.2em] text-gray-400">
-              Note Naming
-            </p>
-            <p class="mt-1 text-sm font-semibold">{{ noteSpellingState }}</p>
-          </div>
-          <span class="text-xs uppercase tracking-wide text-gray-400">
-            {{ isControlOpen("note-spelling") ? "Close" : "Open" }}
-          </span>
-        </button>
-
-        <div
-          v-if="isControlOpen('note-spelling')"
-          class="absolute bottom-full left-0 z-40 mb-2 w-72 rounded-2xl border border-gray-500 bg-zinc-900 p-4 shadow-2xl shadow-black/45"
-        >
-          <p class="text-sm font-semibold text-gray-100">Note Naming</p>
-          <p class="mt-1 text-xs text-gray-400">
-            Choose how accidentals are displayed.
+  <div class="relative z-30 mx-auto w-full max-w-screen-2xl px-5 pb-5">
+    <div
+      class="rounded-2xl border border-zinc-400/90 bg-zinc-900/92 px-4 py-4 text-gray-100 shadow-[0_18px_40px_rgba(0,0,0,0.18)] backdrop-blur-sm"
+    >
+      <div
+        class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between"
+      >
+        <div>
+          <p class="text-xs uppercase tracking-[0.2em] text-gray-400">
+            Note Naming
           </p>
-
-          <div class="mt-3 grid grid-cols-2 gap-2">
-            <button
-              @click="setNoteSpelling(true)"
-              :class="[
-                'rounded-xl px-3 py-2 text-sm font-semibold transition',
-                instrument.sharpsEnabled
-                  ? 'cursor-default bg-rose-700 text-gray-50'
-                  : 'cursor-pointer bg-zinc-800 text-gray-100 hover:bg-zinc-700',
-              ]"
-            >
-              Sharps
-            </button>
-            <button
-              @click="setNoteSpelling(false)"
-              :class="[
-                'rounded-xl px-3 py-2 text-sm font-semibold transition',
-                !instrument.sharpsEnabled
-                  ? 'cursor-default bg-rose-700 text-gray-50'
-                  : 'cursor-pointer bg-zinc-800 text-gray-100 hover:bg-zinc-700',
-              ]"
-            >
-              Flats
-            </button>
-          </div>
+          <p class="mt-1 text-sm font-semibold text-gray-100">
+            {{ noteSpellingState }}
+          </p>
+          <p class="mt-1 text-sm text-gray-400">
+            Choose how accidental notes are displayed while configuring the
+            fretboard.
+          </p>
         </div>
-      </div>
 
-      <div class="relative min-w-0">
-        <button
-          type="button"
-          class="flex w-full items-center justify-between rounded-xl border border-gray-600 bg-zinc-900 px-3 py-2 text-left text-gray-100"
-          @click="toggleControl('orientation')"
-        >
-          <div>
-            <p class="text-xs uppercase tracking-[0.2em] text-gray-400">
-              Board Orientation
-            </p>
-            <p class="mt-1 text-sm font-semibold">
-              {{ orientationState }}
-            </p>
-          </div>
-          <span class="text-xs uppercase tracking-wide text-gray-400">
-            {{ isControlOpen("orientation") ? "Close" : "Open" }}
-          </span>
-        </button>
-
-        <div
-          v-if="isControlOpen('orientation')"
-          class="absolute bottom-full left-0 z-40 mb-2 w-80 rounded-2xl border border-gray-500 bg-zinc-900 p-4 shadow-2xl shadow-black/45"
-        >
-          <p class="text-sm font-semibold text-gray-100">Board Orientation</p>
-          <p class="mt-1 text-xs text-gray-400">
-            Set string order and fret direction.
-          </p>
-
-          <div class="mt-3">
-            <p class="text-xs uppercase tracking-[0.2em] text-gray-400">
-              Strings
-            </p>
-            <div class="mt-2 grid grid-cols-2 gap-2">
-              <button
-                @click="setVerticalFlip(true)"
-                :class="[
-                  'rounded-xl px-3 py-2 text-sm font-semibold transition',
-                  instrument.verticalFlip
-                    ? 'cursor-default bg-rose-700 text-gray-50'
-                    : 'cursor-pointer bg-zinc-800 text-gray-100 hover:bg-zinc-700',
-                ]"
+        <div class="grid gap-2 sm:grid-cols-2 lg:min-w-[26rem]">
+          <button
+            v-for="option in noteNamingOptions"
+            :key="option.id"
+            type="button"
+            :class="[
+              'rounded-2xl border px-4 py-3 text-left transition',
+              instrument.sharpsEnabled === option.usesSharps
+                ? 'border-amber-200 bg-amber-50 text-zinc-950 shadow-lg shadow-black/20'
+                : 'border-zinc-600 bg-zinc-800 text-gray-100 hover:border-zinc-400 hover:bg-zinc-700',
+            ]"
+            @click="setNoteSpelling(option.usesSharps)"
+          >
+            <div class="flex items-center justify-between gap-3">
+              <p class="text-base font-semibold">{{ option.label }}</p>
+              <span
+                v-if="instrument.sharpsEnabled === option.usesSharps"
+                class="rounded-full border border-zinc-300/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em]"
               >
-                Standard
-              </button>
-              <button
-                @click="setVerticalFlip(false)"
-                :class="[
-                  'rounded-xl px-3 py-2 text-sm font-semibold transition',
-                  !instrument.verticalFlip
-                    ? 'cursor-default bg-rose-700 text-gray-50'
-                    : 'cursor-pointer bg-zinc-800 text-gray-100 hover:bg-zinc-700',
-                ]"
-              >
-                Reversed
-              </button>
+                Active
+              </span>
             </div>
-          </div>
-
-          <div class="mt-3 border-t border-gray-700 pt-3">
-            <p class="text-xs uppercase tracking-[0.2em] text-gray-400">
-              Frets
+            <p
+              :class="[
+                'mt-1 text-sm',
+                instrument.sharpsEnabled === option.usesSharps
+                  ? 'text-zinc-700'
+                  : 'text-gray-400',
+              ]"
+            >
+              {{ option.examples }}
             </p>
-            <div class="mt-2 grid grid-cols-2 gap-2">
-              <button
-                @click="setHorizontalFlip(false)"
-                :class="[
-                  'rounded-xl px-3 py-2 text-sm font-semibold transition',
-                  !instrument.horizontalFlip
-                    ? 'cursor-default bg-rose-700 text-gray-50'
-                    : 'cursor-pointer bg-zinc-800 text-gray-100 hover:bg-zinc-700',
-                ]"
-              >
-                Standard
-              </button>
-              <button
-                @click="setHorizontalFlip(true)"
-                :class="[
-                  'rounded-xl px-3 py-2 text-sm font-semibold transition',
-                  instrument.horizontalFlip
-                    ? 'cursor-default bg-rose-700 text-gray-50'
-                    : 'cursor-pointer bg-zinc-800 text-gray-100 hover:bg-zinc-700',
-                ]"
-              >
-                Mirrored
-              </button>
-            </div>
-          </div>
+          </button>
         </div>
       </div>
     </div>
