@@ -17,7 +17,14 @@
 
         <p class="text-sm text-gray-200">
           Made by
-          <span class="font-semibold">NeedThickerStrings</span>
+          <a
+            class="font-semibold text-sky-300/85 underline-offset-4 transition-colors duration-200 hover:text-sky-200/90 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
+            href="https://needthickerstrings.netlify.app"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            NeedThickerStrings
+          </a>
         </p>
       </div>
     </div>
