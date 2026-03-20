@@ -12,6 +12,10 @@ export const useExploreStore = defineStore("explore", () => {
   const preferredExploreLabelMode = ref("intervals");
   const exploreIntervalColorOverrides = ref({});
   const useDefaultExploreScaleHighlights = ref(true);
+  const visibleFretRangeStart = ref(0);
+  const visibleFretRangeEnd = ref(12);
+  const visibleStringRangeStart = ref(1);
+  const visibleStringRangeEnd = ref(instrument.tuningIndexes.length);
 
   const effectiveFretLabelMode = computed(() =>
     currentWorkspaceMode.value === "focus"
@@ -79,6 +83,45 @@ export const useExploreStore = defineStore("explore", () => {
     onlyHighlighted.value = value;
   };
 
+  const resetVisibleFretRange = (startFret, endFret) => {
+    const nextStart = Math.min(startFret, endFret);
+    const nextEnd = Math.max(startFret, endFret);
+
+    visibleFretRangeStart.value = nextStart;
+    visibleFretRangeEnd.value = nextEnd;
+  };
+
+  const setVisibleFretRange = (startFret, endFret) => {
+    const nextStart = Math.min(startFret, endFret);
+    const nextEnd = Math.max(startFret, endFret);
+
+    visibleFretRangeStart.value = nextStart;
+    visibleFretRangeEnd.value = nextEnd;
+  };
+
+  const isFretVisible = (fret) =>
+    fret >= visibleFretRangeStart.value && fret <= visibleFretRangeEnd.value;
+
+  const resetVisibleStringRange = (startString, endString) => {
+    const nextStart = Math.min(startString, endString);
+    const nextEnd = Math.max(startString, endString);
+
+    visibleStringRangeStart.value = nextStart;
+    visibleStringRangeEnd.value = nextEnd;
+  };
+
+  const setVisibleStringRange = (startString, endString) => {
+    const nextStart = Math.min(startString, endString);
+    const nextEnd = Math.max(startString, endString);
+
+    visibleStringRangeStart.value = nextStart;
+    visibleStringRangeEnd.value = nextEnd;
+  };
+
+  const isStringVisible = (stringPosition) =>
+    stringPosition >= visibleStringRangeStart.value &&
+    stringPosition <= visibleStringRangeEnd.value;
+
   const getDisplayLabel = (noteIndex) => {
     if (
       effectiveFretLabelMode.value !== "intervals" ||
@@ -139,14 +182,24 @@ export const useExploreStore = defineStore("explore", () => {
     getDisplayColor,
     getDisplayLabel,
     getExploreIntervalColor,
+    isFretVisible,
     isNoteVisible,
+    isStringVisible,
     onlyHighlighted,
     paletteColors,
     preferredExploreLabelMode,
+    resetVisibleFretRange,
+    resetVisibleStringRange,
     resetExploreIntervalHighlightsToScale,
+    setVisibleFretRange,
+    setVisibleStringRange,
     setExploreIntervalColor,
     setPreferredExploreLabelMode,
     setWorkspaceMode,
     toggleHighlighted,
+    visibleFretRangeEnd,
+    visibleFretRangeStart,
+    visibleStringRangeEnd,
+    visibleStringRangeStart,
   };
 });

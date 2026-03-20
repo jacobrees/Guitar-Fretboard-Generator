@@ -7,45 +7,18 @@ export const useInstrumentStore = defineStore("instrument", () => {
   const verticalFlip = ref(true);
   const horizontalFlip = ref(false);
   const tuningIndexes = ref([7, 2, 10, 5, 0, 7]);
-  const defaultFretViewId = "0-12";
+  const twelveFretViewId = "twelve-fret";
+  const fullFretViewId = "full-24";
+  const defaultFretViewId = twelveFretViewId;
+  const maximumTwelveFretStart = 12;
+  const twelveFretViewStart = ref(0);
   const fretViewPresets = Object.freeze({
-    "0-12": {
-      id: "0-12",
-      label: "0-12",
-      startFret: 0,
-      fretCount: 12,
-      showOpenStringMarkers: true,
+    [twelveFretViewId]: {
+      id: twelveFretViewId,
+      label: "12 Fret View",
     },
-    "3-15": {
-      id: "3-15",
-      label: "3-15",
-      startFret: 3,
-      fretCount: 13,
-      showOpenStringMarkers: false,
-    },
-    "6-18": {
-      id: "6-18",
-      label: "6-18",
-      startFret: 6,
-      fretCount: 13,
-      showOpenStringMarkers: false,
-    },
-    "9-21": {
-      id: "9-21",
-      label: "9-21",
-      startFret: 9,
-      fretCount: 13,
-      showOpenStringMarkers: false,
-    },
-    "12-24": {
-      id: "12-24",
-      label: "12-24",
-      startFret: 12,
-      fretCount: 13,
-      showOpenStringMarkers: false,
-    },
-    "full-24": {
-      id: "full-24",
+    [fullFretViewId]: {
+      id: fullFretViewId,
       label: "Full 24",
       startFret: 0,
       fretCount: 24,
@@ -79,14 +52,6 @@ export const useInstrumentStore = defineStore("instrument", () => {
     sharpsEnabled.value = !sharpsEnabled.value;
   };
 
-  const flipVertically = () => {
-    verticalFlip.value = !verticalFlip.value;
-  };
-
-  const flipHorizontally = () => {
-    horizontalFlip.value = !horizontalFlip.value;
-  };
-
   const getNote = (stringCount, fret) => {
     const indexes = verticalFlip.value
       ? tuningIndexes.value
@@ -96,8 +61,31 @@ export const useInstrumentStore = defineStore("instrument", () => {
     return (index + fret) % 12;
   };
 
-  const getFretViewPreset = (viewId = fretView.value) =>
-    fretViewPresets[viewId] ?? fretViewPresets[defaultFretViewId];
+  const setTwelveFretViewStart = (startFret) => {
+    const nextStart = Math.min(Math.max(startFret, 0), maximumTwelveFretStart);
+
+    twelveFretViewStart.value = nextStart;
+  };
+
+  const twelveFretViewWindowLabel = computed(() =>
+    twelveFretViewStart.value === 0
+      ? "Open - 12"
+      : `${twelveFretViewStart.value}-${twelveFretViewStart.value + 12}`,
+  );
+
+  const getFretViewPreset = (viewId = fretView.value) => {
+    if (viewId === fullFretViewId) {
+      return fretViewPresets[fullFretViewId];
+    }
+
+    return {
+      ...fretViewPresets[twelveFretViewId],
+      windowLabel: twelveFretViewWindowLabel.value,
+      startFret: twelveFretViewStart.value,
+      fretCount: twelveFretViewStart.value === 0 ? 12 : 13,
+      showOpenStringMarkers: twelveFretViewStart.value === 0,
+    };
+  };
 
   const getFretRange = (viewId = fretView.value) => {
     const { startFret, fretCount, showOpenStringMarkers } =
@@ -120,12 +108,16 @@ export const useInstrumentStore = defineStore("instrument", () => {
     fretView.value = viewId;
   };
 
-  const fretViewTo12 = () => {
+  const fretViewTo12 = (shouldResetStart = true) => {
+    if (shouldResetStart) {
+      setTwelveFretViewStart(0);
+    }
+
     setFretView(defaultFretViewId);
   };
 
   const fretViewTo24 = () => {
-    setFretView("full-24");
+    setFretView(fullFretViewId);
   };
 
   const raiseString = (index) => {
@@ -153,27 +145,31 @@ export const useInstrumentStore = defineStore("instrument", () => {
 
   return {
     addString,
-    flipHorizontally,
-    flipVertically,
     defaultFretViewId,
     fretView,
     fretViewPresets,
+    fullFretViewId,
     getFretRange,
     getFretViewPreset,
     setFretView,
+    setTwelveFretViewStart,
     fretViewTo12,
     fretViewTo24,
     fretboardMarkers,
     getNote,
-    horizontalFlip,
     lowerString,
     musicalNotes,
     raiseString,
     removeString,
     sharpsEnabled,
+    maximumTwelveFretStart,
+    twelveFretViewId,
+    twelveFretViewStart,
+    twelveFretViewWindowLabel,
     toggleSharpsEnabled,
     tuningIndexes,
-    verticalFlip,
     visibleTuningIndexes,
+    horizontalFlip,
+    verticalFlip,
   };
 });

@@ -104,7 +104,7 @@ onBeforeUnmount(() => {
       <div class="relative min-w-0">
         <button
           type="button"
-          class="flex w-full items-center justify-between rounded-xl border border-gray-600 bg-zinc-900 px-3 py-2 text-left text-gray-100"
+          class="flex w-full items-center justify-between rounded-[1.25rem] border border-zinc-500/80 bg-zinc-900/90 px-4 py-3 text-left text-gray-100 shadow-[0_12px_30px_rgba(0,0,0,0.14)] backdrop-blur-sm transition hover:border-zinc-300/80"
           @click="toggleControl('interval-highlighting')"
         >
           <div>
@@ -113,14 +113,16 @@ onBeforeUnmount(() => {
             </p>
             <p class="mt-1 text-sm font-semibold">{{ highlightState }}</p>
           </div>
-          <span class="text-xs uppercase tracking-wide text-gray-400">
+          <span
+            class="rounded-full border border-zinc-600 px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-gray-400"
+          >
             {{ isControlOpen("interval-highlighting") ? "Close" : "Open" }}
           </span>
         </button>
 
         <div
           v-if="isControlOpen('interval-highlighting')"
-          class="absolute top-full left-0 z-40 mt-2 w-xl max-w-[min(36rem,calc(100vw-4rem))] rounded-2xl border border-gray-500 bg-zinc-900 p-4 shadow-2xl shadow-black/45"
+          class="absolute top-full left-0 z-40 mt-2 w-xl max-w-[min(36rem,calc(100vw-4rem))] rounded-2xl border border-zinc-400/90 bg-zinc-900/96 p-4 shadow-[0_24px_50px_rgba(0,0,0,0.34)] backdrop-blur-md"
         >
           <div class="flex items-start justify-between gap-3">
             <div>
@@ -141,7 +143,7 @@ onBeforeUnmount(() => {
               </button>
               <button
                 @click="clearHighlights"
-                class="cursor-pointer rounded-xl bg-zinc-800 px-3 py-2 text-xs font-semibold text-gray-100 transition hover:bg-zinc-700"
+                class="cursor-pointer rounded-xl bg-zinc-700 px-3 py-2 text-xs font-semibold text-gray-100 transition hover:bg-zinc-600"
               >
                 Clear All
               </button>
@@ -149,7 +151,7 @@ onBeforeUnmount(() => {
           </div>
 
           <div
-            class="mt-3 flex items-center justify-between rounded-xl border border-gray-700 bg-zinc-800/60 px-3 py-2"
+            class="mt-3 flex items-center justify-between rounded-xl border border-gray-600 bg-zinc-700/60 px-3 py-2"
           >
             <p class="text-xs uppercase tracking-[0.2em] text-gray-400">
               Chromatic Order
@@ -165,7 +167,7 @@ onBeforeUnmount(() => {
               :class="[
                 'rounded-xl border px-2.5 py-2 text-left transition',
                 explore.getExploreIntervalColor(interval.semitones) ??
-                  'bg-zinc-950',
+                  'bg-zinc-900',
                 activeIntervalPalette === interval.semitones
                   ? 'border-white shadow-lg shadow-black/40'
                   : interval.isInScale
@@ -196,7 +198,7 @@ onBeforeUnmount(() => {
       <div class="relative min-w-0">
         <button
           type="button"
-          class="flex w-full items-center justify-between rounded-xl border border-gray-600 bg-zinc-900 px-3 py-2 text-left text-gray-100"
+          class="flex w-full items-center justify-between rounded-[1.25rem] border border-zinc-500/80 bg-zinc-900/90 px-4 py-3 text-left text-gray-100 shadow-[0_12px_30px_rgba(0,0,0,0.14)] backdrop-blur-sm transition hover:border-zinc-300/80"
           @click="toggleControl('interval-helper')"
         >
           <div class="min-w-0">
@@ -205,14 +207,16 @@ onBeforeUnmount(() => {
             </p>
             <p class="mt-1 truncate text-sm font-semibold">{{ helperState }}</p>
           </div>
-          <span class="text-xs uppercase tracking-wide text-gray-400">
+          <span
+            class="rounded-full border border-zinc-600 px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-gray-400"
+          >
             {{ isControlOpen("interval-helper") ? "Close" : "Open" }}
           </span>
         </button>
 
         <div
           v-if="isControlOpen('interval-helper')"
-          class="absolute top-full left-0 z-40 mt-2 w-lg max-w-[min(32rem,calc(100vw-4rem))] rounded-2xl border border-gray-500 bg-zinc-900 p-4 shadow-2xl shadow-black/45"
+          class="absolute top-full left-0 z-40 mt-2 w-lg max-w-[min(32rem,calc(100vw-4rem))] rounded-2xl border border-zinc-400/90 bg-zinc-900/96 p-4 shadow-[0_24px_50px_rgba(0,0,0,0.34)] backdrop-blur-md"
         >
           <div class="border-b border-gray-700 pb-3">
             <p class="text-sm font-semibold text-gray-100">Interval Helper</p>
@@ -233,7 +237,7 @@ onBeforeUnmount(() => {
 
             <button
               @click="openIntervalHelper"
-              class="shrink-0 cursor-pointer rounded-xl bg-zinc-800 px-3 py-2 text-xs font-semibold text-gray-100 transition hover:bg-zinc-700"
+              class="shrink-0 cursor-pointer rounded-xl bg-zinc-700 px-3 py-2 text-xs font-semibold text-gray-100 transition hover:bg-zinc-600"
             >
               Open Formula Helper
             </button>
