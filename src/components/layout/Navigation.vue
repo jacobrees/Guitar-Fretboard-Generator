@@ -56,7 +56,7 @@ import ntsIcon from "@/assets/nts-boxed-cutout-white.svg";
             >
               <img
                 :src="ntsIcon"
-                alt=""
+                alt="Need Thicker Strings logo"
                 class="h-20 w-20 transition-opacity duration-200 hover:opacity-85 md:h-24 md:w-24"
               />
             </a>

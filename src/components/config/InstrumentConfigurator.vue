@@ -61,7 +61,7 @@ const instrument = useInstrumentStore();
                   <img
                     class="w-full"
                     :src="caretUpSVG"
-                    alt="Raise string pitch"
+                    :alt="`Raise string ${index + 1} pitch from ${instrument.musicalNotes[string]}`"
                   />
                 </button>
 
@@ -81,7 +81,7 @@ const instrument = useInstrumentStore();
                   <img
                     class="w-full"
                     :src="caretDownSVG"
-                    alt="Lower string pitch"
+                    :alt="`Lower string ${index + 1} pitch from ${instrument.musicalNotes[string]}`"
                   />
                 </button>
               </div>
