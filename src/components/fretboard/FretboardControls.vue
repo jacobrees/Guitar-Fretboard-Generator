@@ -1,26 +1,28 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
-import { useMinWidth } from "@/composables/useMinWidth";
+import { computed, onBeforeUnmount, ref } from "vue";
+import { useDismissibleControlDock } from "@/composables/fretboard/useDismissibleControlDock";
+import { useFretboardViewport } from "@/composables/fretboard/useFretboardViewport";
 import { useExploreStore } from "@/stores/explore";
 import { useInstrumentStore } from "@/stores/instrument";
 
 const explore = useExploreStore();
 const instrument = useInstrumentStore();
 
-const dockRef = ref(null);
-const activeControl = ref(null);
 const fretScrollTrackRef = ref(null);
 const isDraggingFretScrollWindow = ref(false);
 const fretScrollDragOffsetPx = ref(0);
-const { isMinWidth: hasFullFretRangeAccess } = useMinWidth(1536);
+const { dockRef, activeControl, closeControls, toggleControl, isControlOpen } =
+  useDismissibleControlDock();
+const { hasFullFretRangeAccess, effectiveFretViewId, showTwelveFretScroller } =
+  useFretboardViewport();
 
 const twelveFretViewId = instrument.twelveFretViewId;
 const fullFretViewId = instrument.fullFretViewId;
 const fullNeckFretCount = 24;
 const twelveFretViewportFretCount = 12;
 const fretViewOptions = [
-  { id: twelveFretViewId, label: "12 Fret View", shortLabel: "12" },
-  { id: fullFretViewId, label: "Full 24", shortLabel: "24" },
+  { id: twelveFretViewId, shortLabel: "12" },
+  { id: fullFretViewId, shortLabel: "24" },
 ];
 const fretScrollMarkers = Array.from(
   { length: fullNeckFretCount / 3 + 1 },
@@ -39,16 +41,6 @@ const exploreViewState = computed(
 
 const visibilityState = computed(() =>
   explore.onlyHighlighted ? "Only Highlighted" : "Show All",
-);
-
-const effectiveFretViewId = computed(() =>
-  !hasFullFretRangeAccess.value && instrument.fretView === fullFretViewId
-    ? instrument.defaultFretViewId
-    : instrument.fretView,
-);
-
-const showTwelveFretScroller = computed(
-  () => effectiveFretViewId.value === twelveFretViewId,
 );
 
 const twelveFretWindowState = computed(
@@ -70,16 +62,6 @@ const activeFretScrollWindowStyle = computed(() => ({
 
 const isFretViewDisabled = (viewId) =>
   viewId === fullFretViewId && !hasFullFretRangeAccess.value;
-
-const closeControls = () => {
-  activeControl.value = null;
-};
-
-const toggleControl = (controlKey) => {
-  activeControl.value = activeControl.value === controlKey ? null : controlKey;
-};
-
-const isControlOpen = (controlKey) => activeControl.value === controlKey;
 
 const applyFretView = (viewId) => {
   if (isFretViewDisabled(viewId)) {
@@ -103,20 +85,6 @@ const toggleNoteSpelling = () => {
 const setHighlightedOnly = (shouldShowOnlyHighlighted) => {
   explore.toggleHighlighted(shouldShowOnlyHighlighted);
   closeControls();
-};
-
-const handleDocumentClick = (event) => {
-  if (!dockRef.value || dockRef.value.contains(event.target)) {
-    return;
-  }
-
-  closeControls();
-};
-
-const handleEscape = (event) => {
-  if (event.key === "Escape") {
-    closeControls();
-  }
 };
 
 const getFretScrollMetrics = () => {
@@ -268,24 +236,8 @@ const handleFretScrollWindowKeydown = (event) => {
   }
 };
 
-onMounted(() => {
-  if (typeof document === "undefined") {
-    return;
-  }
-
-  document.addEventListener("click", handleDocumentClick);
-  document.addEventListener("keydown", handleEscape);
-});
-
 onBeforeUnmount(() => {
   stopFretScrollDragging();
-
-  if (typeof document === "undefined") {
-    return;
-  }
-
-  document.removeEventListener("click", handleDocumentClick);
-  document.removeEventListener("keydown", handleEscape);
 });
 </script>
 

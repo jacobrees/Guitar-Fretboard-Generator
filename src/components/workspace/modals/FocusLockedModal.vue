@@ -24,13 +24,13 @@ const closeModal = () => {
       <div class="rounded-2xl bg-zinc-700 p-4">
         <h3 class="text-center text-3xl">Focus Locked</h3>
         <p class="mt-3 text-center text-lg">
-          Configure the guitar, map your notes, and choose a root inside
-          Interval Engine before continuing into Explore Fretboard.
+          Configure the guitar, map your notes, and choose a root before
+          continuing into Explore Fretboard.
         </p>
         <div class="mt-4 flex justify-center">
           <button
             @click="closeModal"
-            class="cursor-pointer rounded-xl bg-rose-700 px-6 py-2 text-gray-50 hover:bg-rose-800"
+            class="cursor-pointer rounded-xl bg-sky-700 px-6 py-2 text-gray-50 transition hover:bg-sky-800"
           >
             Back to Config
           </button>

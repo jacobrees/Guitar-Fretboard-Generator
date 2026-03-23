@@ -49,18 +49,18 @@ export const useWorkspaceMode = () => {
     scrollToTop();
   };
 
-  const goToFocus = () => {
+  const enterFocusMode = () => {
     activeMode.value = "focus";
     scrollToTop();
   };
 
-  const handleFocusClick = () => {
+  const goToFocus = () => {
     if (!canEnterFocus.value) {
       showFocusWarning.value = true;
       return;
     }
 
-    goToFocus();
+    enterFocusMode();
   };
 
   return {
@@ -70,6 +70,5 @@ export const useWorkspaceMode = () => {
     modeDescription,
     goToConfig,
     goToFocus,
-    handleFocusClick,
   };
 };

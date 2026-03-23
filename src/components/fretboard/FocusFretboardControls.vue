@@ -1,8 +1,9 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed } from "vue";
 
 import IntervalFormulaChips from "@/components/workspace/shared/IntervalFormulaChips.vue";
 
+import { useDismissibleControlDock } from "@/composables/fretboard/useDismissibleControlDock";
 import { useExploreStore } from "@/stores/explore";
 import { useScaleStore } from "@/stores/scale";
 
@@ -22,8 +23,8 @@ const emit = defineEmits([
 const scale = useScaleStore();
 const explore = useExploreStore();
 
-const dockRef = ref(null);
-const activeControl = ref(null);
+const { dockRef, activeControl, closeControls, toggleControl, isControlOpen } =
+  useDismissibleControlDock();
 
 const highlightState = computed(() => {
   if (activeControl.value === "interval-highlighting") {
@@ -36,16 +37,6 @@ const highlightState = computed(() => {
 const helperState = computed(
   () => scale.selectedScaleSummary?.name ?? "Helper",
 );
-
-const closeControls = () => {
-  activeControl.value = null;
-};
-
-const toggleControl = (controlKey) => {
-  activeControl.value = activeControl.value === controlKey ? null : controlKey;
-};
-
-const isControlOpen = (controlKey) => activeControl.value === controlKey;
 
 const resetHighlights = () => {
   explore.resetExploreIntervalHighlightsToScale();
@@ -61,38 +52,6 @@ const openIntervalHelper = () => {
   closeControls();
   emit("open-interval-helper");
 };
-
-const handleDocumentClick = (event) => {
-  if (!dockRef.value || dockRef.value.contains(event.target)) {
-    return;
-  }
-
-  closeControls();
-};
-
-const handleEscape = (event) => {
-  if (event.key === "Escape") {
-    closeControls();
-  }
-};
-
-onMounted(() => {
-  if (typeof document === "undefined") {
-    return;
-  }
-
-  document.addEventListener("click", handleDocumentClick);
-  document.addEventListener("keydown", handleEscape);
-});
-
-onBeforeUnmount(() => {
-  if (typeof document === "undefined") {
-    return;
-  }
-
-  document.removeEventListener("click", handleDocumentClick);
-  document.removeEventListener("keydown", handleEscape);
-});
 </script>
 
 <template>

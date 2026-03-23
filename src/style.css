@@ -3,104 +3,12 @@
 
 :root {
   font-family: "Public Sans", sans-serif;
+  --app-body-bg: #1f2937;
 }
 
 body {
+  margin: 0;
   font-family: inherit;
-}
-
-.fret-filter-range {
-  appearance: none;
-  background: transparent;
-  pointer-events: none;
-}
-
-.fret-filter-range::-webkit-slider-runnable-track {
-  appearance: none;
-  background: transparent;
-  height: 2.5rem;
-}
-
-.fret-filter-range::-webkit-slider-thumb {
-  appearance: none;
-  pointer-events: auto;
-  margin-top: 0.55rem;
-  height: 1.4rem;
-  width: 1.4rem;
-  border-radius: 9999px;
-  border: 2px solid rgb(254 205 211);
-  background: rgb(190 24 93);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-  cursor: pointer;
-}
-
-.fret-filter-range::-moz-range-track {
-  background: transparent;
-  height: 2.5rem;
-}
-
-.fret-filter-range::-moz-range-thumb {
-  pointer-events: auto;
-  height: 1.4rem;
-  width: 1.4rem;
-  border-radius: 9999px;
-  border: 2px solid rgb(254 205 211);
-  background: rgb(190 24 93);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-  cursor: pointer;
-}
-
-.fret-filter-range-overlap-start::-webkit-slider-thumb {
-  margin-top: 0.1rem;
-}
-
-.fret-filter-range-overlap-end::-webkit-slider-thumb {
-  margin-top: 1rem;
-}
-
-.fret-filter-range-overlap-start::-moz-range-thumb {
-  transform: translateY(-6px);
-}
-
-.fret-filter-range-overlap-end::-moz-range-thumb {
-  transform: translateY(6px);
-}
-
-.fret-scroll-range {
-  appearance: none;
-  background: transparent;
-}
-
-.fret-scroll-range::-webkit-slider-runnable-track {
-  height: 0.55rem;
-  border-radius: 9999px;
-  background: rgb(39 39 42);
-}
-
-.fret-scroll-range::-webkit-slider-thumb {
-  appearance: none;
-  margin-top: -0.45rem;
-  height: 1.4rem;
-  width: 1.4rem;
-  border-radius: 9999px;
-  border: 2px solid rgb(254 205 211);
-  background: rgb(190 24 93);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-  cursor: pointer;
-}
-
-.fret-scroll-range::-moz-range-track {
-  height: 0.55rem;
-  border-radius: 9999px;
-  background: rgb(39 39 42);
-}
-
-.fret-scroll-range::-moz-range-thumb {
-  height: 1.4rem;
-  width: 1.4rem;
-  border-radius: 9999px;
-  border: 2px solid rgb(254 205 211);
-  background: rgb(190 24 93);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-  cursor: pointer;
+  background-color: var(--app-body-bg);
+  color: rgb(244 244 245);
 }
