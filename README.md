@@ -1,89 +1,125 @@
-# Guitar Fretboard Generator
+<h1 align="center">🎸 Guitar Fretboard Sandbox</h1>
 
-> This project is a guitar fretboard sandbox for configuring tunings, building scales, selecting root notes, and exploring interval relationships across the neck. It is built with Vue.js, Pinia, Tailwind CSS, and Vite.
+<p align="center">
+  An interactive guitar fretboard sandbox for tunings, scales, and interval exploration.<br>
+  Built with Vue.js, Pinia, Tailwind CSS, and Vite.
+</p>
 
-### Guitar Fretboard Generator Screenshot:
+<p align="center">
+  <a href="https://guitarfretboardsandbox.netlify.app/"><strong>🔗 Live Demo</strong></a>
+</p>
 
-![](screenshot/screenshot.jpg)
+---
 
-### Live Website
+## 📚 Table of Contents
 
-Live website: [guitarfretboardsandbox](https://guitarfretboardsandbox.netlify.app/)
+- [Preview](#-preview)
+- [Live Website](#-live-website)
+- [Features](#-features)
+- [Getting Started](#-getting-started)
+- [Scripts](#-scripts)
+- [Built With](#-built-with)
+- [Author](#-author)
+- [Contributing](#-contributing)
+- [Support](#-support)
+- [License](#-license)
 
-# Getting Started
+---
 
-To get a local copy of the repository please run the following commands in your terminal:
+## 📸 Preview
 
-```bash
-$ cd <folder>
-```
+<p align="center">
+  <img src="screenshot/screenshot.jpg" alt="Guitar Fretboard Sandbox Screenshot" width="800"/>
+</p>
 
-```bash
-$ git clone git@github.com:jacobrees/Guitar-Fretboard-Generator.git
-```
+---
 
-To launch an instance of this app, navigate into the repository you have just cloned and install the project dependencies.
+## 🌐 Live Website
 
-Below shows the following commands you will need to run to achieve this:
+👉 https://guitarfretboardsandbox.netlify.app/
 
-```bash
-$ cd Guitar-Fretboard-Generator
-```
+---
 
-```bash
-$ npm install
-```
+## ✨ Features
 
-```bash
-$ npm run dev
-```
+- Configure custom guitar tunings  
+- Build and visualize scales across the fretboard  
+- Select root notes and explore interval relationships  
+- Interactive fretboard UI  
+- Fast and responsive performance  
 
-# Scripts
+---
 
-Below are a list of scripts you can use with Vite.
+## 🚀 Getting Started
 
-Run `npm install` to install all packages associated with the project. You will need to do this before you can run any of the other commands listed below.
-
-```bash
-$ npm install
-```
-
-Run `npm run dev` to start a development server.
-
-```bash
-$ npm run dev
-```
-
-Run `npm run build` to bundle all code into the `dist` directory.
+Clone the repository:
 
 ```bash
-$ npm run build
+git clone git@github.com:jacobrees/Guitar-Fretboard-Generator.git
 ```
 
-Run `npm run preview` to preview the production build locally.
+Navigate into the project:
 
 ```bash
-$ npm run preview
+cd Guitar-Fretboard-Generator
 ```
 
-## Built With
+Install dependencies:
 
-- Vue.js
-- Pinia
-- Tailwind CSS
-- Vite
+```bash
+npm install
+```
 
-## Authors
+Run the development server:
 
-👤 **Jacob Rees**
+```bash
+npm run dev
+```
 
-- Github: [@jacobrees](https://github.com/jacobrees)
-- Linkedin: [jacob-rees](https://www.linkedin.com/in/jacob-rees/)
+---
+
+## 🛠 Scripts
+
+| Command | Description |
+|--------|------------|
+| `npm install` | Install dependencies |
+| `npm run dev` | Start development server |
+| `npm run build` | Build for production |
+| `npm run preview` | Preview production build |
+
+---
+
+## 🧱 Built With
+
+- Vue.js  
+- Pinia  
+- Tailwind CSS  
+- Vite  
+
+---
+
+## 👤 Author
+
+**Jacob Rees**
+
+- GitHub: https://github.com/jacobrees  
+- LinkedIn: https://www.linkedin.com/in/jacob-rees/
+
+---
 
 ## 🤝 Contributing
 
-Contributions, issues and feature requests are welcome!
+Contributions, issues, and feature requests are welcome.
 
-## Show your support
+---
 
-Give a ⭐️ if you like this project!
+## ⭐ Support
+
+If you found this project useful, consider giving it a star.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.  
+See the [LICENSE](LICENSE) file for details.
