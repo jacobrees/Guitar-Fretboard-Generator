@@ -328,11 +328,11 @@ onBeforeUnmount(() => {
 
               <div
                 ref="fretScrollTrackRef"
-                class="relative h-12 select-none [touch-action:none]"
+                class="relative h-12 select-none touch-none"
                 @pointerdown="handleFretScrollTrackPointerDown"
               >
                 <div
-                  class="absolute inset-x-0 top-1/2 h-4 -translate-y-1/2 rounded-[1rem] border border-zinc-600/85 bg-zinc-800/85 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                  class="absolute inset-x-0 top-1/2 h-4 -translate-y-1/2 rounded-2xl border border-zinc-600/85 bg-zinc-800/85 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
                 ></div>
 
                 <div
@@ -365,7 +365,7 @@ onBeforeUnmount(() => {
                   class="absolute top-1/2 z-20 flex h-10 items-center justify-between gap-3 overflow-hidden rounded-[0.95rem] border px-3 text-sm font-semibold shadow-[0_12px_28px_rgba(0,0,0,0.24)] transition focus:outline-none"
                   :class="
                     showTwelveFretScroller
-                      ? 'cursor-ew-resize border-rose-200/70 bg-gradient-to-r from-rose-700 via-rose-600 to-rose-700 text-rose-50 focus:ring-2 focus:ring-rose-200/70'
+                      ? 'cursor-ew-resize border-rose-200/70 bg-linear-to-r from-rose-700 via-rose-600 to-rose-700 text-rose-50 focus:ring-2 focus:ring-rose-200/70'
                       : 'cursor-default border-zinc-600/85 bg-zinc-700/90 text-gray-200'
                   "
                   :style="{

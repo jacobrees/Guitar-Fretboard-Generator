@@ -161,7 +161,7 @@ onBeforeUnmount(() => {
   <div class="relative h-full w-full text-gray-100">
     <div
       ref="trackRef"
-      class="absolute inset-0 select-none [touch-action:none]"
+      class="absolute inset-0 select-none touch-none"
       @pointerdown="handleTrackPointerDown"
     >
       <div

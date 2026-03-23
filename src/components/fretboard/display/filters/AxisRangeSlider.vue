@@ -212,7 +212,7 @@ onBeforeUnmount(() => {
 
     <div
       ref="trackRef"
-      class="relative mt-2 pb-1 pt-5 select-none [touch-action:none]"
+      class="relative mt-2 pb-1 pt-5 select-none touch-none"
       @pointerdown="handleTrackPointerDown"
     >
       <div

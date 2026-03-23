@@ -52,7 +52,7 @@ const setNoteSpelling = (useSharps) => {
           </p>
         </div>
 
-        <div class="grid gap-2 sm:grid-cols-2 lg:min-w-[26rem]">
+        <div class="grid gap-2 sm:grid-cols-2 lg:min-w-104">
           <button
             v-for="option in noteNamingOptions"
             :key="option.id"
