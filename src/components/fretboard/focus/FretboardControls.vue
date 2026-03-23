@@ -11,7 +11,7 @@ const instrument = useInstrumentStore();
 const fretScrollTrackRef = ref(null);
 const isDraggingFretScrollWindow = ref(false);
 const fretScrollDragOffsetPx = ref(0);
-const { dockRef, activeControl, closeControls, toggleControl, isControlOpen } =
+const { dockRef, closeControls, toggleControl, isControlOpen } =
   useDismissibleControlDock();
 const { hasFullFretRangeAccess, effectiveFretViewId, showTwelveFretScroller } =
   useFretboardViewport();
