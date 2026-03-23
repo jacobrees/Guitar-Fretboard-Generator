@@ -23,11 +23,27 @@ export const useExploreStore = defineStore("explore", () => {
       : "notes",
   );
 
+  const resetFocusWorkspaceState = () => {
+    const defaultFretPreset = instrument.getFretViewPreset(
+      instrument.defaultFretViewId,
+    );
+    const defaultFrets = instrument.getFretRange(instrument.defaultFretViewId);
+    const minFret = defaultFretPreset.showOpenStringMarkers
+      ? 0
+      : defaultFrets[0];
+    const maxFret = defaultFrets[defaultFrets.length - 1];
+
+    onlyHighlighted.value = true;
+    preferredExploreLabelMode.value = "intervals";
+    resetVisibleFretRange(minFret, maxFret);
+    resetVisibleStringRange(1, instrument.tuningIndexes.length);
+  };
+
   const setWorkspaceMode = (mode) => {
     currentWorkspaceMode.value = mode;
 
     if (mode === "config") {
-      onlyHighlighted.value = true;
+      resetFocusWorkspaceState();
     }
   };
 
@@ -99,7 +115,8 @@ export const useExploreStore = defineStore("explore", () => {
   };
 
   const isFretVisible = (fret) =>
-    fret >= visibleFretRangeStart.value && fret <= visibleFretRangeEnd.value;
+    currentWorkspaceMode.value !== "focus" ||
+    (fret >= visibleFretRangeStart.value && fret <= visibleFretRangeEnd.value);
 
   const resetVisibleStringRange = (startString, endString) => {
     const nextStart = Math.min(startString, endString);
@@ -118,8 +135,9 @@ export const useExploreStore = defineStore("explore", () => {
   };
 
   const isStringVisible = (stringPosition) =>
-    stringPosition >= visibleStringRangeStart.value &&
-    stringPosition <= visibleStringRangeEnd.value;
+    currentWorkspaceMode.value !== "focus" ||
+    (stringPosition >= visibleStringRangeStart.value &&
+      stringPosition <= visibleStringRangeEnd.value);
 
   const getDisplayLabel = (noteIndex) => {
     if (
@@ -155,6 +173,10 @@ export const useExploreStore = defineStore("explore", () => {
   };
 
   const isNoteVisible = (noteIndex) => {
+    if (currentWorkspaceMode.value === "config") {
+      return Boolean(scale.highlightedNotes[noteIndex]);
+    }
+
     if (!onlyHighlighted.value) {
       return true;
     }
@@ -185,6 +207,7 @@ export const useExploreStore = defineStore("explore", () => {
     onlyHighlighted,
     paletteColors,
     preferredExploreLabelMode,
+    resetFocusWorkspaceState,
     resetVisibleFretRange,
     resetVisibleStringRange,
     resetExploreIntervalHighlightsToScale,

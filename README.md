@@ -6,6 +6,10 @@
 
 ![](screenshot/screenshot.jpg)
 
+### Live Website
+
+Live website: [guitarfretboardsandbox](https://guitarfretboardsandbox.netlify.app/)
+
 # Getting Started
 
 To get a local copy of the repository please run the following commands in your terminal:

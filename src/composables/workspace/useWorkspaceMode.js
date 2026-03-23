@@ -1,4 +1,4 @@
-import { computed, ref, watch } from "vue";
+import { computed, ref } from "vue";
 
 import { useExploreStore } from "@/stores/explore";
 import { useInstrumentStore } from "@/stores/instrument";
@@ -15,8 +15,21 @@ export const useWorkspaceMode = () => {
   const scale = useScaleStore();
   const explore = useExploreStore();
 
-  const activeMode = ref("config");
   const showFocusWarning = ref(false);
+  const activeMode = computed({
+    get: () => explore.currentWorkspaceMode,
+    set: (mode) => {
+      if (mode === explore.currentWorkspaceMode) {
+        return;
+      }
+
+      if (mode === "config") {
+        instrument.fretViewTo12();
+      }
+
+      explore.setWorkspaceMode(mode);
+    },
+  });
 
   const canEnterFocus = computed(
     () => scale.selectedNotes.length > 1 && scale.selectedRootNote !== null,
@@ -30,18 +43,6 @@ export const useWorkspaceMode = () => {
     activeMode.value === "focus"
       ? "Explore interval relationships and note placement across the fretboard"
       : "Set your instrument, map the scale, and choose the root",
-  );
-
-  watch(
-    activeMode,
-    (mode) => {
-      if (mode === "config") {
-        instrument.fretViewTo12();
-      }
-
-      explore.setWorkspaceMode(mode);
-    },
-    { immediate: true },
   );
 
   const goToConfig = () => {

@@ -1,9 +1,16 @@
 <script setup>
-import ExploreFretRangeFilter from "@/components/fretboard/ExploreFretRangeFilter.vue";
-import ExploreStringRangeFilter from "@/components/fretboard/ExploreStringRangeFilter.vue";
+import ExploreFretRangeFilter from "./filters/ExploreFretRangeFilter.vue";
+import ExploreStringRangeFilter from "./filters/ExploreStringRangeFilter.vue";
 import { useFretboardViewport } from "@/composables/fretboard/useFretboardViewport";
 import { useExploreStore } from "@/stores/explore";
 import { useInstrumentStore } from "@/stores/instrument";
+
+const props = defineProps({
+  disableHorizontalPadding: {
+    type: Boolean,
+    default: false,
+  },
+});
 
 const instrument = useInstrumentStore();
 const explore = useExploreStore();
@@ -33,7 +40,7 @@ const isNoteRenderedAtPosition = (noteIndex, fret, stringPosition) =>
 </script>
 
 <template>
-  <div class="w-full px-5 pt-3">
+  <div :class="['w-full pt-3', props.disableHorizontalPadding ? '' : 'px-5']">
     <div
       :class="[
         'min-w-0',

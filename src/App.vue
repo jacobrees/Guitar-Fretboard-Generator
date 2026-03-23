@@ -2,10 +2,12 @@
 import { computed, ref } from "vue";
 
 import ntsIcon from "@/assets/nts-boxed-cutout-white.svg";
-import ConfigFretboardControls from "@/components/fretboard/ConfigFretboardControls.vue";
-import FocusFretboardControls from "@/components/fretboard/FocusFretboardControls.vue";
-import FretboardControls from "@/components/fretboard/FretboardControls.vue";
-import FretboardDisplay from "@/components/fretboard/FretboardDisplay.vue";
+import {
+  ConfigFretboardControls,
+  FocusFretboardControls,
+  FretboardControls,
+  FretboardDisplay,
+} from "@/components/fretboard";
 import FooterComponent from "@/components/layout/Footer.vue";
 import Navigation from "@/components/layout/Navigation.vue";
 import WorkspaceModeSwitcher from "@/components/workspace/WorkspaceModeSwitcher.vue";
@@ -107,7 +109,7 @@ const {
                 Fretboard Preview
               </p>
             </div>
-            <FretboardDisplay />
+            <FretboardDisplay :disable-horizontal-padding="true" />
           </div>
         </div>
         <ConfigFretboardControls />
