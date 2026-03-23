@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from "vue";
 
-import AxisRangeSlider from "@/components/fretboard/AxisRangeSlider.vue";
+import AxisRangeSlider from "./AxisRangeSlider.vue";
 
 const props = defineProps({
   minFret: {
