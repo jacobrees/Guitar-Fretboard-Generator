@@ -1,97 +1,22 @@
 <script setup>
-import { computed, watch } from "vue";
 import ExploreFretRangeFilter from "@/components/fretboard/ExploreFretRangeFilter.vue";
 import ExploreStringRangeFilter from "@/components/fretboard/ExploreStringRangeFilter.vue";
-import { useMinWidth } from "@/composables/useMinWidth";
+import { useFretboardViewport } from "@/composables/fretboard/useFretboardViewport";
 import { useExploreStore } from "@/stores/explore";
 import { useInstrumentStore } from "@/stores/instrument";
 
 const instrument = useInstrumentStore();
 const explore = useExploreStore();
-const { isMinWidth: hasFullFretRangeAccess } = useMinWidth(1536);
-const fullFretViewId = instrument.fullFretViewId;
-
-watch(
-  [hasFullFretRangeAccess, () => instrument.fretView],
-  ([hasAccess, fretView]) => {
-    if (!hasAccess && fretView === fullFretViewId) {
-      instrument.fretViewTo12();
-    }
-  },
-  { immediate: true },
-);
-
-const effectiveFretViewId = computed(() =>
-  !hasFullFretRangeAccess.value && instrument.fretView === fullFretViewId
-    ? instrument.defaultFretViewId
-    : instrument.fretView,
-);
-
-const effectiveFretPreset = computed(() =>
-  instrument.getFretViewPreset(effectiveFretViewId.value),
-);
-
-const effectiveFrets = computed(() =>
-  instrument.getFretRange(effectiveFretViewId.value),
-);
-
-const showOpenStringMarkers = computed(
-  () => effectiveFretPreset.value.showOpenStringMarkers,
-);
-
-const visibleFretBounds = computed(() => ({
-  minFret: showOpenStringMarkers.value ? 0 : effectiveFrets.value[0],
-  maxFret: effectiveFrets.value[effectiveFrets.value.length - 1],
-}));
-
-watch(
-  [
-    () => visibleFretBounds.value.minFret,
-    () => visibleFretBounds.value.maxFret,
-  ],
-  ([minFret, maxFret]) => {
-    explore.resetVisibleFretRange(minFret, maxFret);
-  },
-  { immediate: true },
-);
-
-const fretCellStyle = computed(() => ({
-  width: `${100 / effectiveFrets.value.length}%`,
-}));
-
-const openStringColumnStyle = computed(() => ({
-  width: `${100 / (effectiveFrets.value.length + 1)}%`,
-}));
-
-const visibleStringRows = computed(() =>
-  instrument.visibleTuningIndexes.map((noteIndex, index) => ({
-    position: index + 1,
-    noteIndex,
-    stringNumber: instrument.verticalFlip
-      ? index + 1
-      : instrument.tuningIndexes.length - index,
-  })),
-);
-
-const visibleStringBounds = computed(() => ({
-  minString: 1,
-  maxString: visibleStringRows.value.length,
-}));
-
-watch(
-  () => visibleStringBounds.value.maxString,
-  (maxString) => {
-    explore.resetVisibleStringRange(1, maxString);
-  },
-  { immediate: true },
-);
-
-const stringMarkers = computed(() =>
-  visibleStringRows.value.map((row) => ({
-    value: row.position,
-    label: `${row.stringNumber}`,
-  })),
-);
+const {
+  effectiveFrets,
+  showOpenStringMarkers,
+  visibleFretBounds,
+  visibleStringRows,
+  visibleStringBounds,
+  stringMarkers,
+  fretCellStyle,
+  openStringColumnStyle,
+} = useFretboardViewport();
 
 const updateVisibleFretRange = ({ startFret, endFret }) => {
   explore.setVisibleFretRange(startFret, endFret);
@@ -174,12 +99,7 @@ const isNoteRenderedAtPosition = (noteIndex, fret, stringPosition) =>
             : '',
         ]"
       >
-        <div
-          :class="[
-            'z-0 flex w-full min-w-0',
-            instrument.horizontalFlip ? 'flex-row-reverse' : 'flex-row',
-          ]"
-        >
+        <div class="z-0 flex w-full min-w-0">
           <div
             v-if="showOpenStringMarkers"
             class="shrink-0"
@@ -198,8 +118,7 @@ const isNoteRenderedAtPosition = (noteIndex, fret, stringPosition) =>
                     isNoteRenderedAtPosition(row.noteIndex, 0, row.position)
                   "
                   :class="[
-                    'absolute -top-5 flex size-11 items-center justify-center rounded-full border-2 border-gray-50',
-                    instrument.horizontalFlip ? 'left-1' : 'right-1',
+                    'absolute -top-5 right-1 flex size-11 items-center justify-center rounded-full border-2 border-gray-50',
                     explore.getDisplayColor(row.noteIndex),
                   ]"
                 >
@@ -213,24 +132,24 @@ const isNoteRenderedAtPosition = (noteIndex, fret, stringPosition) =>
 
           <div class="min-w-0 flex-1 h-auto relative">
             <div
-              :class="[
-                'absolute top-0 left-0 z-10 flex h-11 w-full items-center bg-gray-800',
-                instrument.horizontalFlip ? 'flex-row-reverse' : 'flex-row',
-              ]"
+              class="absolute top-0 left-0 z-10 flex h-11 w-full items-center bg-gray-800"
             >
               <div
                 v-for="n in effectiveFrets"
                 :key="n"
                 :class="[
                   'flex h-6 justify-center',
-                  instrument.horizontalFlip
-                    ? 'border-l-4 border-l-gray-500'
-                    : 'border-r-4 border-r-gray-500',
+                  'border-r-4 border-r-gray-500',
                   instrument.fretboardMarkers.includes(n) ? 'bg-amber-50' : '',
                 ]"
                 :style="fretCellStyle"
               >
-                <p v-if="instrument.fretboardMarkers.includes(n)">{{ n }}</p>
+                <p
+                  v-if="instrument.fretboardMarkers.includes(n)"
+                  class="text-sm font-semibold text-zinc-900"
+                >
+                  {{ n }}
+                </p>
               </div>
             </div>
 
@@ -240,25 +159,18 @@ const isNoteRenderedAtPosition = (noteIndex, fret, stringPosition) =>
               <div
                 v-for="n in effectiveFrets"
                 :key="n"
-                :class="[
-                  'flex h-6 justify-center',
-                  instrument.horizontalFlip
-                    ? 'border-l-4 border-l-gray-500'
-                    : 'border-r-4 border-r-gray-500',
-                ]"
+                class="flex h-6 justify-center border-r-4 border-r-gray-500"
                 :style="fretCellStyle"
               ></div>
             </div>
 
-            <div class="flex h-14 w-full border-y-2">
+            <div class="flex h-14 w-full border-y-2 border-gray-900">
               <div
                 v-for="n in effectiveFrets"
                 :key="n"
                 :class="[
                   'h-full border-y-2 border-y-gray-200 bg-black',
-                  instrument.horizontalFlip
-                    ? 'border-l-4 border-l-amber-200'
-                    : 'border-r-4 border-r-amber-200',
+                  'border-r-4 border-r-amber-200',
                 ]"
                 :style="fretCellStyle"
               ></div>
@@ -267,19 +179,14 @@ const isNoteRenderedAtPosition = (noteIndex, fret, stringPosition) =>
             <div
               v-for="row in visibleStringRows"
               :key="row.position"
-              :class="[
-                'flex h-14 w-full border-y-2 bg-white',
-                instrument.horizontalFlip ? 'flex-row-reverse' : 'flex-row',
-              ]"
+              class="flex h-14 w-full border-y-2 border-gray-900"
             >
               <div
                 v-for="n in effectiveFrets"
                 :key="n"
                 :class="[
                   'relative h-full border-y-2 border-y-gray-200 bg-black',
-                  instrument.horizontalFlip
-                    ? 'border-l-4 border-l-amber-200'
-                    : 'border-r-4 border-r-amber-200',
+                  'border-r-4 border-r-amber-200',
                 ]"
                 :style="fretCellStyle"
               >
@@ -324,8 +231,7 @@ const isNoteRenderedAtPosition = (noteIndex, fret, stringPosition) =>
                     )
                   "
                   :class="[
-                    'absolute -top-5 z-20 flex size-10 items-center justify-center rounded-full border-2 border-gray-100',
-                    instrument.horizontalFlip ? 'left-0.5' : 'right-0.5',
+                    'absolute -top-5 right-0.5 z-20 flex size-10 items-center justify-center rounded-full border-2 border-gray-100',
                     explore.getDisplayColor(
                       instrument.getNote(row.position, n),
                     ),

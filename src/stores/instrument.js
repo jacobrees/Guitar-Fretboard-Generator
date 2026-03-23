@@ -4,8 +4,6 @@ import { fretboardMarkers } from "@/stores/constants";
 
 export const useInstrumentStore = defineStore("instrument", () => {
   const sharpsEnabled = ref(true);
-  const verticalFlip = ref(true);
-  const horizontalFlip = ref(false);
   const tuningIndexes = ref([7, 2, 10, 5, 0, 7]);
   const twelveFretViewId = "twelve-fret";
   const fullFretViewId = "full-24";
@@ -13,13 +11,8 @@ export const useInstrumentStore = defineStore("instrument", () => {
   const maximumTwelveFretStart = 12;
   const twelveFretViewStart = ref(0);
   const fretViewPresets = Object.freeze({
-    [twelveFretViewId]: {
-      id: twelveFretViewId,
-      label: "12 Fret View",
-    },
+    [twelveFretViewId]: {},
     [fullFretViewId]: {
-      id: fullFretViewId,
-      label: "Full 24",
       startFret: 0,
       fretCount: 24,
       showOpenStringMarkers: true,
@@ -42,21 +35,12 @@ export const useInstrumentStore = defineStore("instrument", () => {
     sharpsEnabled.value ? "G#" : "A♭",
   ]);
 
-  const visibleTuningIndexes = computed(() =>
-    verticalFlip.value
-      ? tuningIndexes.value
-      : tuningIndexes.value.slice().reverse(),
-  );
-
   const toggleSharpsEnabled = () => {
     sharpsEnabled.value = !sharpsEnabled.value;
   };
 
   const getNote = (stringCount, fret) => {
-    const indexes = verticalFlip.value
-      ? tuningIndexes.value
-      : tuningIndexes.value.slice().reverse();
-    const index = indexes[stringCount - 1];
+    const index = tuningIndexes.value[stringCount - 1];
 
     return (index + fret) % 12;
   };
@@ -80,7 +64,6 @@ export const useInstrumentStore = defineStore("instrument", () => {
 
     return {
       ...fretViewPresets[twelveFretViewId],
-      windowLabel: twelveFretViewWindowLabel.value,
       startFret: twelveFretViewStart.value,
       fretCount: twelveFretViewStart.value === 0 ? 12 : 13,
       showOpenStringMarkers: twelveFretViewStart.value === 0,
@@ -116,10 +99,6 @@ export const useInstrumentStore = defineStore("instrument", () => {
     setFretView(defaultFretViewId);
   };
 
-  const fretViewTo24 = () => {
-    setFretView(fullFretViewId);
-  };
-
   const raiseString = (index) => {
     tuningIndexes.value[index] = (tuningIndexes.value[index] + 1) % 12;
   };
@@ -147,14 +126,12 @@ export const useInstrumentStore = defineStore("instrument", () => {
     addString,
     defaultFretViewId,
     fretView,
-    fretViewPresets,
     fullFretViewId,
     getFretRange,
     getFretViewPreset,
     setFretView,
     setTwelveFretViewStart,
     fretViewTo12,
-    fretViewTo24,
     fretboardMarkers,
     getNote,
     lowerString,
@@ -168,8 +145,5 @@ export const useInstrumentStore = defineStore("instrument", () => {
     twelveFretViewWindowLabel,
     toggleSharpsEnabled,
     tuningIndexes,
-    visibleTuningIndexes,
-    horizontalFlip,
-    verticalFlip,
   };
 });

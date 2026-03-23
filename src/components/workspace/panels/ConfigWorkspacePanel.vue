@@ -6,7 +6,7 @@ const emit = defineEmits(["open-interval-helper", "go-to-focus"]);
 </script>
 
 <template>
-  <div class="my-2 mx-5 flex items-start gap-4">
+  <div class="mt-4 mb-10 mx-5 flex items-start gap-4">
     <InstrumentConfigurator />
     <ScaleBuilder
       @open-interval-helper="emit('open-interval-helper')"

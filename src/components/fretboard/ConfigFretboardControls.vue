@@ -60,7 +60,7 @@ const setNoteSpelling = (useSharps) => {
             :class="[
               'rounded-2xl border px-4 py-3 text-left transition',
               instrument.sharpsEnabled === option.usesSharps
-                ? 'border-amber-200 bg-amber-50 text-zinc-950 shadow-lg shadow-black/20'
+                ? 'border-rose-900/80 bg-rose-700 text-gray-50 shadow-lg shadow-black/20'
                 : 'border-zinc-600 bg-zinc-800 text-gray-100 hover:border-zinc-400 hover:bg-zinc-700',
             ]"
             @click="setNoteSpelling(option.usesSharps)"
@@ -69,7 +69,7 @@ const setNoteSpelling = (useSharps) => {
               <p class="text-base font-semibold">{{ option.label }}</p>
               <span
                 v-if="instrument.sharpsEnabled === option.usesSharps"
-                class="rounded-full border border-zinc-300/80 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em]"
+                class="rounded-full border border-rose-200/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-rose-50"
               >
                 Active
               </span>
@@ -78,7 +78,7 @@ const setNoteSpelling = (useSharps) => {
               :class="[
                 'mt-1 text-sm',
                 instrument.sharpsEnabled === option.usesSharps
-                  ? 'text-zinc-700'
+                  ? 'text-rose-100'
                   : 'text-gray-400',
               ]"
             >

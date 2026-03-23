@@ -263,8 +263,6 @@ export const useScaleStore = defineStore("scale", () => {
 
   return {
     chromaticIntervalRows,
-    customHighlightedNotes,
-    customSelectedRootNote,
     highlightedNotes,
     intervalLegend,
     intervalNotes,
@@ -272,11 +270,8 @@ export const useScaleStore = defineStore("scale", () => {
     presetScaleDefinitionId,
     presetScaleDefinitions,
     scaleBuilderMode,
-    selectedPresetScaleDefinition,
     selectedIntervalLabelMap,
     selectedIntervalSemitoneSet,
-    selectedIntervals,
-    selectedNoteIndexes,
     selectedNotes,
     selectedRootNote,
     selectedScaleSummary,

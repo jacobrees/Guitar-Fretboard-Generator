@@ -63,10 +63,9 @@ export const useExploreStore = defineStore("explore", () => {
   };
 
   const clearExploreIntervalColor = (semitones) => {
-    exploreIntervalColorOverrides.value = {
-      ...exploreIntervalColorOverrides.value,
-      [semitones]: null,
-    };
+    const nextOverrides = { ...exploreIntervalColorOverrides.value };
+    delete nextOverrides[semitones];
+    exploreIntervalColorOverrides.value = nextOverrides;
   };
 
   const resetExploreIntervalHighlightsToScale = () => {
@@ -153,8 +152,6 @@ export const useExploreStore = defineStore("explore", () => {
         ? paletteColors.rose
         : "bg-zinc-600";
     }
-
-    return scale.highlightedNotes[noteIndex] ?? "bg-zinc-600";
   };
 
   const isNoteVisible = (noteIndex) => {
