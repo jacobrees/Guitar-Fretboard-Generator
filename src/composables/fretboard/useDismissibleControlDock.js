@@ -3,6 +3,7 @@ import { onBeforeUnmount, onMounted, ref } from "vue";
 export const useDismissibleControlDock = () => {
   const dockRef = ref(null);
   const activeControl = ref(null);
+  const controlElements = new Map();
 
   const closeControls = () => {
     activeControl.value = null;
@@ -15,8 +16,24 @@ export const useDismissibleControlDock = () => {
 
   const isControlOpen = (controlKey) => activeControl.value === controlKey;
 
+  const registerControlElement = (controlKey, element) => {
+    if (element) {
+      controlElements.set(controlKey, element);
+      return;
+    }
+
+    controlElements.delete(controlKey);
+  };
+
+  const getActiveControlElement = () =>
+    activeControl.value
+      ? (controlElements.get(activeControl.value) ?? dockRef.value)
+      : dockRef.value;
+
   const handleDocumentClick = (event) => {
-    if (!dockRef.value || dockRef.value.contains(event.target)) {
+    const activeElement = getActiveControlElement();
+
+    if (!activeElement || activeElement.contains(event.target)) {
       return;
     }
 
@@ -53,5 +70,6 @@ export const useDismissibleControlDock = () => {
     closeControls,
     toggleControl,
     isControlOpen,
+    registerControlElement,
   };
 };

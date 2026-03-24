@@ -3,6 +3,12 @@ import { useInstrumentStore } from "@/stores/instrument";
 import { useScaleStore } from "@/stores/scale";
 
 const emit = defineEmits(["open-interval-helper", "go-to-focus"]);
+const props = defineProps({
+  embedded: {
+    type: Boolean,
+    default: false,
+  },
+});
 
 const instrument = useInstrumentStore();
 const scale = useScaleStore();
@@ -10,43 +16,106 @@ const scale = useScaleStore();
 
 <template>
   <div
-    class="w-full max-w-2xl rounded-2xl border border-gray-400 bg-gray-950 p-3"
+    :class="[
+      props.embedded
+        ? 'w-full text-gray-50'
+        : 'w-full max-w-2xl rounded-2xl border border-gray-400 bg-gray-950 p-3',
+    ]"
   >
-    <div class="rounded-2xl bg-zinc-700 p-5 text-gray-50">
-      <div class="border-b border-gray-500 pb-4 text-center">
+    <div
+      :class="[
+        props.embedded ? '' : 'rounded-2xl bg-zinc-700 p-5 text-gray-50',
+      ]"
+    >
+      <div
+        :class="[
+          props.embedded ? 'pb-4' : 'border-b border-gray-500 pb-4 text-center',
+        ]"
+      >
         <p class="text-xs font-semibold uppercase tracking-wider text-gray-300">
           Scale Setup
         </p>
-        <h3 class="mt-1 text-3xl font-semibold">Scale Builder</h3>
-        <p class="mt-2 text-base text-gray-200">
+        <h3
+          :class="[
+            props.embedded
+              ? 'mt-2 text-2xl font-semibold'
+              : 'mt-1 text-3xl font-semibold',
+          ]"
+        >
+          Scale Builder
+        </h3>
+        <p
+          :class="[
+            props.embedded
+              ? 'mt-2 max-w-2xl text-sm text-gray-300'
+              : 'mt-2 text-base text-gray-200',
+          ]"
+        >
           Start with a root note and mode, then switch to custom mapping when
           you need a scale outside the preset list.
         </p>
       </div>
 
-      <div class="mt-5 rounded-2xl bg-zinc-800 p-2">
-        <div class="grid grid-cols-2 gap-2">
+      <div
+        class="mt-5 rounded-[1.4rem] border border-zinc-600/70 bg-zinc-900/72 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+      >
+        <div
+          class="mb-3 flex flex-col gap-1 px-1 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <p
+            class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400"
+          >
+            Builder Mode
+          </p>
+          <p
+            class="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500"
+          >
+            Choose one
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
           <button
             @click="scale.setScaleBuilderMode('preset')"
             :class="[
-              'cursor-pointer rounded-xl px-4 py-2.5 text-sm font-semibold transition',
+              'cursor-pointer rounded-2xl border-2 px-4 py-3 text-left transition focus:outline-none focus:ring-2 focus:ring-rose-300/70 focus:ring-offset-2 focus:ring-offset-zinc-900',
               scale.scaleBuilderMode === 'preset'
-                ? 'bg-rose-700 text-gray-50'
-                : 'bg-zinc-900 text-gray-200 hover:bg-zinc-950',
+                ? 'border-rose-300 bg-rose-700 text-gray-50 shadow-lg shadow-black/20'
+                : 'border-zinc-600 bg-zinc-950 text-gray-200 hover:border-zinc-400 hover:bg-zinc-900',
             ]"
           >
-            Preset Scales
+            <span class="block text-sm font-semibold">Preset Scales</span>
+            <span
+              :class="[
+                'mt-1 block text-xs',
+                scale.scaleBuilderMode === 'preset'
+                  ? 'text-rose-100'
+                  : 'text-gray-400',
+              ]"
+            >
+              Pick a known scale and root.
+            </span>
           </button>
           <button
             @click="scale.setScaleBuilderMode('custom')"
             :class="[
-              'cursor-pointer rounded-xl px-4 py-2.5 text-sm font-semibold transition',
+              'cursor-pointer rounded-2xl border-2 px-4 py-3 text-left transition focus:outline-none focus:ring-2 focus:ring-rose-300/70 focus:ring-offset-2 focus:ring-offset-zinc-900',
               scale.scaleBuilderMode === 'custom'
-                ? 'bg-rose-700 text-gray-50'
-                : 'bg-zinc-900 text-gray-200 hover:bg-zinc-950',
+                ? 'border-rose-300 bg-rose-700 text-gray-50 shadow-lg shadow-black/20'
+                : 'border-zinc-600 bg-zinc-950 text-gray-200 hover:border-zinc-400 hover:bg-zinc-900',
             ]"
           >
-            Custom Mapping
+            <span class="block text-sm font-semibold">Custom Mapping</span>
+            <span
+              :class="[
+                'mt-1 block text-xs',
+                scale.scaleBuilderMode === 'custom'
+                  ? 'text-rose-100'
+                  : 'text-gray-400',
+              ]"
+            >
+              Build the interval formula manually.
+            </span>
           </button>
         </div>
       </div>
@@ -112,7 +181,9 @@ const scale = useScaleStore();
             v-if="scale.selectedScaleSummary"
             class="mt-4 rounded-2xl border border-rose-400/30 bg-linear-to-b from-zinc-800 to-zinc-900 p-4"
           >
-            <div class="flex items-start justify-between gap-3">
+            <div
+              class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
+            >
               <div>
                 <p class="text-lg font-semibold text-gray-100">
                   {{ scale.selectedScaleSummary.name }}
@@ -177,60 +248,89 @@ const scale = useScaleStore();
               <p
                 class="inline-flex rounded-full border border-rose-400/35 bg-rose-950/60 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-rose-100"
               >
-                Step 1
+                Builder Step 1
               </p>
-              <h4 class="mt-2 text-2xl font-semibold">Note Mapping</h4>
-              <div
-                class="mt-3 flex items-start justify-center gap-2 text-center text-base text-gray-300"
-              >
-                <p>
-                  Choose the notes that best describe the song&apos;s tonal
-                  center and overall mood.
-                </p>
-
-                <div class="group relative flex shrink-0 items-center">
-                  <button
-                    type="button"
-                    class="flex size-7 cursor-help items-center justify-center rounded-full border border-gray-500 bg-zinc-800 text-sm font-semibold text-gray-100"
-                    aria-label="Explain borrowed notes in minor keys"
-                  >
-                    ?
-                  </button>
-
-                  <div
-                    class="pointer-events-none absolute left-1/2 top-full z-20 mt-2 hidden w-72 -translate-x-1/2 rounded-xl border border-gray-500 bg-gray-950 p-3 text-left text-sm text-gray-200 shadow-xl group-hover:block"
-                  >
-                    Songs in a minor key often mix notes from natural minor,
-                    harmonic minor, and melodic minor. Pick the note set that
-                    best captures the overall home sound of the music.
-                  </div>
-                </div>
-              </div>
+              <h4 class="mt-2 text-2xl font-semibold">Interval Mapping</h4>
+              <p class="mt-2 text-sm text-gray-300">
+                Build the formula first. The root stays locked in, so select the
+                extra intervals you want in the scale.
+              </p>
             </div>
 
-            <div class="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <div class="mt-4 grid gap-2 sm:grid-cols-2 2xl:grid-cols-3">
               <button
-                v-for="(note, index) in instrument.musicalNotes"
-                :key="note"
-                @click="scale.toggleNoteHighlight(index)"
+                v-for="interval in scale.customIntervalOptions"
+                :key="`custom-interval-${interval.semitones}`"
+                :disabled="interval.isRequired"
+                @click="scale.toggleIntervalHighlight(interval.semitones)"
                 :class="[
-                  'flex size-14 cursor-pointer items-center justify-center rounded-xl border-2 transition transform duration-200 ease-in-out hover:scale-105',
-                  scale.highlightedNotes[index]
-                    ? `${scale.highlightedNotes[index]} border-rose-300 text-gray-50 shadow-lg shadow-black/30`
+                  'rounded-xl border-2 px-4 py-3 text-left transition',
+                  interval.isSelected
+                    ? 'border-rose-300 bg-rose-700 text-gray-50 shadow-lg shadow-black/30'
                     : 'border-gray-500 bg-zinc-800 text-gray-100 hover:border-gray-300 hover:bg-zinc-700',
+                  interval.isRequired
+                    ? 'cursor-default'
+                    : 'cursor-pointer transform duration-200 ease-in-out hover:scale-[1.02]',
                 ]"
               >
-                <p class="text-lg font-semibold">
-                  {{ instrument.musicalNotes[index] }}
+                <div class="flex items-center justify-between gap-3">
+                  <p class="text-lg font-semibold">{{ interval.label }}</p>
+                  <span
+                    v-if="interval.isRequired"
+                    class="rounded-full border border-rose-200/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-rose-50"
+                  >
+                    Locked
+                  </span>
+                  <span
+                    v-else-if="interval.isSelected"
+                    class="rounded-full border border-rose-200/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-rose-50"
+                  >
+                    On
+                  </span>
+                </div>
+                <p
+                  :class="[
+                    'mt-1 text-sm',
+                    interval.isSelected ? 'text-rose-100' : 'text-gray-400',
+                  ]"
+                >
+                  {{ interval.name }}
                 </p>
               </button>
-            </div>
 
-            <p
-              class="mt-4 rounded-xl border border-gray-700 bg-zinc-800/60 px-3 py-2 text-center text-sm text-gray-300"
-            >
-              Build any non-diatonic note set, then choose a root below.
-            </p>
+              <div
+                class="rounded-xl border border-gray-700 bg-zinc-800/60 px-4 py-3 sm:col-span-2 2xl:col-span-3"
+              >
+                <p
+                  class="text-xs font-semibold uppercase tracking-wide text-gray-400"
+                >
+                  Current Formula
+                </p>
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <div
+                    v-for="interval in scale.customSelectedIntervals"
+                    :key="`selected-custom-interval-${interval.semitones}`"
+                    class="rounded-full border border-gray-500 bg-zinc-900 px-3 py-1.5 text-sm font-semibold text-gray-100"
+                  >
+                    {{ interval.label }}
+                  </div>
+                </div>
+                <p
+                  v-if="scale.customSelectedIntervalCount <= 1"
+                  class="mt-3 text-sm text-gray-300"
+                >
+                  The root is always included. Add at least one more interval to
+                  build the scale.
+                </p>
+                <p
+                  v-if="scale.customMatchedScaleDefinition"
+                  class="mt-3 rounded-xl border border-emerald-400/30 bg-emerald-950/50 px-3 py-2 text-sm text-emerald-100"
+                >
+                  This interval formula matches
+                  {{ scale.customMatchedScaleDefinition.name }}.
+                </p>
+              </div>
+            </div>
           </div>
 
           <div class="rounded-2xl border border-gray-500 bg-zinc-900 p-4">
@@ -238,68 +338,88 @@ const scale = useScaleStore();
               <p
                 class="inline-flex rounded-full border border-rose-400/35 bg-rose-950/60 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-rose-100"
               >
-                Step 2
+                Builder Step 2
               </p>
               <h4 class="mt-2 text-2xl font-semibold">Select Root</h4>
               <p class="mt-2 text-sm text-gray-300">
-                Pick the root note that turns your selection into an interval
-                map.
+                Apply your interval formula to whichever root note you want to
+                spell on the fretboard.
               </p>
             </div>
 
             <p
-              v-if="scale.selectedNotes.length > 1"
               class="mt-4 rounded-xl border border-gray-700 bg-zinc-800/60 px-3 py-2 text-center text-base text-gray-200"
             >
-              Select the root note to display its interval relationships on the
-              fretboard
-            </p>
-            <p
-              v-else
-              class="mt-4 rounded-xl border border-gray-700 bg-zinc-800/60 px-3 py-2 text-center text-base text-gray-200"
-            >
-              Highlight more than one note in Step 1 to enable root selection.
+              {{
+                scale.customSelectedIntervalCount > 1
+                  ? "Choose the note that should act as the root for this interval formula."
+                  : "Add at least one interval beyond the root in Builder Step 1 to build a full scale."
+              }}
             </p>
 
-            <div
-              v-if="scale.selectedNotes.length > 1"
-              class="mt-4 flex flex-wrap justify-center gap-2"
-            >
+            <div class="mt-4 flex flex-wrap justify-center gap-2">
               <button
-                v-for="intervalNote in scale.intervalNotes"
-                :key="intervalNote.index"
-                @click="scale.toggleRootNote(intervalNote.index)"
+                v-for="rootNote in scale.rootNoteOptions"
+                :key="rootNote.index"
+                @click="scale.toggleRootNote(rootNote.index)"
                 :class="[
                   'flex size-12 cursor-pointer items-center justify-center rounded-xl border-2 transition transform duration-200 ease-in-out hover:scale-105',
-                  intervalNote.isRoot
+                  rootNote.isRoot
                     ? 'border-rose-300 bg-rose-700 text-gray-50 shadow-lg shadow-black/30'
                     : 'border-gray-500 bg-zinc-800 text-gray-100 hover:border-gray-300 hover:bg-zinc-700',
                 ]"
               >
-                <p class="font-semibold">{{ intervalNote.note }}</p>
+                <p class="font-semibold">{{ rootNote.note }}</p>
               </button>
             </div>
 
             <p
-              v-if="scale.selectedNotes.length > 1"
+              v-if="scale.selectedRootNote !== null"
               class="mt-4 text-center text-sm text-gray-300"
             >
               Click the active root again to clear it, or choose another note to
               switch immediately.
             </p>
 
-            <div v-if="scale.selectedScaleSummary" class="mt-4">
-              <button
-                @click="emit('open-interval-helper')"
-                class="w-full cursor-pointer rounded-xl border border-gray-500 bg-zinc-800 px-4 py-2.5 text-sm font-semibold text-gray-100 transition hover:bg-zinc-700"
+            <div
+              v-if="scale.selectedScaleSummary"
+              class="mt-4 rounded-2xl border border-rose-400/35 bg-linear-to-b from-zinc-800 to-zinc-900 p-4"
+            >
+              <div
+                class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
               >
-                Open Formula Helper
-              </button>
+                <div>
+                  <p class="text-lg font-semibold text-gray-100">
+                    {{ scale.selectedScaleSummary.name }}
+                  </p>
+                  <p class="mt-1 text-sm text-gray-300">
+                    Formula: {{ scale.selectedScaleSummary.formula }}
+                  </p>
+                </div>
+
+                <button
+                  @click="emit('open-interval-helper')"
+                  class="shrink-0 cursor-pointer rounded-xl bg-zinc-900 px-3 py-2 text-xs font-semibold text-gray-100 transition hover:bg-zinc-950"
+                >
+                  Formula Helper
+                </button>
+              </div>
+
+              <div class="mt-3 flex flex-wrap gap-2">
+                <div
+                  v-for="interval in scale.selectedScaleSummary.intervals"
+                  :key="`custom-interval-${interval.label}-${interval.note}`"
+                  class="rounded-full border border-gray-500 bg-zinc-900 px-3 py-1.5 text-sm font-semibold text-gray-100"
+                >
+                  {{ interval.note }} · {{ interval.label }}
+                </div>
+              </div>
             </div>
 
             <div
               v-if="
-                scale.selectedNotes.length > 1 && scale.selectedRootNote !== null
+                scale.customSelectedIntervalCount > 1 &&
+                scale.selectedRootNote !== null
               "
               class="mt-4 rounded-2xl border border-rose-400/35 bg-linear-to-b from-zinc-800 to-zinc-900 p-3 text-center sm:flex sm:items-center sm:justify-between sm:text-left"
             >
@@ -307,7 +427,7 @@ const scale = useScaleStore();
                 <p
                   class="text-xs font-semibold uppercase tracking-wide text-rose-300"
                 >
-                  Step 3
+                  Builder Step 3
                 </p>
                 <p class="mt-1 text-sm text-gray-200">
                   Explore your custom mapping on the fretboard.

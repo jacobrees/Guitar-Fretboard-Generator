@@ -11,8 +11,13 @@ const instrument = useInstrumentStore();
 const fretScrollTrackRef = ref(null);
 const isDraggingFretScrollWindow = ref(false);
 const fretScrollDragOffsetPx = ref(0);
-const { dockRef, closeControls, toggleControl, isControlOpen } =
-  useDismissibleControlDock();
+const {
+  dockRef,
+  closeControls,
+  toggleControl,
+  isControlOpen,
+  registerControlElement,
+} = useDismissibleControlDock();
 const { hasFullFretRangeAccess, effectiveFretViewId, showTwelveFretScroller } =
   useFretboardViewport();
 
@@ -406,7 +411,10 @@ onBeforeUnmount(() => {
     </div>
 
     <div class="mt-3 grid grid-cols-2 gap-3">
-      <div class="relative min-w-0">
+      <div
+        :ref="(element) => registerControlElement('explore-view', element)"
+        class="relative min-w-0"
+      >
         <button
           type="button"
           class="flex w-full items-center justify-between rounded-[1.25rem] border border-zinc-500/80 bg-zinc-900/90 px-4 py-3 text-left text-gray-100 shadow-[0_12px_30px_rgba(0,0,0,0.14)] backdrop-blur-sm transition hover:border-zinc-300/80"
@@ -484,7 +492,10 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <div class="relative min-w-0">
+      <div
+        :ref="(element) => registerControlElement('visibility', element)"
+        class="relative min-w-0"
+      >
         <button
           type="button"
           class="flex w-full items-center justify-between rounded-[1.25rem] border border-zinc-500/80 bg-zinc-900/90 px-4 py-3 text-left text-gray-100 shadow-[0_12px_30px_rgba(0,0,0,0.14)] backdrop-blur-sm transition hover:border-zinc-300/80"

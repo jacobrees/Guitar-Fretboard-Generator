@@ -3,6 +3,13 @@ import { computed } from "vue";
 
 import { useInstrumentStore } from "@/stores/instrument";
 
+const props = defineProps({
+  embedded: {
+    type: Boolean,
+    default: false,
+  },
+});
+
 const instrument = useInstrumentStore();
 
 const noteSpellingState = computed(() =>
@@ -32,27 +39,59 @@ const setNoteSpelling = (useSharps) => {
 </script>
 
 <template>
-  <div class="relative z-30 mx-auto w-full max-w-screen-2xl px-5 pb-5">
+  <div
+    :class="[
+      props.embedded
+        ? 'w-full text-gray-100'
+        : 'relative z-30 mx-auto w-full max-w-screen-2xl px-5 pb-5',
+    ]"
+  >
     <div
-      class="rounded-2xl border border-zinc-400/90 bg-zinc-900/92 px-4 py-4 text-gray-100 shadow-[0_18px_40px_rgba(0,0,0,0.18)] backdrop-blur-sm"
+      :class="[
+        props.embedded
+          ? ''
+          : 'rounded-2xl border border-zinc-400/90 bg-zinc-900/92 px-4 py-4 text-gray-100 shadow-[0_18px_40px_rgba(0,0,0,0.18)] backdrop-blur-sm',
+      ]"
     >
       <div
-        class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between"
+        :class="[
+          props.embedded
+            ? 'flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between'
+            : 'flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between',
+        ]"
       >
-        <div>
+        <div class="max-w-xl">
           <p class="text-xs uppercase tracking-[0.2em] text-gray-400">
             Note Naming
           </p>
-          <p class="mt-1 text-sm font-semibold text-gray-100">
+          <h3
+            :class="[
+              props.embedded
+                ? 'mt-2 text-2xl font-semibold text-gray-100'
+                : 'mt-1 text-sm font-semibold text-gray-100',
+            ]"
+          >
             {{ noteSpellingState }}
-          </p>
-          <p class="mt-1 text-sm text-gray-400">
+          </h3>
+          <p
+            :class="[
+              props.embedded
+                ? 'mt-2 text-sm text-gray-300'
+                : 'mt-1 text-sm text-gray-400',
+            ]"
+          >
             Choose how accidental notes are displayed while configuring the
             fretboard.
           </p>
         </div>
 
-        <div class="grid gap-2 sm:grid-cols-2 lg:min-w-104">
+        <div
+          :class="[
+            props.embedded
+              ? 'grid gap-2 sm:grid-cols-2 lg:min-w-88'
+              : 'grid gap-2 sm:grid-cols-2 lg:min-w-104',
+          ]"
+        >
           <button
             v-for="option in noteNamingOptions"
             :key="option.id"
@@ -61,7 +100,7 @@ const setNoteSpelling = (useSharps) => {
               'rounded-2xl border px-4 py-3 text-left transition',
               instrument.sharpsEnabled === option.usesSharps
                 ? 'border-rose-900/80 bg-rose-700 text-gray-50 shadow-lg shadow-black/20'
-                : 'border-zinc-600 bg-zinc-800 text-gray-100 hover:border-zinc-400 hover:bg-zinc-700',
+                : 'border-zinc-600 bg-zinc-800/92 text-gray-100 hover:border-zinc-400 hover:bg-zinc-700',
             ]"
             @click="setNoteSpelling(option.usesSharps)"
           >

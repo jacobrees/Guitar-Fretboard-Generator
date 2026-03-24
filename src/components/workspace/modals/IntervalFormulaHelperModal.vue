@@ -6,7 +6,7 @@ const props = defineProps({
   },
   modeName: {
     type: String,
-    default: "Custom Selection",
+    default: "Custom",
   },
   intervalLegend: {
     type: Array,
@@ -48,7 +48,7 @@ const isSelectedInterval = (legendLabel) =>
             <p
               class="mt-2 text-sm font-semibold uppercase tracking-wide text-rose-200"
             >
-              {{ modeName || "Custom Selection" }}
+              {{ modeName }}
             </p>
             <p class="mt-2 text-base text-gray-200">
               Use this chromatic interval reference to decode the shorthand used

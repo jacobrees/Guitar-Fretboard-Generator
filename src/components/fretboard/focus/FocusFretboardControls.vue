@@ -23,8 +23,14 @@ const emit = defineEmits([
 const scale = useScaleStore();
 const explore = useExploreStore();
 
-const { dockRef, activeControl, closeControls, toggleControl, isControlOpen } =
-  useDismissibleControlDock();
+const {
+  dockRef,
+  activeControl,
+  closeControls,
+  toggleControl,
+  isControlOpen,
+  registerControlElement,
+} = useDismissibleControlDock();
 
 const highlightState = computed(() => {
   if (activeControl.value === "interval-highlighting") {
@@ -60,7 +66,12 @@ const openIntervalHelper = () => {
     class="relative z-30 mx-auto mt-2 w-full max-w-screen-2xl px-5 pb-3"
   >
     <div class="grid grid-cols-2 gap-3">
-      <div class="relative min-w-0">
+      <div
+        :ref="
+          (element) => registerControlElement('interval-highlighting', element)
+        "
+        class="relative min-w-0"
+      >
         <button
           type="button"
           class="flex w-full items-center justify-between rounded-[1.25rem] border border-zinc-500/80 bg-zinc-900/90 px-4 py-3 text-left text-gray-100 shadow-[0_12px_30px_rgba(0,0,0,0.14)] backdrop-blur-sm transition hover:border-zinc-300/80"
@@ -154,7 +165,10 @@ const openIntervalHelper = () => {
         </div>
       </div>
 
-      <div class="relative min-w-0">
+      <div
+        :ref="(element) => registerControlElement('interval-helper', element)"
+        class="relative min-w-0"
+      >
         <button
           type="button"
           class="flex w-full items-center justify-between rounded-[1.25rem] border border-zinc-500/80 bg-zinc-900/90 px-4 py-3 text-left text-gray-100 shadow-[0_12px_30px_rgba(0,0,0,0.14)] backdrop-blur-sm transition hover:border-zinc-300/80"
