@@ -3,7 +3,6 @@ import { computed, ref } from "vue";
 
 import ntsIcon from "@/assets/nts-boxed-cutout-white.svg";
 import {
-  ConfigFretboardControls,
   FocusFretboardControls,
   FretboardControls,
   FretboardDisplay,
@@ -112,7 +111,6 @@ const {
             <FretboardDisplay :disable-horizontal-padding="true" />
           </div>
         </div>
-        <ConfigFretboardControls />
       </div>
 
       <ConfigWorkspacePanel

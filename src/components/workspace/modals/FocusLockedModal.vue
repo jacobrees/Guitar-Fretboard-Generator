@@ -24,8 +24,8 @@ const closeModal = () => {
       <div class="rounded-2xl bg-zinc-700 p-4">
         <h3 class="text-center text-3xl">Focus Locked</h3>
         <p class="mt-3 text-center text-lg">
-          Configure the guitar, map your notes, and choose a root before
-          continuing into Explore Fretboard.
+          Configure the guitar, build your interval mapping, and choose a root
+          before continuing into Explore Fretboard.
         </p>
         <div class="mt-4 flex justify-center">
           <button

@@ -46,7 +46,7 @@ const activeColorName = computed(() => {
     ([, colorClass]) => colorClass === props.activeColor,
   );
 
-  return paletteEntry ? formatPaletteName(paletteEntry[0]) : "Custom";
+  return paletteEntry ? formatPaletteName(paletteEntry[0]) : "None";
 });
 </script>
 

@@ -9,12 +9,18 @@ import {
   scaleDefinitions,
 } from "@/stores/constants";
 
+const buildInitialCustomIntervals = () => {
+  const nextIntervals = Array(12).fill(null);
+  nextIntervals[0] = paletteColors.rose;
+  return nextIntervals;
+};
+
 export const useScaleStore = defineStore("scale", () => {
   const instrument = useInstrumentStore();
   const scaleBuilderMode = ref("preset");
   const presetRootNote = ref(3);
   const presetScaleDefinitionId = ref(scaleDefinitions[0]?.id ?? null);
-  const customHighlightedNotes = ref(Array(12).fill(null));
+  const customHighlightedIntervals = ref(buildInitialCustomIntervals());
   const customSelectedRootNote = ref(null);
 
   const presetScaleDefinitions = scaleDefinitions;
@@ -43,13 +49,74 @@ export const useScaleStore = defineStore("scale", () => {
     return nextHighlights;
   };
 
+  const customSelectedIntervalIndexes = computed(() =>
+    customHighlightedIntervals.value.reduce((indexes, value, semitones) => {
+      if (value) {
+        indexes.push(semitones);
+      }
+
+      return indexes;
+    }, []),
+  );
+
+  const customIntervalOptions = computed(() =>
+    Array.from({ length: 12 }, (_, semitones) => {
+      const legendEntry = chromaticIntervalLegend[semitones];
+      const fallbackLabel = defaultIntervalLabels[semitones];
+
+      return {
+        semitones,
+        label: legendEntry?.label ?? fallbackLabel,
+        name: legendEntry?.name ?? intervalDefinitions[fallbackLabel],
+        isRequired: semitones === 0,
+        isSelected: Boolean(customHighlightedIntervals.value[semitones]),
+      };
+    }),
+  );
+
+  const customSelectedIntervals = computed(() =>
+    customIntervalOptions.value.filter((interval) => interval.isSelected),
+  );
+
+  const customSelectedIntervalCount = computed(
+    () => customSelectedIntervals.value.length,
+  );
+
+  const customMatchedScaleDefinition = computed(
+    () =>
+      scaleDefinitions.find(
+        (scale) =>
+          scale.intervals.length ===
+            customSelectedIntervalIndexes.value.length &&
+          scale.intervals.every(
+            (interval, index) =>
+              interval === customSelectedIntervalIndexes.value[index],
+          ),
+      ) ?? null,
+  );
+
+  const buildCustomHighlights = (rootNote) => {
+    const nextHighlights = Array(12).fill(null);
+
+    if (rootNote === null) {
+      return nextHighlights;
+    }
+
+    customSelectedIntervalIndexes.value.forEach((semitones) => {
+      const noteIndex = (rootNote + semitones) % 12;
+      nextHighlights[noteIndex] = paletteColors.rose;
+    });
+
+    return nextHighlights;
+  };
+
   const highlightedNotes = computed(() =>
     scaleBuilderMode.value === "preset"
       ? buildPresetHighlights(
           presetRootNote.value,
           selectedPresetScaleDefinition.value,
         )
-      : customHighlightedNotes.value,
+      : buildCustomHighlights(customSelectedRootNote.value),
   );
 
   const selectedRootNote = computed(() => {
@@ -59,11 +126,7 @@ export const useScaleStore = defineStore("scale", () => {
         : presetRootNote.value;
     }
 
-    const hasValidRoot =
-      customSelectedRootNote.value !== null &&
-      Boolean(customHighlightedNotes.value[customSelectedRootNote.value]);
-
-    return hasValidRoot ? customSelectedRootNote.value : null;
+    return customSelectedRootNote.value;
   });
 
   const setScaleBuilderMode = (mode) => {
@@ -98,10 +161,10 @@ export const useScaleStore = defineStore("scale", () => {
     }, []),
   );
 
-  const intervalNotes = computed(() =>
-    selectedNoteIndexes.value.map((index) => ({
+  const rootNoteOptions = computed(() =>
+    instrument.musicalNotes.map((note, index) => ({
       index,
-      note: instrument.musicalNotes[index],
+      note,
       isRoot: selectedRootNote.value === index,
     })),
   );
@@ -150,10 +213,10 @@ export const useScaleStore = defineStore("scale", () => {
 
     return {
       root,
-      modeName: matchedScaleDefinition.value?.name ?? "Custom Selection",
+      modeName: matchedScaleDefinition.value?.name ?? "Custom",
       name: matchedScaleDefinition.value
         ? `${root} - ${matchedScaleDefinition.value.name}`
-        : `${root} - Custom Selection`,
+        : `${root} - Custom`,
       isKnownScale: matchedScaleDefinition.value !== null,
       formula: intervalLabels.join(" - "),
       intervals: selectedIntervals.value.map((interval, index) => {
@@ -205,30 +268,20 @@ export const useScaleStore = defineStore("scale", () => {
     });
   });
 
-  const toggleNoteHighlight = (note) => {
-    if (scaleBuilderMode.value !== "custom") {
+  const toggleIntervalHighlight = (semitones) => {
+    if (scaleBuilderMode.value !== "custom" || semitones === 0) {
       return;
     }
 
-    if (
-      customHighlightedNotes.value[note] &&
-      customSelectedRootNote.value === note
-    ) {
-      customSelectedRootNote.value = null;
-    }
-
-    customHighlightedNotes.value.splice(
-      note,
+    customHighlightedIntervals.value.splice(
+      semitones,
       1,
-      customHighlightedNotes.value[note] ? null : paletteColors.rose,
+      customHighlightedIntervals.value[semitones] ? null : paletteColors.rose,
     );
   };
 
   const toggleRootNote = (note) => {
-    if (
-      scaleBuilderMode.value !== "custom" ||
-      !customHighlightedNotes.value[note]
-    ) {
+    if (scaleBuilderMode.value !== "custom") {
       return;
     }
 
@@ -238,12 +291,16 @@ export const useScaleStore = defineStore("scale", () => {
 
   return {
     chromaticIntervalRows,
+    customIntervalOptions,
+    customMatchedScaleDefinition,
+    customSelectedIntervalCount,
+    customSelectedIntervals,
     highlightedNotes,
     intervalLegend,
-    intervalNotes,
     presetRootNote,
     presetScaleDefinitionId,
     presetScaleDefinitions,
+    rootNoteOptions,
     scaleBuilderMode,
     selectedIntervalLabelMap,
     selectedIntervalSemitoneSet,
@@ -253,7 +310,7 @@ export const useScaleStore = defineStore("scale", () => {
     setPresetRootNote,
     setPresetScaleDefinition,
     setScaleBuilderMode,
-    toggleNoteHighlight,
+    toggleIntervalHighlight,
     toggleRootNote,
   };
 });
