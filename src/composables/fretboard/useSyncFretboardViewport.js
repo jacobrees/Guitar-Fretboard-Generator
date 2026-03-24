@@ -26,17 +26,21 @@ export const useSyncFretboardViewport = (viewport = useFretboardViewport()) => {
     ],
     ([minFret, maxFret]) => {
       explore.resetVisibleFretRange(minFret, maxFret);
+      explore.resetVisibleStringRange(
+        viewport.visibleStringBounds.value.minString,
+        viewport.visibleStringBounds.value.maxString,
+      );
     },
     { immediate: true },
   );
 
   watch(
-    () => viewport.visibleStringBounds.value.maxString,
-    (maxString) => {
-      explore.resetVisibleStringRange(
-        viewport.visibleStringBounds.value.minString,
-        maxString,
-      );
+    [
+      () => viewport.visibleStringBounds.value.minString,
+      () => viewport.visibleStringBounds.value.maxString,
+    ],
+    ([minString, maxString]) => {
+      explore.resetVisibleStringRange(minString, maxString);
     },
     { immediate: true },
   );
