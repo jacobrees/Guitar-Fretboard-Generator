@@ -10,12 +10,16 @@ export const useExploreStore = defineStore("explore", () => {
   const onlyHighlighted = ref(true);
   const currentWorkspaceMode = ref("config");
   const preferredExploreLabelMode = ref("intervals");
+  const playbackEnabled = ref(false);
   const exploreIntervalColorOverrides = ref({});
   const useDefaultExploreScaleHighlights = ref(true);
   const visibleFretRangeStart = ref(0);
   const visibleFretRangeEnd = ref(12);
   const visibleStringRangeStart = ref(1);
   const visibleStringRangeEnd = ref(instrument.tuningIndexes.length);
+  const isPlaybackModeActive = computed(
+    () => currentWorkspaceMode.value === "focus" && playbackEnabled.value,
+  );
 
   const effectiveFretLabelMode = computed(() =>
     currentWorkspaceMode.value === "focus"
@@ -35,6 +39,7 @@ export const useExploreStore = defineStore("explore", () => {
 
     onlyHighlighted.value = true;
     preferredExploreLabelMode.value = "intervals";
+    playbackEnabled.value = false;
     resetVisibleFretRange(minFret, maxFret);
     resetVisibleStringRange(1, instrument.tuningIndexes.length);
   };
@@ -98,6 +103,14 @@ export const useExploreStore = defineStore("explore", () => {
     onlyHighlighted.value = value;
   };
 
+  const togglePlayback = () => {
+    playbackEnabled.value = !playbackEnabled.value;
+  };
+
+  const setPlaybackEnabled = (value) => {
+    playbackEnabled.value = Boolean(value);
+  };
+
   const resetVisibleFretRange = (startFret, endFret) => {
     const nextStart = Math.min(startFret, endFret);
     const nextEnd = Math.max(startFret, endFret);
@@ -116,6 +129,7 @@ export const useExploreStore = defineStore("explore", () => {
 
   const isFretVisible = (fret) =>
     currentWorkspaceMode.value !== "focus" ||
+    isPlaybackModeActive.value ||
     (fret >= visibleFretRangeStart.value && fret <= visibleFretRangeEnd.value);
 
   const resetVisibleStringRange = (startString, endString) => {
@@ -136,6 +150,7 @@ export const useExploreStore = defineStore("explore", () => {
 
   const isStringVisible = (stringPosition) =>
     currentWorkspaceMode.value !== "focus" ||
+    isPlaybackModeActive.value ||
     (stringPosition >= visibleStringRangeStart.value &&
       stringPosition <= visibleStringRangeEnd.value);
 
@@ -156,6 +171,12 @@ export const useExploreStore = defineStore("explore", () => {
   };
 
   const getDisplayColor = (noteIndex) => {
+    if (currentWorkspaceMode.value === "config") {
+      return scale.highlightedNotes[noteIndex]
+        ? paletteColors.rose
+        : "bg-zinc-600";
+    }
+
     if (
       currentWorkspaceMode.value === "focus" &&
       scale.selectedRootNote !== null
@@ -163,12 +184,6 @@ export const useExploreStore = defineStore("explore", () => {
       const semitones = (noteIndex - scale.selectedRootNote + 12) % 12;
 
       return getExploreIntervalColor(semitones) ?? "bg-zinc-600";
-    }
-
-    if (currentWorkspaceMode.value === "config") {
-      return scale.highlightedNotes[noteIndex]
-        ? paletteColors.rose
-        : "bg-zinc-600";
     }
   };
 
@@ -206,6 +221,7 @@ export const useExploreStore = defineStore("explore", () => {
     isStringVisible,
     onlyHighlighted,
     paletteColors,
+    playbackEnabled,
     preferredExploreLabelMode,
     resetFocusWorkspaceState,
     resetVisibleFretRange,
@@ -214,8 +230,10 @@ export const useExploreStore = defineStore("explore", () => {
     setVisibleFretRange,
     setVisibleStringRange,
     setExploreIntervalColor,
+    setPlaybackEnabled,
     setPreferredExploreLabelMode,
     setWorkspaceMode,
+    togglePlayback,
     toggleHighlighted,
     visibleFretRangeEnd,
     visibleFretRangeStart,

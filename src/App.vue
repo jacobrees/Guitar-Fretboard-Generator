@@ -3,7 +3,7 @@ import { computed, ref } from "vue";
 
 import ntsIcon from "@/assets/nts-boxed-cutout-white.svg";
 import {
-  FocusFretboardControls,
+  ExploreToolsPanel,
   FretboardControls,
   FretboardDisplay,
 } from "@/components/fretboard";
@@ -84,7 +84,7 @@ const {
       />
 
       <div v-if="activeMode === 'focus'" class="w-full">
-        <FocusFretboardControls
+        <ExploreToolsPanel
           v-if="scale.selectedScaleSummary"
           :active-interval-palette="activeIntervalPalette"
           @toggle-interval-palette="toggleIntervalPalette"
