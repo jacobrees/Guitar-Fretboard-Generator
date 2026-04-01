@@ -94,6 +94,17 @@ const getNoteInteractionClass = (noteIndex, fret, stringPosition) => {
     ? "cursor-pointer hover:opacity-100"
     : "cursor-pointer hover:opacity-[0.85]";
 };
+
+const logExploreNoteClick = (stringPosition, fret) => {
+  if (explore.currentWorkspaceMode !== "focus") {
+    return;
+  }
+
+  console.log(
+    "Explore note clicked",
+    instrument.getNoteDetails(stringPosition, fret),
+  );
+};
 </script>
 
 <template>
@@ -256,6 +267,7 @@ const getNoteInteractionClass = (noteIndex, fret, stringPosition) => {
                   :aria-hidden="
                     !isNoteRenderedAtPosition(row.noteIndex, 0, row.position)
                   "
+                  @click="logExploreNoteClick(row.position, 0)"
                 >
                   <p class="text-sm font-semibold text-gray-50">
                     {{ explore.getDisplayLabel(row.noteIndex) }}
@@ -381,6 +393,7 @@ const getNoteInteractionClass = (noteIndex, fret, stringPosition) => {
                       row.position,
                     )
                   "
+                  @click="logExploreNoteClick(row.position, n)"
                 >
                   <p class="text-sm font-semibold text-gray-100">
                     {{

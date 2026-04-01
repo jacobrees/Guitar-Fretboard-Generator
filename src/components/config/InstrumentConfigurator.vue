@@ -86,7 +86,7 @@ const instrument = useInstrumentStore();
 
           <div class="mt-4 grid gap-3 sm:grid-cols-2">
             <div
-              v-for="(string, index) in instrument.tuningIndexes"
+              v-for="(_, index) in instrument.tuningIndexes"
               :key="index"
               class="flex items-center gap-3 rounded-2xl border border-gray-500 bg-zinc-900 px-3 py-3"
             >
@@ -106,7 +106,7 @@ const instrument = useInstrumentStore();
                   <img
                     class="w-full"
                     :src="caretUpSVG"
-                    :alt="`Raise string ${index + 1} pitch from ${instrument.musicalNotes[string]}`"
+                    :alt="`Raise string ${index + 1} pitch from ${instrument.getOpenStringScientificLabel(index + 1)}`"
                   />
                 </button>
 
@@ -115,7 +115,7 @@ const instrument = useInstrumentStore();
                     Open Note
                   </p>
                   <p class="text-xl font-semibold">
-                    {{ instrument.musicalNotes[string] }}
+                    {{ instrument.getOpenStringScientificLabel(index + 1) }}
                   </p>
                 </div>
 
@@ -126,7 +126,7 @@ const instrument = useInstrumentStore();
                   <img
                     class="w-full"
                     :src="caretDownSVG"
-                    :alt="`Lower string ${index + 1} pitch from ${instrument.musicalNotes[string]}`"
+                    :alt="`Lower string ${index + 1} pitch from ${instrument.getOpenStringScientificLabel(index + 1)}`"
                   />
                 </button>
               </div>
