@@ -62,6 +62,38 @@ const isNoteRenderedAtPosition = (noteIndex, fret, stringPosition) => {
     explore.isNoteVisible(noteIndex)
   );
 };
+
+const isPlaybackHighlightedNote = (noteIndex, fret, stringPosition) =>
+  explore.currentWorkspaceMode === "focus" &&
+  explore.playbackEnabled &&
+  isNoteRenderedAtPosition(noteIndex, fret, stringPosition) &&
+  explore.getDisplayColor(noteIndex) !== "bg-zinc-600";
+
+const getNoteVisibilityClass = (noteIndex, fret, stringPosition) => {
+  if (isNoteRenderedAtPosition(noteIndex, fret, stringPosition)) {
+    return isPlaybackHighlightedNote(noteIndex, fret, stringPosition)
+      ? "opacity-[0.85]"
+      : "opacity-100";
+  }
+
+  return explore.currentWorkspaceMode === "focus"
+    ? "opacity-0"
+    : "opacity-0 pointer-events-none";
+};
+
+const getNoteInteractionClass = (noteIndex, fret, stringPosition) => {
+  if (explore.currentWorkspaceMode !== "focus") {
+    return "";
+  }
+
+  if (!explore.playbackEnabled) {
+    return "cursor-pointer hover:opacity-[0.85]";
+  }
+
+  return isNoteRenderedAtPosition(noteIndex, fret, stringPosition)
+    ? "cursor-pointer hover:opacity-100"
+    : "cursor-pointer hover:opacity-[0.85]";
+};
 </script>
 
 <template>
@@ -214,14 +246,16 @@ const isNoteRenderedAtPosition = (noteIndex, fret, stringPosition) => {
                 class="h-14 relative"
               >
                 <div
-                  v-if="
-                    isNoteRenderedAtPosition(row.noteIndex, 0, row.position)
-                  "
                   :class="[
-                    'absolute -top-5 flex size-11 items-center justify-center rounded-full border-2 border-gray-50',
+                    'absolute -top-5 flex size-11 items-center justify-center rounded-full border-2 border-gray-50 transition-opacity duration-150',
                     getOpenStringBubblePositionClass(),
                     explore.getDisplayColor(row.noteIndex),
+                    getNoteVisibilityClass(row.noteIndex, 0, row.position),
+                    getNoteInteractionClass(row.noteIndex, 0, row.position),
                   ]"
+                  :aria-hidden="
+                    !isNoteRenderedAtPosition(row.noteIndex, 0, row.position)
+                  "
                 >
                   <p class="text-sm font-semibold text-gray-50">
                     {{ explore.getDisplayLabel(row.noteIndex) }}
@@ -324,19 +358,29 @@ const isNoteRenderedAtPosition = (noteIndex, fret, stringPosition) => {
                 </div>
 
                 <div
-                  v-if="
-                    isNoteRenderedAtPosition(
+                  :class="[
+                    'absolute -top-5 right-0.5 z-20 flex size-10 items-center justify-center rounded-full border-2 border-gray-100 transition-opacity duration-150',
+                    explore.getDisplayColor(
+                      instrument.getNote(row.position, n),
+                    ),
+                    getNoteVisibilityClass(
+                      instrument.getNote(row.position, n),
+                      n,
+                      row.position,
+                    ),
+                    getNoteInteractionClass(
+                      instrument.getNote(row.position, n),
+                      n,
+                      row.position,
+                    ),
+                  ]"
+                  :aria-hidden="
+                    !isNoteRenderedAtPosition(
                       instrument.getNote(row.position, n),
                       n,
                       row.position,
                     )
                   "
-                  :class="[
-                    'absolute -top-5 right-0.5 z-20 flex size-10 items-center justify-center rounded-full border-2 border-gray-100',
-                    explore.getDisplayColor(
-                      instrument.getNote(row.position, n),
-                    ),
-                  ]"
                 >
                   <p class="text-sm font-semibold text-gray-100">
                     {{
