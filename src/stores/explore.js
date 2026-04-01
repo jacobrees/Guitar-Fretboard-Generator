@@ -116,21 +116,63 @@ export const useExploreStore = defineStore("explore", () => {
     playbackEnabled.value = Boolean(value);
   };
 
-  const resetVisibleFretRange = (startFret, endFret) => {
-    const nextStart = Math.min(startFret, endFret);
-    const nextEnd = Math.max(startFret, endFret);
+  const normalizeRange = (startValue, endValue) => ({
+    start: Math.min(startValue, endValue),
+    end: Math.max(startValue, endValue),
+  });
 
-    visibleFretRangeStart.value = nextStart;
-    visibleFretRangeEnd.value = nextEnd;
+  const shouldKeepScrolledOpenStringsVisible = () =>
+    currentWorkspaceMode.value === "focus" &&
+    instrument.fretView === instrument.twelveFretViewId &&
+    instrument.twelveFretViewStart > 0;
+
+  const isNotePositionWithinInteractiveFilterRange = (stringPosition, fret) => {
+    if (
+      stringPosition < visibleStringRangeStart.value ||
+      stringPosition > visibleStringRangeEnd.value
+    ) {
+      return false;
+    }
+
+    if (
+      fret >= visibleFretRangeStart.value &&
+      fret <= visibleFretRangeEnd.value
+    ) {
+      return true;
+    }
+
+    return fret === 0 && shouldKeepScrolledOpenStringsVisible();
+  };
+
+  const applyVisibleRanges = ({
+    startFret = visibleFretRangeStart.value,
+    endFret = visibleFretRangeEnd.value,
+    startString = visibleStringRangeStart.value,
+    endString = visibleStringRangeEnd.value,
+    resetOverrides = false,
+    pruneOverrides = false,
+  } = {}) => {
+    const nextFretRange = normalizeRange(startFret, endFret);
+    const nextStringRange = normalizeRange(startString, endString);
+
+    visibleFretRangeStart.value = nextFretRange.start;
+    visibleFretRangeEnd.value = nextFretRange.end;
+    visibleStringRangeStart.value = nextStringRange.start;
+    visibleStringRangeEnd.value = nextStringRange.end;
+
+    if (resetOverrides) {
+      notePositionVisibilityOverrides.value = {};
+    } else if (pruneOverrides) {
+      pruneNotePositionVisibilityOverrides();
+    }
+  };
+
+  const resetVisibleFretRange = (startFret, endFret) => {
+    applyVisibleRanges({ startFret, endFret });
   };
 
   const setVisibleFretRange = (startFret, endFret) => {
-    const nextStart = Math.min(startFret, endFret);
-    const nextEnd = Math.max(startFret, endFret);
-
-    visibleFretRangeStart.value = nextStart;
-    visibleFretRangeEnd.value = nextEnd;
-    pruneNotePositionVisibilityOverrides();
+    applyVisibleRanges({ startFret, endFret, resetOverrides: true });
   };
 
   const isFretVisible = (fret) =>
@@ -139,19 +181,35 @@ export const useExploreStore = defineStore("explore", () => {
     (fret >= visibleFretRangeStart.value && fret <= visibleFretRangeEnd.value);
 
   const resetVisibleStringRange = (startString, endString) => {
-    const nextStart = Math.min(startString, endString);
-    const nextEnd = Math.max(startString, endString);
-
-    visibleStringRangeStart.value = nextStart;
-    visibleStringRangeEnd.value = nextEnd;
+    applyVisibleRanges({ startString, endString });
   };
 
   const setVisibleStringRange = (startString, endString) => {
-    const nextStart = Math.min(startString, endString);
-    const nextEnd = Math.max(startString, endString);
+    applyVisibleRanges({ startString, endString, resetOverrides: true });
+  };
 
-    visibleStringRangeStart.value = nextStart;
-    visibleStringRangeEnd.value = nextEnd;
+  const syncVisibleRanges = ({
+    startFret = visibleFretRangeStart.value,
+    endFret = visibleFretRangeEnd.value,
+    startString = visibleStringRangeStart.value,
+    endString = visibleStringRangeEnd.value,
+  } = {}) => {
+    const nextFretRange = normalizeRange(startFret, endFret);
+    const hasFretViewportChanged =
+      nextFretRange.start !== visibleFretRangeStart.value ||
+      nextFretRange.end !== visibleFretRangeEnd.value;
+
+    applyVisibleRanges({
+      startFret: nextFretRange.start,
+      endFret: nextFretRange.end,
+      startString,
+      endString,
+    });
+
+    if (hasFretViewportChanged) {
+      resetOpenStringVisibilityOverrides();
+    }
+
     pruneNotePositionVisibilityOverrides();
   };
 
@@ -189,13 +247,26 @@ export const useExploreStore = defineStore("explore", () => {
     notePositionVisibilityOverrides.value = Object.fromEntries(
       Object.entries(notePositionVisibilityOverrides.value).filter(([key]) => {
         const [stringPosition, fret] = key.split(":").map(Number);
-        return isNotePositionWithinFilterRanges(stringPosition, fret);
+        return isNotePositionWithinInteractiveFilterRange(stringPosition, fret);
+      }),
+    );
+  };
+
+  const resetOpenStringVisibilityOverrides = () => {
+    if (Object.keys(notePositionVisibilityOverrides.value).length === 0) {
+      return;
+    }
+
+    notePositionVisibilityOverrides.value = Object.fromEntries(
+      Object.entries(notePositionVisibilityOverrides.value).filter(([key]) => {
+        const [, fret] = key.split(":").map(Number);
+        return fret !== 0;
       }),
     );
   };
 
   const toggleNotePositionVisibility = (noteIndex, stringPosition, fret) => {
-    if (!isNotePositionWithinFilterRanges(stringPosition, fret)) {
+    if (!isNotePositionWithinInteractiveFilterRange(stringPosition, fret)) {
       return false;
     }
 
@@ -305,6 +376,7 @@ export const useExploreStore = defineStore("explore", () => {
     getExploreIntervalColor,
     hasNotePositionVisibilityOverrides,
     isFretVisible,
+    isNotePositionWithinInteractiveFilterRange,
     isNotePositionVisible,
     isNotePositionWithinFilterRanges,
     isNoteVisible,
@@ -324,6 +396,7 @@ export const useExploreStore = defineStore("explore", () => {
     setPlaybackEnabled,
     setPreferredExploreLabelMode,
     setWorkspaceMode,
+    syncVisibleRanges,
     togglePlayback,
     toggleHighlighted,
     toggleNotePositionVisibility,

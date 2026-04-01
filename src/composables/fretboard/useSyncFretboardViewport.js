@@ -23,24 +23,16 @@ export const useSyncFretboardViewport = (viewport = useFretboardViewport()) => {
     [
       () => viewport.visibleFretBounds.value.minFret,
       () => viewport.visibleFretBounds.value.maxFret,
-    ],
-    ([minFret, maxFret]) => {
-      explore.resetVisibleFretRange(minFret, maxFret);
-      explore.resetVisibleStringRange(
-        viewport.visibleStringBounds.value.minString,
-        viewport.visibleStringBounds.value.maxString,
-      );
-    },
-    { immediate: true },
-  );
-
-  watch(
-    [
       () => viewport.visibleStringBounds.value.minString,
       () => viewport.visibleStringBounds.value.maxString,
     ],
-    ([minString, maxString]) => {
-      explore.resetVisibleStringRange(minString, maxString);
+    ([minFret, maxFret, minString, maxString]) => {
+      explore.syncVisibleRanges({
+        startFret: minFret,
+        endFret: maxFret,
+        startString: minString,
+        endString: maxString,
+      });
     },
     { immediate: true },
   );

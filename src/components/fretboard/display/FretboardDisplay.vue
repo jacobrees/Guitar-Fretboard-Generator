@@ -130,7 +130,7 @@ const isPlaybackNoteFading = (stringPosition, fret) =>
 const isNotePositionWithinFilterRanges = (stringPosition, fret) =>
   explore.currentWorkspaceMode === "focus" &&
   !explore.playbackEnabled &&
-  explore.isNotePositionWithinFilterRanges(stringPosition, fret);
+  explore.isNotePositionWithinInteractiveFilterRange(stringPosition, fret);
 
 const isNoteRenderedAtPosition = (noteIndex, fret, stringPosition) => {
   const isCurrentlyPlayingHiddenNote = isPlaybackNoteActive(
@@ -294,19 +294,21 @@ const handleNoteClick = (stringPosition, fret) => {
               </p>
               <p
                 v-if="!explore.playbackEnabled"
-                class="mt-2 max-w-xl text-xs leading-relaxed text-amber-100/80"
+                class="mt-2 max-w-2xl text-xs leading-relaxed text-amber-100/85"
               >
-                Range sliders take priority over individual note toggles. Notes
-                can only be hidden or restored while they are inside the current
-                visible string and fret ranges, and any per-note changes reset
-                once a position leaves those ranges.
+                Range sliders are the primary filter. Individual note toggles
+                apply to notes inside the selected string and fret ranges, plus
+                the visible open-string column when it stays pinned on-screen.
+                Moving either slider resets all individual note toggles back to
+                the default view. Viewport changes reset open-string toggles and
+                clear any other toggles that move outside the managed area.
               </p>
             </div>
 
             <div class="flex items-stretch gap-3">
               <div
                 v-if="!explore.playbackEnabled"
-                class="flex h-full min-w-48 flex-col overflow-hidden rounded-2xl border border-zinc-700/80 bg-zinc-950/75 shadow-[0_12px_30px_rgba(0,0,0,0.18)]"
+                class="flex min-w-48 self-center flex-col overflow-hidden rounded-2xl border border-zinc-700/80 bg-zinc-950/75 shadow-[0_12px_30px_rgba(0,0,0,0.18)]"
               >
                 <div
                   class="flex min-w-0 flex-col justify-center border-b border-zinc-700/80 px-3 py-2.5"
