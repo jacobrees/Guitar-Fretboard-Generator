@@ -130,6 +130,7 @@ export const useExploreStore = defineStore("explore", () => {
 
     visibleFretRangeStart.value = nextStart;
     visibleFretRangeEnd.value = nextEnd;
+    pruneNotePositionVisibilityOverrides();
   };
 
   const isFretVisible = (fret) =>
@@ -151,6 +152,7 @@ export const useExploreStore = defineStore("explore", () => {
 
     visibleStringRangeStart.value = nextStart;
     visibleStringRangeEnd.value = nextEnd;
+    pruneNotePositionVisibilityOverrides();
   };
 
   const isStringVisible = (stringPosition) =>
@@ -161,6 +163,12 @@ export const useExploreStore = defineStore("explore", () => {
 
   const getNotePositionKey = (stringPosition, fret) =>
     `${stringPosition}:${fret}`;
+
+  const isNotePositionWithinFilterRanges = (stringPosition, fret) =>
+    stringPosition >= visibleStringRangeStart.value &&
+    stringPosition <= visibleStringRangeEnd.value &&
+    fret >= visibleFretRangeStart.value &&
+    fret <= visibleFretRangeEnd.value;
 
   const hasNotePositionVisibilityOverride = (stringPosition, fret) =>
     Object.prototype.hasOwnProperty.call(
@@ -173,7 +181,24 @@ export const useExploreStore = defineStore("explore", () => {
       getNotePositionKey(stringPosition, fret)
     ];
 
+  const pruneNotePositionVisibilityOverrides = () => {
+    if (Object.keys(notePositionVisibilityOverrides.value).length === 0) {
+      return;
+    }
+
+    notePositionVisibilityOverrides.value = Object.fromEntries(
+      Object.entries(notePositionVisibilityOverrides.value).filter(([key]) => {
+        const [stringPosition, fret] = key.split(":").map(Number);
+        return isNotePositionWithinFilterRanges(stringPosition, fret);
+      }),
+    );
+  };
+
   const toggleNotePositionVisibility = (noteIndex, stringPosition, fret) => {
+    if (!isNotePositionWithinFilterRanges(stringPosition, fret)) {
+      return false;
+    }
+
     const positionKey = getNotePositionKey(stringPosition, fret);
     const baseVisibility = isNoteVisible(noteIndex);
     const currentVisibility = hasNotePositionVisibilityOverride(
@@ -193,6 +218,7 @@ export const useExploreStore = defineStore("explore", () => {
     }
 
     notePositionVisibilityOverrides.value = nextVisibilityOverrides;
+    return true;
   };
 
   const resetNotePositionVisibilityOverrides = () => {
@@ -280,6 +306,7 @@ export const useExploreStore = defineStore("explore", () => {
     hasNotePositionVisibilityOverrides,
     isFretVisible,
     isNotePositionVisible,
+    isNotePositionWithinFilterRanges,
     isNoteVisible,
     isStringVisible,
     onlyHighlighted,

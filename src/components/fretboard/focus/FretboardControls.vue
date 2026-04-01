@@ -245,7 +245,7 @@ onBeforeUnmount(() => {
       </div>
 
       <div
-        class="-mt-px min-w-0 rounded-br-[1.75rem] border border-t-0 border-zinc-500/85 bg-zinc-900/90 text-gray-100 shadow-[0_18px_40px_rgba(0,0,0,0.18)] backdrop-blur-md"
+        class="-mt-px min-w-0 rounded-br-[1.75rem] border border-zinc-500/85 bg-zinc-900/90 text-gray-100 shadow-[0_18px_40px_rgba(0,0,0,0.18)] backdrop-blur-md"
       >
         <div class="border-t border-zinc-600/90">
           <div class="flex items-end justify-between gap-3 px-4 pb-3 pt-3">

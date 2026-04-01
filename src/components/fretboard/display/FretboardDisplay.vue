@@ -41,6 +41,10 @@ const shouldRenderOpenStringColumn = () =>
 const getOpenStringBubblePositionClass = () =>
   shouldShowScrolledOpenStrings() ? "left-1/2 -translate-x-1/2" : "right-1";
 
+const fretFilterLeadingSpacerCount = computed(() =>
+  shouldShowScrolledOpenStrings() ? 1 : 0,
+);
+
 const minimumRenderedFret = computed(() => effectiveFrets.value[0] ?? 0);
 const maximumRenderedFret = computed(
   () => effectiveFrets.value[effectiveFrets.value.length - 1] ?? 0,
@@ -123,6 +127,11 @@ const isPlaybackNoteFading = (stringPosition, fret) =>
   explore.playbackEnabled &&
   playback.isNotePositionFading(stringPosition, fret);
 
+const isNotePositionWithinFilterRanges = (stringPosition, fret) =>
+  explore.currentWorkspaceMode === "focus" &&
+  !explore.playbackEnabled &&
+  explore.isNotePositionWithinFilterRanges(stringPosition, fret);
+
 const isNoteRenderedAtPosition = (noteIndex, fret, stringPosition) => {
   const isCurrentlyPlayingHiddenNote = isPlaybackNoteActive(
     stringPosition,
@@ -171,6 +180,10 @@ const getNoteVisibilityClass = (noteIndex, fret, stringPosition) => {
     return "opacity-0 pointer-events-none";
   }
 
+  if (isNotePositionWithinFilterRanges(stringPosition, fret)) {
+    return "opacity-0";
+  }
+
   return "opacity-0";
 };
 
@@ -180,6 +193,10 @@ const getNoteInteractionClass = (noteIndex, fret, stringPosition) => {
   }
 
   if (!explore.playbackEnabled) {
+    if (!isNotePositionWithinFilterRanges(stringPosition, fret)) {
+      return "pointer-events-none";
+    }
+
     return "cursor-pointer hover:opacity-[0.85]";
   }
 
@@ -225,6 +242,10 @@ const handleNoteClick = (stringPosition, fret) => {
     return;
   }
 
+  if (!isNotePositionWithinFilterRanges(stringPosition, fret)) {
+    return;
+  }
+
   explore.toggleNotePositionVisibility(
     noteDetails.noteIndex,
     stringPosition,
@@ -249,23 +270,82 @@ const handleNoteClick = (stringPosition, fret) => {
         >
           <div class="flex items-center justify-between gap-4">
             <div>
-              <p class="text-xs uppercase tracking-[0.2em] text-gray-400">
+              <p
+                :class="[
+                  'text-xs uppercase tracking-[0.2em]',
+                  explore.playbackEnabled ? 'text-cyan-200' : 'text-gray-400',
+                ]"
+              >
                 {{ explore.playbackEnabled ? "Playback" : "Filter" }}
               </p>
-              <p class="mt-1 text-xs text-gray-500">
+              <p
+                :class="[
+                  'mt-1 text-xs',
+                  explore.playbackEnabled
+                    ? 'text-cyan-100/85'
+                    : 'text-gray-500',
+                ]"
+              >
                 {{
                   explore.playbackEnabled
                     ? "Tap notes on the fretboard to play them."
                     : "Click notes to hide or restore them on individual strings."
                 }}
               </p>
+              <p
+                v-if="!explore.playbackEnabled"
+                class="mt-2 max-w-xl text-xs leading-relaxed text-amber-100/80"
+              >
+                Range sliders take priority over individual note toggles. Notes
+                can only be hidden or restored while they are inside the current
+                visible string and fret ranges, and any per-note changes reset
+                once a position leaves those ranges.
+              </p>
             </div>
 
-            <div class="flex items-center gap-3">
+            <div class="flex items-stretch gap-3">
               <div
-                class="flex items-center gap-3 rounded-2xl border border-zinc-700/80 bg-zinc-950/75 px-3 py-2.5 shadow-[0_12px_30px_rgba(0,0,0,0.18)]"
+                v-if="!explore.playbackEnabled"
+                class="flex h-full min-w-48 flex-col overflow-hidden rounded-2xl border border-zinc-700/80 bg-zinc-950/75 shadow-[0_12px_30px_rgba(0,0,0,0.18)]"
               >
-                <div class="min-w-0">
+                <div
+                  class="flex min-w-0 flex-col justify-center border-b border-zinc-700/80 px-3 py-2.5"
+                >
+                  <p
+                    class="text-[11px] uppercase tracking-[0.2em] text-gray-300"
+                  >
+                    Reset Notes
+                  </p>
+                  <p class="mt-1 text-xs text-gray-500">
+                    Clear individual note toggles.
+                  </p>
+                </div>
+
+                <div
+                  class="flex flex-1 items-center justify-center px-3 py-2.5"
+                >
+                  <button
+                    type="button"
+                    class="w-full rounded-xl px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900"
+                    :class="
+                      explore.hasNotePositionVisibilityOverrides
+                        ? 'bg-zinc-100 text-zinc-950 shadow-[0_8px_20px_rgba(0,0,0,0.18)] hover:bg-white'
+                        : 'cursor-not-allowed bg-zinc-800 text-gray-500'
+                    "
+                    :disabled="!explore.hasNotePositionVisibilityOverrides"
+                    @click="resetFilteredNotes"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+
+              <div
+                class="flex h-full min-w-48 flex-col overflow-hidden rounded-2xl border border-zinc-700/80 bg-zinc-950/75 shadow-[0_12px_30px_rgba(0,0,0,0.18)]"
+              >
+                <div
+                  class="flex min-w-0 flex-col justify-center border-b border-zinc-700/80 px-3 py-2.5"
+                >
                   <p
                     class="text-[11px] uppercase tracking-[0.2em] text-sky-200"
                   >
@@ -281,61 +361,50 @@ const handleNoteClick = (stringPosition, fret) => {
                 </div>
 
                 <div
-                  class="inline-flex shrink-0 rounded-xl border border-zinc-700/90 bg-zinc-900/90 p-1"
-                  role="group"
-                  aria-label="Explore interaction mode"
+                  class="flex flex-1 items-center justify-center px-3 py-2.5"
                 >
-                  <button
-                    type="button"
-                    class="rounded-lg px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900"
-                    :class="
-                      !explore.playbackEnabled
-                        ? 'bg-zinc-100 text-zinc-950 shadow-[0_8px_20px_rgba(0,0,0,0.18)]'
-                        : 'text-gray-300 hover:bg-zinc-800 hover:text-gray-100'
-                    "
-                    :aria-pressed="!explore.playbackEnabled"
-                    @click="setPlaybackMode(false)"
+                  <div
+                    class="inline-flex w-full rounded-xl border border-zinc-700/90 bg-zinc-900/90 p-1"
+                    role="group"
+                    aria-label="Explore interaction mode"
                   >
-                    Filter
-                  </button>
+                    <button
+                      type="button"
+                      class="flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900"
+                      :class="
+                        !explore.playbackEnabled
+                          ? 'bg-zinc-100 text-zinc-950 shadow-[0_8px_20px_rgba(0,0,0,0.18)]'
+                          : 'text-gray-300 hover:bg-zinc-800 hover:text-gray-100'
+                      "
+                      :aria-pressed="!explore.playbackEnabled"
+                      @click="setPlaybackMode(false)"
+                    >
+                      Filter
+                    </button>
 
-                  <button
-                    type="button"
-                    class="rounded-lg px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900"
-                    :class="
-                      explore.playbackEnabled
-                        ? 'bg-sky-300 text-zinc-950 shadow-[0_8px_20px_rgba(0,0,0,0.18)]'
-                        : 'text-gray-300 hover:bg-zinc-800 hover:text-gray-100'
-                    "
-                    :aria-pressed="explore.playbackEnabled"
-                    @click="setPlaybackMode(true)"
-                  >
-                    Playback
-                  </button>
+                    <button
+                      type="button"
+                      class="flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900"
+                      :class="
+                        explore.playbackEnabled
+                          ? 'bg-sky-300 text-zinc-950 shadow-[0_8px_20px_rgba(0,0,0,0.18)]'
+                          : 'text-gray-300 hover:bg-zinc-800 hover:text-gray-100'
+                      "
+                      :aria-pressed="explore.playbackEnabled"
+                      @click="setPlaybackMode(true)"
+                    >
+                      Playback
+                    </button>
+                  </div>
                 </div>
               </div>
-
-              <button
-                v-if="!explore.playbackEnabled"
-                type="button"
-                class="shrink-0 rounded-xl px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900"
-                :class="
-                  explore.hasNotePositionVisibilityOverrides
-                    ? 'bg-zinc-100 text-zinc-950 shadow-[0_8px_20px_rgba(0,0,0,0.18)] hover:bg-white'
-                    : 'cursor-not-allowed bg-zinc-800 text-gray-500'
-                "
-                :disabled="!explore.hasNotePositionVisibilityOverrides"
-                @click="resetFilteredNotes"
-              >
-                Reset Notes
-              </button>
             </div>
           </div>
         </div>
 
         <template v-if="explore.playbackEnabled">
           <div
-            class="col-span-2 border-x border-b border-zinc-500/85 bg-zinc-900/90 backdrop-blur-md"
+            class="col-span-2 min-w-0 overflow-hidden border-x border-b border-zinc-500/85 bg-zinc-900/90 backdrop-blur-md"
           >
             <PlaybackOptionsPanel />
           </div>
@@ -356,7 +425,7 @@ const handleNoteClick = (stringPosition, fret) => {
           </div>
 
           <div
-            class="min-w-0 overflow-hidden border-r border-zinc-500/85 bg-zinc-900/90 backdrop-blur-md"
+            class="relative z-10 min-w-0 overflow-visible border-r border-b border-zinc-500/85 bg-zinc-900/90 backdrop-blur-md"
           >
             <ExploreFretRangeFilter
               class="min-w-0 flex-1"
@@ -366,20 +435,8 @@ const handleNoteClick = (stringPosition, fret) => {
               :end-fret="explore.visibleFretRangeEnd"
               :allow-open-string-start="showOpenStringMarkers"
               :marker-frets="instrument.fretboardMarkers"
+              :leading-spacer-count="fretFilterLeadingSpacerCount"
               @update-fret-range="updateVisibleFretRange"
-            />
-          </div>
-
-          <div
-            class="overflow-hidden border-l border-b border-zinc-500/85 bg-zinc-900/90 backdrop-blur-md"
-          >
-            <ExploreStringRangeFilter
-              :min-string="visibleStringBounds.minString"
-              :max-string="visibleStringBounds.maxString"
-              :start-string="explore.visibleStringRangeStart"
-              :end-string="explore.visibleStringRangeEnd"
-              :string-markers="stringMarkers"
-              @update-string-range="updateVisibleStringRange"
             />
           </div>
         </template>
@@ -471,6 +528,25 @@ const handleNoteClick = (stringPosition, fret) => {
           </div>
 
           <div class="z-0 flex w-full min-w-0">
+            <div
+              v-if="
+                explore.currentWorkspaceMode === 'focus' &&
+                !explore.playbackEnabled
+              "
+              class="shrink-0 border-r border-t-0 border-zinc-700/70 bg-zinc-900/62"
+            >
+              <div class="h-full w-24">
+                <ExploreStringRangeFilter
+                  :min-string="visibleStringBounds.minString"
+                  :max-string="visibleStringBounds.maxString"
+                  :start-string="explore.visibleStringRangeStart"
+                  :end-string="explore.visibleStringRangeEnd"
+                  :string-markers="stringMarkers"
+                  @update-string-range="updateVisibleStringRange"
+                />
+              </div>
+            </div>
+
             <div
               v-if="shouldRenderOpenStringColumn()"
               class="shrink-0"

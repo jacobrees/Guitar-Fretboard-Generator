@@ -30,6 +30,14 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  leadingSpacerCount: {
+    type: Number,
+    default: 0,
+  },
+  trailingSpacerCount: {
+    type: Number,
+    default: 0,
+  },
   startAriaLabel: {
     type: String,
     default: "Range start",
@@ -46,11 +54,21 @@ const trackRef = ref(null);
 const draggingHandle = ref(null);
 
 const valueCount = computed(() => props.maxValue - props.minValue + 1);
+const totalSectionCount = computed(
+  () => valueCount.value + props.leadingSpacerCount + props.trailingSpacerCount,
+);
+
+const getSectionPosition = (sectionIndex) =>
+  (sectionIndex / totalSectionCount.value) * 100;
 
 const getMarkerPosition = (value) =>
-  ((value - props.minValue + 0.5) / valueCount.value) * 100;
+  getSectionPosition(props.leadingSpacerCount + (value - props.minValue) + 0.5);
 
-const getHandlePosition = (value) => getMarkerPosition(value);
+const getStartBoundaryPosition = (value) =>
+  getSectionPosition(props.leadingSpacerCount + (value - props.minValue));
+
+const getEndBoundaryPosition = (value) =>
+  getSectionPosition(props.leadingSpacerCount + (value - props.minValue) + 1);
 
 const sliderRailStyle = computed(() => ({
   left: "0%",
@@ -58,8 +76,8 @@ const sliderRailStyle = computed(() => ({
 }));
 
 const activeTrackStyle = computed(() => ({
-  left: `${getHandlePosition(props.startValue)}%`,
-  right: `${100 - getHandlePosition(props.endValue)}%`,
+  left: `${getStartBoundaryPosition(props.startValue)}%`,
+  right: `${100 - getEndBoundaryPosition(props.endValue)}%`,
 }));
 
 const normalizedMarkers = computed(() =>
@@ -74,8 +92,6 @@ const normalizedMarkers = computed(() =>
       position: `${getMarkerPosition(marker.value)}%`,
     })),
 );
-
-const isOverlapping = computed(() => props.startValue === props.endValue);
 
 const emitRange = (nextStartValue, nextEndValue) => {
   emit("update-range", {
@@ -93,21 +109,28 @@ const applyHandleValue = (handle, nextValue) => {
   emitRange(props.startValue, Math.max(nextValue, props.startValue));
 };
 
-const getValueFromPointer = (clientX) => {
+const getTrackPointerSection = (clientX) => {
   const trackElement = trackRef.value;
 
   if (!trackElement) {
-    return props.startValue;
+    return props.leadingSpacerCount;
   }
 
   const { left, width } = trackElement.getBoundingClientRect();
   const normalized = Math.min(Math.max((clientX - left) / width, 0), 1);
-  const noteStep = Math.min(
-    valueCount.value,
-    Math.max(1, Math.round(normalized * valueCount.value)),
-  );
 
-  return props.minValue + noteStep - 1;
+  return normalized * totalSectionCount.value;
+};
+
+const getValueFromPointer = (clientX, handle) => {
+  const pointerSection = getTrackPointerSection(clientX);
+  const rawValueIndex =
+    handle === "start"
+      ? Math.round(pointerSection - props.leadingSpacerCount)
+      : Math.round(pointerSection - props.leadingSpacerCount - 1);
+  const valueIndex = Math.min(valueCount.value - 1, Math.max(0, rawValueIndex));
+
+  return props.minValue + valueIndex;
 };
 
 const handlePointerMove = (event) => {
@@ -116,7 +139,10 @@ const handlePointerMove = (event) => {
   }
 
   event.preventDefault();
-  applyHandleValue(draggingHandle.value, getValueFromPointer(event.clientX));
+  applyHandleValue(
+    draggingHandle.value,
+    getValueFromPointer(event.clientX, draggingHandle.value),
+  );
 };
 
 const stopDragging = () => {
@@ -134,7 +160,7 @@ const startDragging = (handle, event) => {
   event.preventDefault();
   activeHandle.value = handle;
   draggingHandle.value = handle;
-  applyHandleValue(handle, getValueFromPointer(event.clientX));
+  applyHandleValue(handle, getValueFromPointer(event.clientX, handle));
 
   if (typeof window === "undefined") {
     return;
@@ -145,9 +171,15 @@ const startDragging = (handle, event) => {
 };
 
 const handleTrackPointerDown = (event) => {
-  const targetValue = getValueFromPointer(event.clientX);
-  const startDistance = Math.abs(targetValue - props.startValue);
-  const endDistance = Math.abs(targetValue - props.endValue);
+  const pointerPosition = getSectionPosition(
+    getTrackPointerSection(event.clientX),
+  );
+  const startDistance = Math.abs(
+    pointerPosition - getStartBoundaryPosition(props.startValue),
+  );
+  const endDistance = Math.abs(
+    pointerPosition - getEndBoundaryPosition(props.endValue),
+  );
   const nearestHandle = startDistance <= endDistance ? "start" : "end";
 
   startDragging(nearestHandle, event);
@@ -182,17 +214,17 @@ const handleHandleKeydown = (handle, event) => {
 };
 
 const getHandleStyle = (handle) => {
-  const value = handle === "start" ? props.startValue : props.endValue;
-  const overlapTransform = !isOverlapping.value
-    ? "translate(-50%, -50%)"
-    : handle === "start"
-      ? "translate(-50%, calc(-50% - 0.65rem))"
-      : "translate(-50%, calc(-50% + 0.65rem))";
+  const handlePosition =
+    handle === "start"
+      ? getStartBoundaryPosition(props.startValue)
+      : getEndBoundaryPosition(props.endValue);
+  const horizontalInset =
+    handle === "start" ? "calc(-50% + 0.75rem)" : "calc(-50% - 0.75rem)";
 
   return {
-    left: `${getHandlePosition(value)}%`,
+    left: `${handlePosition}%`,
     top: "50%",
-    transform: overlapTransform,
+    transform: `translate(${horizontalInset}, -50%)`,
   };
 };
 
