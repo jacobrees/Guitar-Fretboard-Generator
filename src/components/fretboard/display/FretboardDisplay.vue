@@ -48,18 +48,22 @@ const setPlaybackMode = (enabled) => {
   explore.setPlaybackEnabled(enabled);
 };
 
+const resetFilteredNotes = () => {
+  explore.resetNotePositionVisibilityOverrides();
+};
+
 const isNoteRenderedAtPosition = (noteIndex, fret, stringPosition) => {
   if (fret === 0 && shouldShowScrolledOpenStrings()) {
     return (
       explore.isStringVisible(stringPosition) &&
-      explore.isNoteVisible(noteIndex)
+      explore.isNotePositionVisible(noteIndex, stringPosition, fret)
     );
   }
 
   return (
     explore.isFretVisible(fret) &&
     explore.isStringVisible(stringPosition) &&
-    explore.isNoteVisible(noteIndex)
+    explore.isNotePositionVisible(noteIndex, stringPosition, fret)
   );
 };
 
@@ -95,14 +99,22 @@ const getNoteInteractionClass = (noteIndex, fret, stringPosition) => {
     : "cursor-pointer hover:opacity-[0.85]";
 };
 
-const logExploreNoteClick = (stringPosition, fret) => {
+const handleExploreNoteClick = (stringPosition, fret) => {
   if (explore.currentWorkspaceMode !== "focus") {
     return;
   }
 
-  console.log(
-    "Explore note clicked",
-    instrument.getNoteDetails(stringPosition, fret),
+  const noteDetails = instrument.getNoteDetails(stringPosition, fret);
+
+  if (explore.playbackEnabled) {
+    console.log("Explore note clicked", noteDetails);
+    return;
+  }
+
+  explore.toggleNotePositionVisibility(
+    noteDetails.noteIndex,
+    stringPosition,
+    fret,
   );
 };
 </script>
@@ -130,60 +142,79 @@ const logExploreNoteClick = (stringPosition, fret) => {
                 {{
                   explore.playbackEnabled
                     ? "Click notes on the fretboard to trigger playback."
-                    : "Adjust the visible note and string range while exploring."
+                    : "Click notes to hide or restore them on individual strings."
                 }}
               </p>
             </div>
 
-            <div
-              class="flex items-center gap-3 rounded-2xl border border-zinc-700/80 bg-zinc-950/75 px-3 py-2.5 shadow-[0_12px_30px_rgba(0,0,0,0.18)]"
-            >
-              <div class="min-w-0">
-                <p class="text-[11px] uppercase tracking-[0.2em] text-sky-200">
-                  Explore Mode
-                </p>
-                <p class="mt-1 text-xs text-gray-400">
-                  {{
-                    explore.playbackEnabled
-                      ? "Playback mode active"
-                      : "Filter mode active"
-                  }}
-                </p>
-              </div>
-
+            <div class="flex items-center gap-3">
               <div
-                class="inline-flex shrink-0 rounded-xl border border-zinc-700/90 bg-zinc-900/90 p-1"
-                role="group"
-                aria-label="Explore interaction mode"
+                class="flex items-center gap-3 rounded-2xl border border-zinc-700/80 bg-zinc-950/75 px-3 py-2.5 shadow-[0_12px_30px_rgba(0,0,0,0.18)]"
               >
-                <button
-                  type="button"
-                  class="rounded-lg px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900"
-                  :class="
-                    !explore.playbackEnabled
-                      ? 'bg-zinc-100 text-zinc-950 shadow-[0_8px_20px_rgba(0,0,0,0.18)]'
-                      : 'text-gray-300 hover:bg-zinc-800 hover:text-gray-100'
-                  "
-                  :aria-pressed="!explore.playbackEnabled"
-                  @click="setPlaybackMode(false)"
-                >
-                  Filter
-                </button>
+                <div class="min-w-0">
+                  <p
+                    class="text-[11px] uppercase tracking-[0.2em] text-sky-200"
+                  >
+                    Explore Mode
+                  </p>
+                  <p class="mt-1 text-xs text-gray-400">
+                    {{
+                      explore.playbackEnabled
+                        ? "Playback mode active"
+                        : "Filter mode active"
+                    }}
+                  </p>
+                </div>
 
-                <button
-                  type="button"
-                  class="rounded-lg px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900"
-                  :class="
-                    explore.playbackEnabled
-                      ? 'bg-sky-300 text-zinc-950 shadow-[0_8px_20px_rgba(0,0,0,0.18)]'
-                      : 'text-gray-300 hover:bg-zinc-800 hover:text-gray-100'
-                  "
-                  :aria-pressed="explore.playbackEnabled"
-                  @click="setPlaybackMode(true)"
+                <div
+                  class="inline-flex shrink-0 rounded-xl border border-zinc-700/90 bg-zinc-900/90 p-1"
+                  role="group"
+                  aria-label="Explore interaction mode"
                 >
-                  Playback
-                </button>
+                  <button
+                    type="button"
+                    class="rounded-lg px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900"
+                    :class="
+                      !explore.playbackEnabled
+                        ? 'bg-zinc-100 text-zinc-950 shadow-[0_8px_20px_rgba(0,0,0,0.18)]'
+                        : 'text-gray-300 hover:bg-zinc-800 hover:text-gray-100'
+                    "
+                    :aria-pressed="!explore.playbackEnabled"
+                    @click="setPlaybackMode(false)"
+                  >
+                    Filter
+                  </button>
+
+                  <button
+                    type="button"
+                    class="rounded-lg px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900"
+                    :class="
+                      explore.playbackEnabled
+                        ? 'bg-sky-300 text-zinc-950 shadow-[0_8px_20px_rgba(0,0,0,0.18)]'
+                        : 'text-gray-300 hover:bg-zinc-800 hover:text-gray-100'
+                    "
+                    :aria-pressed="explore.playbackEnabled"
+                    @click="setPlaybackMode(true)"
+                  >
+                    Playback
+                  </button>
+                </div>
               </div>
+
+              <button
+                v-if="!explore.playbackEnabled"
+                type="button"
+                class="shrink-0 rounded-xl px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900"
+                :class="
+                  explore.hasNotePositionVisibilityOverrides
+                    ? 'bg-zinc-100 text-zinc-950 shadow-[0_8px_20px_rgba(0,0,0,0.18)] hover:bg-white'
+                    : 'cursor-not-allowed bg-zinc-800 text-gray-500'
+                "
+                :disabled="!explore.hasNotePositionVisibilityOverrides"
+                @click="resetFilteredNotes"
+              >
+                Reset Notes
+              </button>
             </div>
           </div>
         </div>
@@ -267,7 +298,7 @@ const logExploreNoteClick = (stringPosition, fret) => {
                   :aria-hidden="
                     !isNoteRenderedAtPosition(row.noteIndex, 0, row.position)
                   "
-                  @click="logExploreNoteClick(row.position, 0)"
+                  @click="handleExploreNoteClick(row.position, 0)"
                 >
                   <p class="text-sm font-semibold text-gray-50">
                     {{ explore.getDisplayLabel(row.noteIndex) }}
@@ -393,7 +424,7 @@ const logExploreNoteClick = (stringPosition, fret) => {
                       row.position,
                     )
                   "
-                  @click="logExploreNoteClick(row.position, n)"
+                  @click="handleExploreNoteClick(row.position, n)"
                 >
                   <p class="text-sm font-semibold text-gray-100">
                     {{

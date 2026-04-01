@@ -13,12 +13,16 @@ export const useExploreStore = defineStore("explore", () => {
   const playbackEnabled = ref(false);
   const exploreIntervalColorOverrides = ref({});
   const useDefaultExploreScaleHighlights = ref(true);
+  const notePositionVisibilityOverrides = ref({});
   const visibleFretRangeStart = ref(0);
   const visibleFretRangeEnd = ref(12);
   const visibleStringRangeStart = ref(1);
   const visibleStringRangeEnd = ref(instrument.tuningIndexes.length);
   const isPlaybackModeActive = computed(
     () => currentWorkspaceMode.value === "focus" && playbackEnabled.value,
+  );
+  const hasNotePositionVisibilityOverrides = computed(
+    () => Object.keys(notePositionVisibilityOverrides.value).length > 0,
   );
 
   const effectiveFretLabelMode = computed(() =>
@@ -40,6 +44,7 @@ export const useExploreStore = defineStore("explore", () => {
     onlyHighlighted.value = true;
     preferredExploreLabelMode.value = "intervals";
     playbackEnabled.value = false;
+    notePositionVisibilityOverrides.value = {};
     resetVisibleFretRange(minFret, maxFret);
     resetVisibleStringRange(1, instrument.tuningIndexes.length);
   };
@@ -154,6 +159,46 @@ export const useExploreStore = defineStore("explore", () => {
     (stringPosition >= visibleStringRangeStart.value &&
       stringPosition <= visibleStringRangeEnd.value);
 
+  const getNotePositionKey = (stringPosition, fret) =>
+    `${stringPosition}:${fret}`;
+
+  const hasNotePositionVisibilityOverride = (stringPosition, fret) =>
+    Object.prototype.hasOwnProperty.call(
+      notePositionVisibilityOverrides.value,
+      getNotePositionKey(stringPosition, fret),
+    );
+
+  const getNotePositionVisibilityOverride = (stringPosition, fret) =>
+    notePositionVisibilityOverrides.value[
+      getNotePositionKey(stringPosition, fret)
+    ];
+
+  const toggleNotePositionVisibility = (noteIndex, stringPosition, fret) => {
+    const positionKey = getNotePositionKey(stringPosition, fret);
+    const baseVisibility = isNoteVisible(noteIndex);
+    const currentVisibility = hasNotePositionVisibilityOverride(
+      stringPosition,
+      fret,
+    )
+      ? getNotePositionVisibilityOverride(stringPosition, fret)
+      : baseVisibility;
+    const nextVisibilityOverrides = {
+      ...notePositionVisibilityOverrides.value,
+    };
+
+    if (currentVisibility === baseVisibility) {
+      nextVisibilityOverrides[positionKey] = !currentVisibility;
+    } else {
+      delete nextVisibilityOverrides[positionKey];
+    }
+
+    notePositionVisibilityOverrides.value = nextVisibilityOverrides;
+  };
+
+  const resetNotePositionVisibilityOverrides = () => {
+    notePositionVisibilityOverrides.value = {};
+  };
+
   const getDisplayLabel = (noteIndex) => {
     if (
       effectiveFretLabelMode.value !== "intervals" ||
@@ -208,6 +253,18 @@ export const useExploreStore = defineStore("explore", () => {
     return Boolean(scale.highlightedNotes[noteIndex]);
   };
 
+  const isNotePositionVisible = (noteIndex, stringPosition, fret) => {
+    if (currentWorkspaceMode.value !== "focus" || isPlaybackModeActive.value) {
+      return isNoteVisible(noteIndex);
+    }
+
+    if (hasNotePositionVisibilityOverride(stringPosition, fret)) {
+      return getNotePositionVisibilityOverride(stringPosition, fret);
+    }
+
+    return isNoteVisible(noteIndex);
+  };
+
   return {
     clearAllExploreIntervalHighlights,
     clearExploreIntervalColor,
@@ -216,7 +273,9 @@ export const useExploreStore = defineStore("explore", () => {
     getDisplayColor,
     getDisplayLabel,
     getExploreIntervalColor,
+    hasNotePositionVisibilityOverrides,
     isFretVisible,
+    isNotePositionVisible,
     isNoteVisible,
     isStringVisible,
     onlyHighlighted,
@@ -224,6 +283,7 @@ export const useExploreStore = defineStore("explore", () => {
     playbackEnabled,
     preferredExploreLabelMode,
     resetFocusWorkspaceState,
+    resetNotePositionVisibilityOverrides,
     resetVisibleFretRange,
     resetVisibleStringRange,
     resetExploreIntervalHighlightsToScale,
@@ -235,6 +295,7 @@ export const useExploreStore = defineStore("explore", () => {
     setWorkspaceMode,
     togglePlayback,
     toggleHighlighted,
+    toggleNotePositionVisibility,
     visibleFretRangeEnd,
     visibleFretRangeStart,
     visibleStringRangeEnd,
