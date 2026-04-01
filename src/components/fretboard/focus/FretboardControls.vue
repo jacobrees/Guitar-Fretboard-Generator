@@ -1,23 +1,13 @@
 <script setup>
 import { computed, onBeforeUnmount, ref } from "vue";
-import { useDismissibleControlDock } from "@/composables/fretboard/useDismissibleControlDock";
 import { useFretboardViewport } from "@/composables/fretboard/useFretboardViewport";
-import { useExploreStore } from "@/stores/explore";
 import { useInstrumentStore } from "@/stores/instrument";
 
-const explore = useExploreStore();
 const instrument = useInstrumentStore();
 
 const fretScrollTrackRef = ref(null);
 const isDraggingFretScrollWindow = ref(false);
 const fretScrollDragOffsetPx = ref(0);
-const {
-  dockRef,
-  closeControls,
-  toggleControl,
-  isControlOpen,
-  registerControlElement,
-} = useDismissibleControlDock();
 const { hasFullFretRangeAccess, effectiveFretViewId, showTwelveFretScroller } =
   useFretboardViewport();
 
@@ -32,20 +22,6 @@ const fretViewOptions = [
 const fretScrollMarkers = Array.from(
   { length: fullNeckFretCount / 3 + 1 },
   (_, index) => index * 3,
-);
-
-const noteSpellingState = computed(() =>
-  instrument.sharpsEnabled ? "Sharps Active" : "Flats Active",
-);
-
-const exploreViewState = computed(
-  () =>
-    explore.preferredExploreLabelMode.charAt(0).toUpperCase() +
-    explore.preferredExploreLabelMode.slice(1),
-);
-
-const visibilityState = computed(() =>
-  explore.onlyHighlighted ? "Only Highlighted" : "Show All",
 );
 
 const twelveFretWindowState = computed(
@@ -74,23 +50,9 @@ const applyFretView = (viewId) => {
   }
 
   instrument.setFretView(viewId);
-  closeControls();
 };
 
 const getFretScrollPosition = (value) => (value / fullNeckFretCount) * 100;
-
-const applyExploreLabelMode = (mode) => {
-  explore.setPreferredExploreLabelMode(mode);
-};
-
-const toggleNoteSpelling = () => {
-  instrument.toggleSharpsEnabled();
-};
-
-const setHighlightedOnly = (shouldShowOnlyHighlighted) => {
-  explore.toggleHighlighted(shouldShowOnlyHighlighted);
-  closeControls();
-};
 
 const getFretScrollMetrics = () => {
   const trackElement = fretScrollTrackRef.value;
@@ -247,10 +209,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div
-    ref="dockRef"
-    class="relative z-30 mx-auto w-full max-w-screen-2xl px-5 pb-5"
-  >
+  <div class="relative z-30 mx-auto w-full max-w-screen-2xl px-5 pb-5">
     <div class="grid grid-cols-[6rem_minmax(0,1fr)] items-stretch">
       <div
         class="-mt-px flex flex-col rounded-bl-[1.75rem] border border-t-0 border-r-0 border-zinc-500/85 bg-zinc-900/90 px-3 pb-4 pt-0 text-gray-100 shadow-[0_18px_40px_rgba(0,0,0,0.18)] backdrop-blur-md"
@@ -286,7 +245,7 @@ onBeforeUnmount(() => {
       </div>
 
       <div
-        class="-mt-px min-w-0 rounded-br-[1.75rem] border border-t-0 border-zinc-500/85 bg-zinc-900/90 text-gray-100 shadow-[0_18px_40px_rgba(0,0,0,0.18)] backdrop-blur-md"
+        class="-mt-px min-w-0 rounded-br-[1.75rem] border border-zinc-500/85 bg-zinc-900/90 text-gray-100 shadow-[0_18px_40px_rgba(0,0,0,0.18)] backdrop-blur-md"
       >
         <div class="border-t border-zinc-600/90">
           <div class="flex items-end justify-between gap-3 px-4 pb-3 pt-3">
@@ -405,147 +364,6 @@ onBeforeUnmount(() => {
                 </button>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="mt-3 grid grid-cols-2 gap-3">
-      <div
-        :ref="(element) => registerControlElement('explore-view', element)"
-        class="relative min-w-0"
-      >
-        <button
-          type="button"
-          class="flex w-full items-center justify-between rounded-[1.25rem] border border-zinc-500/80 bg-zinc-900/90 px-4 py-3 text-left text-gray-100 shadow-[0_12px_30px_rgba(0,0,0,0.14)] backdrop-blur-sm transition hover:border-zinc-300/80"
-          @click="toggleControl('explore-view')"
-        >
-          <div>
-            <p class="text-xs uppercase tracking-[0.2em] text-gray-400">
-              Explore View
-            </p>
-            <p class="mt-1 text-sm font-semibold">
-              {{ exploreViewState }}
-            </p>
-          </div>
-          <span
-            class="rounded-full border border-zinc-600 px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-gray-400"
-          >
-            {{ isControlOpen("explore-view") ? "Close" : "Open" }}
-          </span>
-        </button>
-
-        <div
-          v-if="isControlOpen('explore-view')"
-          class="absolute bottom-full left-0 z-40 mb-2 w-72 rounded-2xl border border-zinc-400/90 bg-zinc-900/96 p-4 shadow-[0_24px_50px_rgba(0,0,0,0.34)] backdrop-blur-md"
-        >
-          <p class="text-sm font-semibold text-gray-100">
-            Explore View Options
-          </p>
-          <p class="mt-1 text-xs text-gray-400">
-            Switch note labels and note spelling.
-          </p>
-
-          <div class="mt-3 grid grid-cols-2 gap-2">
-            <button
-              @click="applyExploreLabelMode('notes')"
-              :class="[
-                'rounded-xl px-3 py-2 text-sm font-semibold transition',
-                explore.preferredExploreLabelMode === 'notes'
-                  ? 'cursor-default bg-rose-700 text-gray-50'
-                  : 'cursor-pointer bg-zinc-700 text-gray-100 hover:bg-zinc-600',
-              ]"
-            >
-              Notes
-            </button>
-            <button
-              @click="applyExploreLabelMode('intervals')"
-              :class="[
-                'rounded-xl px-3 py-2 text-sm font-semibold transition',
-                explore.preferredExploreLabelMode === 'intervals'
-                  ? 'cursor-default bg-rose-700 text-gray-50'
-                  : 'cursor-pointer bg-zinc-700 text-gray-100 hover:bg-zinc-600',
-              ]"
-            >
-              Intervals
-            </button>
-          </div>
-
-          <div
-            v-if="explore.effectiveFretLabelMode !== 'intervals'"
-            class="mt-3 border-t border-gray-700 pt-3"
-          >
-            <p class="text-xs uppercase tracking-[0.2em] text-gray-400">
-              Note Spelling
-            </p>
-            <p class="mt-1 text-sm font-semibold text-gray-200">
-              {{ noteSpellingState }}
-            </p>
-
-            <button
-              @click="toggleNoteSpelling"
-              class="mt-3 w-full rounded-xl bg-rose-700 p-2.5 text-sm font-semibold text-gray-50 transition hover:bg-rose-800"
-            >
-              Switch To {{ instrument.sharpsEnabled ? "Flats" : "Sharps" }}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div
-        :ref="(element) => registerControlElement('visibility', element)"
-        class="relative min-w-0"
-      >
-        <button
-          type="button"
-          class="flex w-full items-center justify-between rounded-[1.25rem] border border-zinc-500/80 bg-zinc-900/90 px-4 py-3 text-left text-gray-100 shadow-[0_12px_30px_rgba(0,0,0,0.14)] backdrop-blur-sm transition hover:border-zinc-300/80"
-          @click="toggleControl('visibility')"
-        >
-          <div>
-            <p class="text-xs uppercase tracking-[0.2em] text-gray-400">
-              Visibility
-            </p>
-            <p class="mt-1 text-sm font-semibold">{{ visibilityState }}</p>
-          </div>
-          <span
-            class="rounded-full border border-zinc-600 px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-gray-400"
-          >
-            {{ isControlOpen("visibility") ? "Close" : "Open" }}
-          </span>
-        </button>
-
-        <div
-          v-if="isControlOpen('visibility')"
-          class="absolute bottom-full left-0 z-40 mb-2 w-72 rounded-2xl border border-zinc-400/90 bg-zinc-900/96 p-4 shadow-[0_24px_50px_rgba(0,0,0,0.34)] backdrop-blur-md"
-        >
-          <p class="text-sm font-semibold text-gray-100">Visibility Options</p>
-          <p class="mt-1 text-xs text-gray-400">
-            Limit notes or show full chromatic notes.
-          </p>
-
-          <div class="mt-3 grid gap-2">
-            <button
-              :class="[
-                'w-full rounded-xl p-2.5 text-sm font-semibold transition',
-                explore.onlyHighlighted
-                  ? 'cursor-not-allowed bg-rose-700 text-gray-50'
-                  : 'cursor-pointer bg-zinc-700 text-gray-100 hover:bg-zinc-600',
-              ]"
-              @click="setHighlightedOnly(true)"
-            >
-              Show Only Highlighted
-            </button>
-            <button
-              :class="[
-                'w-full rounded-xl p-2.5 text-sm font-semibold transition',
-                !explore.onlyHighlighted
-                  ? 'cursor-not-allowed bg-rose-700 text-gray-50'
-                  : 'cursor-pointer bg-zinc-700 text-gray-100 hover:bg-zinc-600',
-              ]"
-              @click="setHighlightedOnly(false)"
-            >
-              Show All
-            </button>
           </div>
         </div>
       </div>

@@ -4,7 +4,9 @@ import { fretboardMarkers } from "@/stores/constants";
 
 export const useInstrumentStore = defineStore("instrument", () => {
   const sharpsEnabled = ref(true);
-  const tuningIndexes = ref([7, 2, 10, 5, 0, 7]);
+  const minimumTuningMidiNumber = 21;
+  const maximumTuningMidiNumber = 71;
+  const tuningMidiNumbers = ref([64, 59, 55, 50, 45, 40]);
   const twelveFretViewId = "twelve-fret";
   const fullFretViewId = "full-24";
   const defaultFretViewId = twelveFretViewId;
@@ -35,14 +37,73 @@ export const useInstrumentStore = defineStore("instrument", () => {
     sharpsEnabled.value ? "G#" : "A♭",
   ]);
 
+  const getNoteIndexFromMidiNumber = (midiNumber) =>
+    (((midiNumber - 21) % 12) + 12) % 12;
+
+  const getOctaveFromMidiNumber = (midiNumber) =>
+    Math.floor(midiNumber / 12) - 1;
+
+  const getNoteLabelFromMidiNumber = (midiNumber) =>
+    musicalNotes.value[getNoteIndexFromMidiNumber(midiNumber)];
+
+  const getScientificNoteLabelFromMidiNumber = (midiNumber) =>
+    `${getNoteLabelFromMidiNumber(midiNumber)}${getOctaveFromMidiNumber(midiNumber)}`;
+
+  const clampTuningMidiNumber = (midiNumber) =>
+    Math.min(
+      Math.max(midiNumber, minimumTuningMidiNumber),
+      maximumTuningMidiNumber,
+    );
+
+  const tuningIndexes = computed(() =>
+    tuningMidiNumbers.value.map((midiNumber) =>
+      getNoteIndexFromMidiNumber(midiNumber),
+    ),
+  );
+
   const toggleSharpsEnabled = () => {
     sharpsEnabled.value = !sharpsEnabled.value;
   };
 
-  const getNote = (stringCount, fret) => {
-    const index = tuningIndexes.value[stringCount - 1];
+  const getOpenStringMidiNumber = (stringCount) =>
+    tuningMidiNumbers.value[stringCount - 1];
 
-    return (index + fret) % 12;
+  const getOpenStringScientificLabel = (stringCount) =>
+    getScientificNoteLabelFromMidiNumber(getOpenStringMidiNumber(stringCount));
+
+  const minimumTuningLabel = computed(() =>
+    getScientificNoteLabelFromMidiNumber(minimumTuningMidiNumber),
+  );
+
+  const maximumTuningLabel = computed(() =>
+    getScientificNoteLabelFromMidiNumber(maximumTuningMidiNumber),
+  );
+
+  const canRaiseString = (index) =>
+    tuningMidiNumbers.value[index] < maximumTuningMidiNumber;
+
+  const canLowerString = (index) =>
+    tuningMidiNumbers.value[index] > minimumTuningMidiNumber;
+
+  const getNoteMidiNumber = (stringCount, fret) =>
+    getOpenStringMidiNumber(stringCount) + fret;
+
+  const getNote = (stringCount, fret) =>
+    getNoteIndexFromMidiNumber(getNoteMidiNumber(stringCount, fret));
+
+  const getNoteDetails = (stringCount, fret) => {
+    const midiNumber = getNoteMidiNumber(stringCount, fret);
+    const noteIndex = getNoteIndexFromMidiNumber(midiNumber);
+
+    return {
+      fret,
+      stringNumber: stringCount,
+      midiNumber,
+      noteIndex,
+      note: musicalNotes.value[noteIndex],
+      octave: getOctaveFromMidiNumber(midiNumber),
+      label: getScientificNoteLabelFromMidiNumber(midiNumber),
+    };
   };
 
   const setTwelveFretViewStart = (startFret) => {
@@ -100,50 +161,79 @@ export const useInstrumentStore = defineStore("instrument", () => {
   };
 
   const raiseString = (index) => {
-    tuningIndexes.value[index] = (tuningIndexes.value[index] + 1) % 12;
+    if (!canRaiseString(index)) {
+      return;
+    }
+
+    tuningMidiNumbers.value[index] = clampTuningMidiNumber(
+      tuningMidiNumbers.value[index] + 1,
+    );
   };
 
   const lowerString = (index) => {
-    tuningIndexes.value[index] = (tuningIndexes.value[index] + 11) % 12;
+    if (!canLowerString(index)) {
+      return;
+    }
+
+    tuningMidiNumbers.value[index] = clampTuningMidiNumber(
+      tuningMidiNumbers.value[index] - 1,
+    );
   };
 
   const removeString = () => {
-    if (tuningIndexes.value.length > 5) {
-      tuningIndexes.value.pop();
+    if (tuningMidiNumbers.value.length > 5) {
+      tuningMidiNumbers.value.pop();
     }
   };
 
   const addString = () => {
-    if (tuningIndexes.value.length >= 9) {
+    if (tuningMidiNumbers.value.length >= 9) {
       return;
     }
 
-    const lastStringNote = tuningIndexes.value[tuningIndexes.value.length - 1];
-    tuningIndexes.value.push((lastStringNote + 7) % 12);
+    const lastStringMidiNumber =
+      tuningMidiNumbers.value[tuningMidiNumbers.value.length - 1];
+    tuningMidiNumbers.value.push(
+      clampTuningMidiNumber(lastStringMidiNumber - 5),
+    );
   };
 
   return {
     addString,
+    canLowerString,
+    canRaiseString,
     defaultFretViewId,
     fretView,
+    fretViewTo12,
+    fretboardMarkers,
     fullFretViewId,
     getFretRange,
     getFretViewPreset,
-    setFretView,
-    setTwelveFretViewStart,
-    fretViewTo12,
-    fretboardMarkers,
     getNote,
+    getNoteDetails,
+    getNoteLabelFromMidiNumber,
+    getNoteMidiNumber,
+    getOctaveFromMidiNumber,
+    getOpenStringMidiNumber,
+    getOpenStringScientificLabel,
+    getScientificNoteLabelFromMidiNumber,
     lowerString,
+    maximumTuningLabel,
+    maximumTuningMidiNumber,
+    maximumTwelveFretStart,
+    minimumTuningLabel,
+    minimumTuningMidiNumber,
     musicalNotes,
     raiseString,
     removeString,
+    setFretView,
+    setTwelveFretViewStart,
     sharpsEnabled,
-    maximumTwelveFretStart,
     twelveFretViewId,
     twelveFretViewStart,
     twelveFretViewWindowLabel,
     toggleSharpsEnabled,
     tuningIndexes,
+    tuningMidiNumbers,
   };
 });

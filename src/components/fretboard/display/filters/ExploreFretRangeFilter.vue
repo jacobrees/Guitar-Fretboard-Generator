@@ -28,6 +28,10 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  leadingSpacerCount: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const emit = defineEmits(["update-fret-range"]);
@@ -89,6 +93,7 @@ const updateFretRange = ({ startValue, endValue }) => {
         :start-value="startFret"
         :end-value="endFret"
         :markers="fretMarkers"
+        :leading-spacer-count="leadingSpacerCount"
         start-aria-label="Visible fret range start"
         end-aria-label="Visible fret range end"
         @update-range="updateFretRange"

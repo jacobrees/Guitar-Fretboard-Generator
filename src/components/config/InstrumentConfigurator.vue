@@ -81,12 +81,16 @@ const instrument = useInstrumentStore();
               <p class="mt-1 text-sm text-gray-300">
                 Raise or lower each open string one semitone at a time.
               </p>
+              <p class="mt-1 text-xs uppercase tracking-wide text-gray-400">
+                Supported range: {{ instrument.minimumTuningLabel }} to
+                {{ instrument.maximumTuningLabel }}
+              </p>
             </div>
           </div>
 
           <div class="mt-4 grid gap-3 sm:grid-cols-2">
             <div
-              v-for="(string, index) in instrument.tuningIndexes"
+              v-for="(_, index) in instrument.tuningIndexes"
               :key="index"
               class="flex items-center gap-3 rounded-2xl border border-gray-500 bg-zinc-900 px-3 py-3"
             >
@@ -101,12 +105,18 @@ const instrument = useInstrumentStore();
               >
                 <button
                   @click="instrument.raiseString(index)"
-                  class="flex size-10 cursor-pointer items-center justify-center rounded-xl border-2 border-rose-500 bg-rose-800 transition hover:bg-rose-900"
+                  :disabled="!instrument.canRaiseString(index)"
+                  :class="[
+                    'flex size-10 items-center justify-center rounded-xl border-2 transition',
+                    instrument.canRaiseString(index)
+                      ? 'cursor-pointer border-rose-500 bg-rose-800 hover:bg-rose-900'
+                      : 'cursor-not-allowed border-zinc-700 bg-zinc-800 opacity-60',
+                  ]"
                 >
                   <img
                     class="w-full"
                     :src="caretUpSVG"
-                    :alt="`Raise string ${index + 1} pitch from ${instrument.musicalNotes[string]}`"
+                    :alt="`Raise string ${index + 1} pitch from ${instrument.getOpenStringScientificLabel(index + 1)}`"
                   />
                 </button>
 
@@ -115,18 +125,24 @@ const instrument = useInstrumentStore();
                     Open Note
                   </p>
                   <p class="text-xl font-semibold">
-                    {{ instrument.musicalNotes[string] }}
+                    {{ instrument.getOpenStringScientificLabel(index + 1) }}
                   </p>
                 </div>
 
                 <button
                   @click="instrument.lowerString(index)"
-                  class="flex size-10 cursor-pointer items-center justify-center rounded-xl border-2 border-rose-500 bg-rose-800 transition hover:bg-rose-900"
+                  :disabled="!instrument.canLowerString(index)"
+                  :class="[
+                    'flex size-10 items-center justify-center rounded-xl border-2 transition',
+                    instrument.canLowerString(index)
+                      ? 'cursor-pointer border-rose-500 bg-rose-800 hover:bg-rose-900'
+                      : 'cursor-not-allowed border-zinc-700 bg-zinc-800 opacity-60',
+                  ]"
                 >
                   <img
                     class="w-full"
                     :src="caretDownSVG"
-                    :alt="`Lower string ${index + 1} pitch from ${instrument.musicalNotes[string]}`"
+                    :alt="`Lower string ${index + 1} pitch from ${instrument.getOpenStringScientificLabel(index + 1)}`"
                   />
                 </button>
               </div>
