@@ -4,7 +4,7 @@ import { fretboardMarkers } from "@/stores/constants";
 
 export const useInstrumentStore = defineStore("instrument", () => {
   const sharpsEnabled = ref(true);
-  const minimumTuningMidiNumber = 16;
+  const minimumTuningMidiNumber = 21;
   const maximumTuningMidiNumber = 71;
   const tuningMidiNumbers = ref([64, 59, 55, 50, 45, 40]);
   const twelveFretViewId = "twelve-fret";

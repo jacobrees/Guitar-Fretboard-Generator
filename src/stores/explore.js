@@ -254,7 +254,11 @@ export const useExploreStore = defineStore("explore", () => {
   };
 
   const isNotePositionVisible = (noteIndex, stringPosition, fret) => {
-    if (currentWorkspaceMode.value !== "focus" || isPlaybackModeActive.value) {
+    if (isPlaybackModeActive.value) {
+      return isNoteVisible(noteIndex);
+    }
+
+    if (currentWorkspaceMode.value !== "focus") {
       return isNoteVisible(noteIndex);
     }
 

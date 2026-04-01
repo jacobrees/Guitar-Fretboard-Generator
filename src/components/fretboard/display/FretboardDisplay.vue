@@ -1,9 +1,13 @@
 <script setup>
+import { computed } from "vue";
+
 import ExploreFretRangeFilter from "./filters/ExploreFretRangeFilter.vue";
 import ExploreStringRangeFilter from "./filters/ExploreStringRangeFilter.vue";
+import PlaybackOptionsPanel from "./playback/PlaybackOptionsPanel.vue";
 import { useFretboardViewport } from "@/composables/fretboard/useFretboardViewport";
 import { useExploreStore } from "@/stores/explore";
 import { useInstrumentStore } from "@/stores/instrument";
+import { usePlaybackStore } from "@/stores/playback";
 
 const props = defineProps({
   disableHorizontalPadding: {
@@ -14,6 +18,7 @@ const props = defineProps({
 
 const instrument = useInstrumentStore();
 const explore = useExploreStore();
+const playback = usePlaybackStore();
 const {
   effectiveFrets,
   showOpenStringMarkers,
@@ -36,6 +41,62 @@ const shouldRenderOpenStringColumn = () =>
 const getOpenStringBubblePositionClass = () =>
   shouldShowScrolledOpenStrings() ? "left-1/2 -translate-x-1/2" : "right-1";
 
+const minimumRenderedFret = computed(() => effectiveFrets.value[0] ?? 0);
+const maximumRenderedFret = computed(
+  () => effectiveFrets.value[effectiveFrets.value.length - 1] ?? 0,
+);
+const renderedFretSet = computed(() => new Set(effectiveFrets.value));
+const activePlaybackNotes = computed(() =>
+  Object.values(playback.activeNotesByString),
+);
+
+const isFretRenderedInViewport = (fret) =>
+  fret === 0 ? shouldRenderOpenStringColumn() : renderedFretSet.value.has(fret);
+
+const isFretLeftOfViewport = (fret) => {
+  if (fret === 0) {
+    return !shouldRenderOpenStringColumn();
+  }
+
+  return !renderedFretSet.value.has(fret) && fret < minimumRenderedFret.value;
+};
+
+const isFretRightOfViewport = (fret) => fret > maximumRenderedFret.value;
+
+const hasPlaybackNotesBeforeFretView = computed(
+  () =>
+    explore.currentWorkspaceMode === "focus" &&
+    explore.playbackEnabled &&
+    activePlaybackNotes.value.some(({ fret }) => isFretLeftOfViewport(fret)),
+);
+
+const hasPlaybackNotesAfterFretView = computed(
+  () =>
+    explore.currentWorkspaceMode === "focus" &&
+    explore.playbackEnabled &&
+    activePlaybackNotes.value.some(({ fret }) => isFretRightOfViewport(fret)),
+);
+
+const hasPlaybackNotesOutsideFretView = computed(
+  () =>
+    hasPlaybackNotesBeforeFretView.value || hasPlaybackNotesAfterFretView.value,
+);
+
+const showPlaybackViewportIndicators = computed(
+  () => explore.currentWorkspaceMode === "focus" && explore.playbackEnabled,
+);
+
+const getPlaybackViewportIndicatorClass = (isActive) =>
+  isActive
+    ? "border-slate-950/90 bg-cyan-100 text-zinc-950 shadow-[0_12px_28px_rgba(34,211,238,0.12)]"
+    : "border-zinc-700/80 bg-zinc-950/75 text-zinc-500";
+
+const getPlaybackViewportIndicatorTitleClass = () =>
+  hasPlaybackNotesOutsideFretView.value ? "text-gray-200" : "text-gray-500";
+
+const getPlaybackViewportIndicatorSubtitleClass = () =>
+  hasPlaybackNotesOutsideFretView.value ? "text-gray-400" : "text-gray-600";
+
 const updateVisibleFretRange = ({ startFret, endFret }) => {
   explore.setVisibleFretRange(startFret, endFret);
 };
@@ -52,18 +113,38 @@ const resetFilteredNotes = () => {
   explore.resetNotePositionVisibilityOverrides();
 };
 
+const isPlaybackNoteActive = (stringPosition, fret) =>
+  explore.currentWorkspaceMode === "focus" &&
+  explore.playbackEnabled &&
+  playback.isNotePositionActive(stringPosition, fret);
+
+const isPlaybackNoteFading = (stringPosition, fret) =>
+  explore.currentWorkspaceMode === "focus" &&
+  explore.playbackEnabled &&
+  playback.isNotePositionFading(stringPosition, fret);
+
 const isNoteRenderedAtPosition = (noteIndex, fret, stringPosition) => {
+  const isCurrentlyPlayingHiddenNote = isPlaybackNoteActive(
+    stringPosition,
+    fret,
+  );
+  const isNoteWithinViewport = isFretRenderedInViewport(fret);
+
   if (fret === 0 && shouldShowScrolledOpenStrings()) {
     return (
       explore.isStringVisible(stringPosition) &&
-      explore.isNotePositionVisible(noteIndex, stringPosition, fret)
+      isNoteWithinViewport &&
+      (explore.isNotePositionVisible(noteIndex, stringPosition, fret) ||
+        isCurrentlyPlayingHiddenNote)
     );
   }
 
   return (
-    explore.isFretVisible(fret) &&
+    (explore.isFretVisible(fret) || isCurrentlyPlayingHiddenNote) &&
     explore.isStringVisible(stringPosition) &&
-    explore.isNotePositionVisible(noteIndex, stringPosition, fret)
+    isNoteWithinViewport &&
+    (explore.isNotePositionVisible(noteIndex, stringPosition, fret) ||
+      isCurrentlyPlayingHiddenNote)
   );
 };
 
@@ -75,14 +156,22 @@ const isPlaybackHighlightedNote = (noteIndex, fret, stringPosition) =>
 
 const getNoteVisibilityClass = (noteIndex, fret, stringPosition) => {
   if (isNoteRenderedAtPosition(noteIndex, fret, stringPosition)) {
+    if (isPlaybackNoteActive(stringPosition, fret)) {
+      return isPlaybackNoteFading(stringPosition, fret)
+        ? "opacity-[0.84]"
+        : "opacity-100";
+    }
+
     return isPlaybackHighlightedNote(noteIndex, fret, stringPosition)
       ? "opacity-[0.85]"
       : "opacity-100";
   }
 
-  return explore.currentWorkspaceMode === "focus"
-    ? "opacity-0"
-    : "opacity-0 pointer-events-none";
+  if (explore.currentWorkspaceMode !== "focus") {
+    return "opacity-0 pointer-events-none";
+  }
+
+  return "opacity-0";
 };
 
 const getNoteInteractionClass = (noteIndex, fret, stringPosition) => {
@@ -96,10 +185,35 @@ const getNoteInteractionClass = (noteIndex, fret, stringPosition) => {
 
   return isNoteRenderedAtPosition(noteIndex, fret, stringPosition)
     ? "cursor-pointer hover:opacity-100"
-    : "cursor-pointer hover:opacity-[0.85]";
+    : "cursor-pointer hover:opacity-[0.42]";
 };
 
-const handleExploreNoteClick = (stringPosition, fret) => {
+const getNoteSurfaceClass = (noteIndex, fret, stringPosition) => {
+  if (isPlaybackNoteActive(stringPosition, fret)) {
+    return "border-slate-950/90 bg-cyan-100 shadow-[0_10px_22px_rgba(34,211,238,0.12)]";
+  }
+
+  return `${explore.getDisplayColor(noteIndex)} border-gray-100`;
+};
+
+const getNoteLabelClass = (
+  stringPosition,
+  fret,
+  inactiveClass = "text-gray-100",
+) =>
+  isPlaybackNoteActive(stringPosition, fret) ? "text-zinc-950" : inactiveClass;
+
+const getNoteScaleClass = (stringPosition, fret) => {
+  if (!isPlaybackNoteActive(stringPosition, fret)) {
+    return "scale-100";
+  }
+
+  return isPlaybackNoteFading(stringPosition, fret)
+    ? "scale-[0.93]"
+    : "scale-[0.9]";
+};
+
+const handleNoteClick = (stringPosition, fret) => {
   if (explore.currentWorkspaceMode !== "focus") {
     return;
   }
@@ -107,7 +221,7 @@ const handleExploreNoteClick = (stringPosition, fret) => {
   const noteDetails = instrument.getNoteDetails(stringPosition, fret);
 
   if (explore.playbackEnabled) {
-    console.log("Explore note clicked", noteDetails);
+    void playback.triggerNote(noteDetails);
     return;
   }
 
@@ -141,7 +255,7 @@ const handleExploreNoteClick = (stringPosition, fret) => {
               <p class="mt-1 text-xs text-gray-500">
                 {{
                   explore.playbackEnabled
-                    ? "Click notes on the fretboard to trigger playback."
+                    ? "Tap notes on the fretboard to play them."
                     : "Click notes to hide or restore them on individual strings."
                 }}
               </p>
@@ -219,7 +333,15 @@ const handleExploreNoteClick = (stringPosition, fret) => {
           </div>
         </div>
 
-        <template v-if="!explore.playbackEnabled">
+        <template v-if="explore.playbackEnabled">
+          <div
+            class="col-span-2 border-x border-b border-zinc-500/85 bg-zinc-900/90 backdrop-blur-md"
+          >
+            <PlaybackOptionsPanel />
+          </div>
+        </template>
+
+        <template v-else>
           <div
             class="border-l border-zinc-500/85 bg-zinc-900/90 px-3 backdrop-blur-md"
           >
@@ -265,176 +387,339 @@ const handleExploreNoteClick = (stringPosition, fret) => {
 
       <div
         :class="[
-          'min-w-0 overflow-hidden',
-          explore.currentWorkspaceMode === 'focus'
-            ? explore.playbackEnabled
-              ? 'col-span-2 rounded-b-[1.75rem] border-x border-b border-zinc-500/85 bg-zinc-900/72'
-              : 'border-x border-b border-zinc-500/85 bg-zinc-900/72'
-            : '',
+          'min-w-0',
+          explore.currentWorkspaceMode === 'focus' ? 'col-span-2' : '',
         ]"
       >
-        <div class="z-0 flex w-full min-w-0">
+        <div
+          :class="[
+            'min-w-0 overflow-hidden',
+            explore.currentWorkspaceMode === 'focus'
+              ? 'border-x border-b border-zinc-500/85 bg-zinc-900/72'
+              : '',
+          ]"
+        >
           <div
-            v-if="shouldRenderOpenStringColumn()"
-            class="shrink-0"
-            :style="openStringColumnStyle"
+            v-if="showPlaybackViewportIndicators"
+            class="pointer-events-none flex items-center gap-3 border-b border-zinc-700/70 px-3 py-2"
+            aria-hidden="true"
           >
-            <div class="w-full flex flex-col justify-between h-full">
-              <div class="h-14"></div>
+            <div
+              :class="[
+                'flex size-9 shrink-0 items-center justify-center rounded-full border transition-[background-color,border-color,color,box-shadow] duration-150',
+                getPlaybackViewportIndicatorClass(
+                  hasPlaybackNotesBeforeFretView,
+                ),
+              ]"
+            >
+              <svg
+                class="size-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M14 6l-6 6 6 6"
+                />
+              </svg>
+            </div>
+
+            <div class="min-w-0 flex-1 text-center">
+              <p
+                :class="[
+                  'text-[10px] font-semibold uppercase tracking-[0.24em] transition-colors duration-150',
+                  getPlaybackViewportIndicatorTitleClass(),
+                ]"
+              >
+                Playing Outside Visible Frets
+              </p>
+              <p
+                :class="[
+                  'mt-0.5 text-[10px] transition-colors duration-150',
+                  getPlaybackViewportIndicatorSubtitleClass(),
+                ]"
+              >
+                Left and right markers show notes beyond the current view.
+              </p>
+            </div>
+
+            <div
+              :class="[
+                'flex size-9 shrink-0 items-center justify-center rounded-full border transition-[background-color,border-color,color,box-shadow] duration-150',
+                getPlaybackViewportIndicatorClass(
+                  hasPlaybackNotesAfterFretView,
+                ),
+              ]"
+            >
+              <svg
+                class="size-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M10 6l6 6-6 6"
+                />
+              </svg>
+            </div>
+          </div>
+
+          <div class="z-0 flex w-full min-w-0">
+            <div
+              v-if="shouldRenderOpenStringColumn()"
+              class="shrink-0"
+              :style="openStringColumnStyle"
+            >
+              <div class="w-full flex flex-col justify-between h-full">
+                <div class="h-14"></div>
+
+                <div
+                  v-for="row in visibleStringRows"
+                  :key="row.position"
+                  class="h-14 relative"
+                >
+                  <div
+                    :class="[
+                      'absolute -top-5 flex size-11 items-center justify-center rounded-full border-2 transition-[opacity,transform,box-shadow,background-color,border-color,color] duration-150',
+                      getOpenStringBubblePositionClass(),
+                      getNoteSurfaceClass(row.noteIndex, 0, row.position),
+                      getNoteVisibilityClass(row.noteIndex, 0, row.position),
+                      getNoteInteractionClass(row.noteIndex, 0, row.position),
+                      getNoteScaleClass(row.position, 0),
+                    ]"
+                    :aria-hidden="
+                      !isNoteRenderedAtPosition(row.noteIndex, 0, row.position)
+                    "
+                    @click="handleNoteClick(row.position, 0)"
+                  >
+                    <p
+                      :class="[
+                        'text-sm font-semibold transition-colors duration-150',
+                        getNoteLabelClass(row.position, 0, 'text-gray-50'),
+                      ]"
+                    >
+                      {{ explore.getDisplayLabel(row.noteIndex) }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="min-w-0 flex-1 h-auto relative">
+              <div
+                class="absolute top-0 left-0 z-10 flex h-11 w-full items-center bg-gray-800"
+              >
+                <div
+                  v-for="n in effectiveFrets"
+                  :key="n"
+                  :class="[
+                    'flex h-6 justify-center',
+                    'border-r-4 border-r-gray-500',
+                    instrument.fretboardMarkers.includes(n)
+                      ? 'bg-amber-50'
+                      : '',
+                  ]"
+                  :style="fretCellStyle"
+                >
+                  <p
+                    v-if="instrument.fretboardMarkers.includes(n)"
+                    class="text-sm font-semibold text-zinc-900"
+                  >
+                    {{ n }}
+                  </p>
+                </div>
+              </div>
+
+              <div
+                class="absolute bottom-0 left-0 z-10 flex h-11 w-full items-center bg-gray-800"
+              >
+                <div
+                  v-for="n in effectiveFrets"
+                  :key="n"
+                  class="flex h-6 justify-center border-r-4 border-r-gray-500"
+                  :style="fretCellStyle"
+                ></div>
+              </div>
+
+              <div class="flex h-14 w-full border-y-2 border-gray-900">
+                <div
+                  v-for="n in effectiveFrets"
+                  :key="n"
+                  :class="[
+                    'h-full border-y-2 border-y-gray-200 bg-black',
+                    'border-r-4 border-r-amber-200',
+                  ]"
+                  :style="fretCellStyle"
+                ></div>
+              </div>
 
               <div
                 v-for="row in visibleStringRows"
                 :key="row.position"
-                class="h-14 relative"
+                class="flex h-14 w-full border-y-2 border-gray-900"
               >
                 <div
+                  v-for="n in effectiveFrets"
+                  :key="n"
                   :class="[
-                    'absolute -top-5 flex size-11 items-center justify-center rounded-full border-2 border-gray-50 transition-opacity duration-150',
-                    getOpenStringBubblePositionClass(),
-                    explore.getDisplayColor(row.noteIndex),
-                    getNoteVisibilityClass(row.noteIndex, 0, row.position),
-                    getNoteInteractionClass(row.noteIndex, 0, row.position),
+                    'relative h-full border-y-2 border-y-gray-200 bg-black',
+                    'border-r-4 border-r-amber-200',
                   ]"
-                  :aria-hidden="
-                    !isNoteRenderedAtPosition(row.noteIndex, 0, row.position)
-                  "
-                  @click="handleExploreNoteClick(row.position, 0)"
+                  :style="fretCellStyle"
                 >
-                  <p class="text-sm font-semibold text-gray-50">
-                    {{ explore.getDisplayLabel(row.noteIndex) }}
-                  </p>
+                  <div
+                    v-if="
+                      instrument.tuningIndexes.length % 2 === 0 &&
+                      row.position === instrument.tuningIndexes.length / 2 &&
+                      instrument.fretboardMarkers.includes(n) &&
+                      n % 12 !== 0
+                    "
+                    class="rounded-full w-6 h-6 bg-amber-50 absolute top-1/2 left-1/2 -translate-1/2"
+                  ></div>
+
+                  <div
+                    v-if="
+                      (n % 12 === 0 &&
+                        row.position === instrument.tuningIndexes.length - 1) ||
+                      (n % 12 === 0 && row.position === 1)
+                    "
+                    class="rounded-full w-6 h-6 bg-amber-50 absolute top-1/2 left-1/2 -translate-1/2 flex items-center"
+                  ></div>
+
+                  <div
+                    v-if="
+                      instrument.tuningIndexes.length % 2 === 1 &&
+                      row.position ===
+                        Math.round(instrument.tuningIndexes.length / 2) &&
+                      instrument.fretboardMarkers.includes(n) &&
+                      n % 12 !== 0
+                    "
+                    class="rounded-full w-6 h-6 bg-amber-50 absolute -top-4 left-1/2 -translate-x-1/2 flex items-center"
+                  >
+                    <div class="h-1 w-full bg-gray-800"></div>
+                  </div>
+
+                  <div
+                    :class="[
+                      'absolute -top-5 right-0.5 z-20 flex size-10 items-center justify-center rounded-full border-2 transition-[opacity,transform,box-shadow,background-color,border-color,color] duration-150',
+                      getNoteSurfaceClass(
+                        instrument.getNote(row.position, n),
+                        n,
+                        row.position,
+                      ),
+                      getNoteVisibilityClass(
+                        instrument.getNote(row.position, n),
+                        n,
+                        row.position,
+                      ),
+                      getNoteInteractionClass(
+                        instrument.getNote(row.position, n),
+                        n,
+                        row.position,
+                      ),
+                      getNoteScaleClass(row.position, n),
+                    ]"
+                    :aria-hidden="
+                      !isNoteRenderedAtPosition(
+                        instrument.getNote(row.position, n),
+                        n,
+                        row.position,
+                      )
+                    "
+                    @click="handleNoteClick(row.position, n)"
+                  >
+                    <p
+                      :class="[
+                        'text-sm font-semibold transition-colors duration-150',
+                        getNoteLabelClass(row.position, n),
+                      ]"
+                    >
+                      {{
+                        explore.getDisplayLabel(
+                          instrument.getNote(row.position, n),
+                        )
+                      }}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="min-w-0 flex-1 h-auto relative">
+          <div
+            v-if="showPlaybackViewportIndicators"
+            class="pointer-events-none flex items-center gap-3 border-t border-zinc-700/70 px-3 py-2"
+            aria-hidden="true"
+          >
             <div
-              class="absolute top-0 left-0 z-10 flex h-11 w-full items-center bg-gray-800"
+              :class="[
+                'flex size-9 shrink-0 items-center justify-center rounded-full border transition-[background-color,border-color,color,box-shadow] duration-150',
+                getPlaybackViewportIndicatorClass(
+                  hasPlaybackNotesBeforeFretView,
+                ),
+              ]"
             >
-              <div
-                v-for="n in effectiveFrets"
-                :key="n"
-                :class="[
-                  'flex h-6 justify-center',
-                  'border-r-4 border-r-gray-500',
-                  instrument.fretboardMarkers.includes(n) ? 'bg-amber-50' : '',
-                ]"
-                :style="fretCellStyle"
+              <svg
+                class="size-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
               >
-                <p
-                  v-if="instrument.fretboardMarkers.includes(n)"
-                  class="text-sm font-semibold text-zinc-900"
-                >
-                  {{ n }}
-                </p>
-              </div>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M14 6l-6 6 6 6"
+                />
+              </svg>
             </div>
 
-            <div
-              class="absolute bottom-0 left-0 z-10 flex h-11 w-full items-center bg-gray-800"
-            >
-              <div
-                v-for="n in effectiveFrets"
-                :key="n"
-                class="flex h-6 justify-center border-r-4 border-r-gray-500"
-                :style="fretCellStyle"
-              ></div>
-            </div>
-
-            <div class="flex h-14 w-full border-y-2 border-gray-900">
-              <div
-                v-for="n in effectiveFrets"
-                :key="n"
+            <div class="min-w-0 flex-1 text-center">
+              <p
                 :class="[
-                  'h-full border-y-2 border-y-gray-200 bg-black',
-                  'border-r-4 border-r-amber-200',
+                  'text-[10px] font-semibold uppercase tracking-[0.24em] transition-colors duration-150',
+                  getPlaybackViewportIndicatorTitleClass(),
                 ]"
-                :style="fretCellStyle"
-              ></div>
-            </div>
-
-            <div
-              v-for="row in visibleStringRows"
-              :key="row.position"
-              class="flex h-14 w-full border-y-2 border-gray-900"
-            >
-              <div
-                v-for="n in effectiveFrets"
-                :key="n"
-                :class="[
-                  'relative h-full border-y-2 border-y-gray-200 bg-black',
-                  'border-r-4 border-r-amber-200',
-                ]"
-                :style="fretCellStyle"
               >
-                <div
-                  v-if="
-                    instrument.tuningIndexes.length % 2 === 0 &&
-                    row.position === instrument.tuningIndexes.length / 2 &&
-                    instrument.fretboardMarkers.includes(n) &&
-                    n % 12 !== 0
-                  "
-                  class="rounded-full w-6 h-6 bg-amber-50 absolute top-1/2 left-1/2 -translate-1/2"
-                ></div>
+                Playing Outside Visible Frets
+              </p>
+              <p
+                :class="[
+                  'mt-0.5 text-[10px] transition-colors duration-150',
+                  getPlaybackViewportIndicatorSubtitleClass(),
+                ]"
+              >
+                Left and right markers show notes beyond the current view.
+              </p>
+            </div>
 
-                <div
-                  v-if="
-                    (n % 12 === 0 &&
-                      row.position === instrument.tuningIndexes.length - 1) ||
-                    (n % 12 === 0 && row.position === 1)
-                  "
-                  class="rounded-full w-6 h-6 bg-amber-50 absolute top-1/2 left-1/2 -translate-1/2 flex items-center"
-                ></div>
-
-                <div
-                  v-if="
-                    instrument.tuningIndexes.length % 2 === 1 &&
-                    row.position ===
-                      Math.round(instrument.tuningIndexes.length / 2) &&
-                    instrument.fretboardMarkers.includes(n) &&
-                    n % 12 !== 0
-                  "
-                  class="rounded-full w-6 h-6 bg-amber-50 absolute -top-4 left-1/2 -translate-x-1/2 flex items-center"
-                >
-                  <div class="h-1 w-full bg-gray-800"></div>
-                </div>
-
-                <div
-                  :class="[
-                    'absolute -top-5 right-0.5 z-20 flex size-10 items-center justify-center rounded-full border-2 border-gray-100 transition-opacity duration-150',
-                    explore.getDisplayColor(
-                      instrument.getNote(row.position, n),
-                    ),
-                    getNoteVisibilityClass(
-                      instrument.getNote(row.position, n),
-                      n,
-                      row.position,
-                    ),
-                    getNoteInteractionClass(
-                      instrument.getNote(row.position, n),
-                      n,
-                      row.position,
-                    ),
-                  ]"
-                  :aria-hidden="
-                    !isNoteRenderedAtPosition(
-                      instrument.getNote(row.position, n),
-                      n,
-                      row.position,
-                    )
-                  "
-                  @click="handleExploreNoteClick(row.position, n)"
-                >
-                  <p class="text-sm font-semibold text-gray-100">
-                    {{
-                      explore.getDisplayLabel(
-                        instrument.getNote(row.position, n),
-                      )
-                    }}
-                  </p>
-                </div>
-              </div>
+            <div
+              :class="[
+                'flex size-9 shrink-0 items-center justify-center rounded-full border transition-[background-color,border-color,color,box-shadow] duration-150',
+                getPlaybackViewportIndicatorClass(
+                  hasPlaybackNotesAfterFretView,
+                ),
+              ]"
+            >
+              <svg
+                class="size-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M10 6l6 6-6 6"
+                />
+              </svg>
             </div>
           </div>
         </div>
