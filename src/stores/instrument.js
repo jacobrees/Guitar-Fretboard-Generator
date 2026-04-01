@@ -4,6 +4,8 @@ import { fretboardMarkers } from "@/stores/constants";
 
 export const useInstrumentStore = defineStore("instrument", () => {
   const sharpsEnabled = ref(true);
+  const minimumTuningMidiNumber = 16;
+  const maximumTuningMidiNumber = 71;
   const tuningMidiNumbers = ref([64, 59, 55, 50, 45, 40]);
   const twelveFretViewId = "twelve-fret";
   const fullFretViewId = "full-24";
@@ -47,6 +49,12 @@ export const useInstrumentStore = defineStore("instrument", () => {
   const getScientificNoteLabelFromMidiNumber = (midiNumber) =>
     `${getNoteLabelFromMidiNumber(midiNumber)}${getOctaveFromMidiNumber(midiNumber)}`;
 
+  const clampTuningMidiNumber = (midiNumber) =>
+    Math.min(
+      Math.max(midiNumber, minimumTuningMidiNumber),
+      maximumTuningMidiNumber,
+    );
+
   const tuningIndexes = computed(() =>
     tuningMidiNumbers.value.map((midiNumber) =>
       getNoteIndexFromMidiNumber(midiNumber),
@@ -62,6 +70,20 @@ export const useInstrumentStore = defineStore("instrument", () => {
 
   const getOpenStringScientificLabel = (stringCount) =>
     getScientificNoteLabelFromMidiNumber(getOpenStringMidiNumber(stringCount));
+
+  const minimumTuningLabel = computed(() =>
+    getScientificNoteLabelFromMidiNumber(minimumTuningMidiNumber),
+  );
+
+  const maximumTuningLabel = computed(() =>
+    getScientificNoteLabelFromMidiNumber(maximumTuningMidiNumber),
+  );
+
+  const canRaiseString = (index) =>
+    tuningMidiNumbers.value[index] < maximumTuningMidiNumber;
+
+  const canLowerString = (index) =>
+    tuningMidiNumbers.value[index] > minimumTuningMidiNumber;
 
   const getNoteMidiNumber = (stringCount, fret) =>
     getOpenStringMidiNumber(stringCount) + fret;
@@ -139,11 +161,23 @@ export const useInstrumentStore = defineStore("instrument", () => {
   };
 
   const raiseString = (index) => {
-    tuningMidiNumbers.value[index] += 1;
+    if (!canRaiseString(index)) {
+      return;
+    }
+
+    tuningMidiNumbers.value[index] = clampTuningMidiNumber(
+      tuningMidiNumbers.value[index] + 1,
+    );
   };
 
   const lowerString = (index) => {
-    tuningMidiNumbers.value[index] -= 1;
+    if (!canLowerString(index)) {
+      return;
+    }
+
+    tuningMidiNumbers.value[index] = clampTuningMidiNumber(
+      tuningMidiNumbers.value[index] - 1,
+    );
   };
 
   const removeString = () => {
@@ -159,11 +193,15 @@ export const useInstrumentStore = defineStore("instrument", () => {
 
     const lastStringMidiNumber =
       tuningMidiNumbers.value[tuningMidiNumbers.value.length - 1];
-    tuningMidiNumbers.value.push(lastStringMidiNumber - 5);
+    tuningMidiNumbers.value.push(
+      clampTuningMidiNumber(lastStringMidiNumber - 5),
+    );
   };
 
   return {
     addString,
+    canLowerString,
+    canRaiseString,
     defaultFretViewId,
     fretView,
     fretViewTo12,
@@ -180,7 +218,11 @@ export const useInstrumentStore = defineStore("instrument", () => {
     getOpenStringScientificLabel,
     getScientificNoteLabelFromMidiNumber,
     lowerString,
+    maximumTuningLabel,
+    maximumTuningMidiNumber,
     maximumTwelveFretStart,
+    minimumTuningLabel,
+    minimumTuningMidiNumber,
     musicalNotes,
     raiseString,
     removeString,
