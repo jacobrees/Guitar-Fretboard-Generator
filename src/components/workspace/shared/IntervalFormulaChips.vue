@@ -11,7 +11,7 @@ defineProps({
   <div class="mt-4 flex flex-wrap gap-2">
     <div
       v-for="interval in intervals"
-      :key="`${interval.label}-${interval.note}`"
+      :key="interval.id ?? `${interval.label}-${interval.note}`"
       class="group relative"
     >
       <div

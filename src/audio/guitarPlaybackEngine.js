@@ -173,14 +173,21 @@ class GuitarPlaybackEngine {
     return buffer;
   }
 
+  getScheduledStartTime(leadTimeSeconds = 0.005) {
+    if (!this.audioContext) {
+      return null;
+    }
+
+    return this.audioContext.currentTime + leadTimeSeconds;
+  }
+
   async playVoice({
     voiceId,
     midiNumber,
     tone = "overdriven",
-    playStyle = "fade",
-    fadeOutMs = 1200,
     stringPosition = 1,
     stringCount = 6,
+    startTime = null,
     onEnded,
   }) {
     const isReady = await this.ensureReady();
@@ -192,7 +199,10 @@ class GuitarPlaybackEngine {
     const context = this.audioContext;
     const preset = tonePresets[tone] ?? tonePresets.overdriven;
     const frequency = midiNumberToFrequency(midiNumber);
-    const now = context.currentTime + 0.005;
+    const now = Math.max(
+      startTime ?? this.getScheduledStartTime(),
+      context.currentTime + 0.001,
+    );
     const voiceGain = context.createGain();
     const inputGain = context.createGain();
     const highpassFilter = context.createBiquadFilter();
@@ -289,13 +299,6 @@ class GuitarPlaybackEngine {
       now + preset.attackTime + preset.decayTime,
     );
 
-    if (playStyle === "fade") {
-      const fadeDurationSeconds = clamp(fadeOutMs, 150, 4000) / 1000;
-      const fadeEndTime = now + fadeDurationSeconds;
-
-      voiceGain.gain.exponentialRampToValueAtTime(0.0001, fadeEndTime);
-    }
-
     fundamentalOscillator.start(now);
     harmonicOscillator.start(now);
     noiseSource.start(now);
@@ -325,10 +328,6 @@ class GuitarPlaybackEngine {
     };
 
     this.activeVoices.set(voiceId, voice);
-
-    if (playStyle === "fade") {
-      this.scheduleVoiceStop(voiceId, now + clamp(fadeOutMs, 150, 4000) / 1000);
-    }
 
     return true;
   }

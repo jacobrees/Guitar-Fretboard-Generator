@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 
 import IntervalFormulaChips from "@/components/workspace/shared/IntervalFormulaChips.vue";
 
@@ -24,6 +24,7 @@ const emit = defineEmits([
 const scale = useScaleStore();
 const explore = useExploreStore();
 const instrument = useInstrumentStore();
+const showFinderIntervalViewNotice = ref(false);
 
 const {
   dockRef,
@@ -40,8 +41,8 @@ const noteSpellingState = computed(() =>
 
 const exploreViewState = computed(
   () =>
-    explore.preferredExploreLabelMode.charAt(0).toUpperCase() +
-    explore.preferredExploreLabelMode.slice(1),
+    explore.effectiveFretLabelMode.charAt(0).toUpperCase() +
+    explore.effectiveFretLabelMode.slice(1),
 );
 
 const visibilityState = computed(() =>
@@ -61,7 +62,9 @@ const helperState = computed(
 );
 
 const applyExploreLabelMode = (mode) => {
-  explore.setPreferredExploreLabelMode(mode);
+  const didApply = explore.setPreferredExploreLabelMode(mode);
+
+  showFinderIntervalViewNotice.value = !didApply;
 };
 
 const toggleNoteSpelling = () => {
@@ -87,6 +90,13 @@ const openIntervalHelper = () => {
   closeControls();
   emit("open-interval-helper");
 };
+
+watch(
+  () => explore.playbackEnabled,
+  () => {
+    showFinderIntervalViewNotice.value = false;
+  },
+);
 </script>
 
 <template>
@@ -309,15 +319,18 @@ const openIntervalHelper = () => {
               Explore View Options
             </p>
             <p class="mt-1 text-xs text-gray-400">
-              Switch note labels and note spelling.
+              Switch note labels and note spelling. Finder keeps fretboard
+              labels on note names.
             </p>
 
             <div class="mt-3 grid grid-cols-2 gap-2">
               <button
+                type="button"
                 @click="applyExploreLabelMode('notes')"
+                :disabled="explore.effectiveFretLabelMode === 'notes'"
                 :class="[
                   'rounded-xl px-3 py-2 text-sm font-semibold transition',
-                  explore.preferredExploreLabelMode === 'notes'
+                  explore.effectiveFretLabelMode === 'notes'
                     ? 'cursor-default bg-rose-700 text-gray-50'
                     : 'cursor-pointer bg-zinc-700 text-gray-100 hover:bg-zinc-600',
                 ]"
@@ -325,16 +338,29 @@ const openIntervalHelper = () => {
                 Notes
               </button>
               <button
+                type="button"
                 @click="applyExploreLabelMode('intervals')"
+                :disabled="explore.effectiveFretLabelMode === 'intervals'"
                 :class="[
                   'rounded-xl px-3 py-2 text-sm font-semibold transition',
-                  explore.preferredExploreLabelMode === 'intervals'
+                  explore.effectiveFretLabelMode === 'intervals'
                     ? 'cursor-default bg-rose-700 text-gray-50'
-                    : 'cursor-pointer bg-zinc-700 text-gray-100 hover:bg-zinc-600',
+                    : !explore.canUseIntervalLabels
+                      ? 'cursor-help bg-amber-950/60 text-amber-100 hover:bg-amber-950/80'
+                      : 'cursor-pointer bg-zinc-700 text-gray-100 hover:bg-zinc-600',
                 ]"
               >
                 Intervals
               </button>
+            </div>
+
+            <div
+              v-if="showFinderIntervalViewNotice"
+              class="mt-3 rounded-xl border border-amber-300/35 bg-amber-950/55 px-3 py-3 text-sm text-amber-100"
+            >
+              Finder keeps note names on the fretboard because interval meaning
+              is handled in the chord analysis panel, where the same voicing can
+              use a separate root from the bass note.
             </div>
 
             <div
@@ -393,6 +419,8 @@ const openIntervalHelper = () => {
 
             <div class="mt-3 grid gap-2">
               <button
+                type="button"
+                :disabled="explore.onlyHighlighted"
                 :class="[
                   'w-full rounded-xl p-2.5 text-sm font-semibold transition',
                   explore.onlyHighlighted
@@ -404,6 +432,8 @@ const openIntervalHelper = () => {
                 Show Only Highlighted
               </button>
               <button
+                type="button"
+                :disabled="!explore.onlyHighlighted"
                 :class="[
                   'w-full rounded-xl p-2.5 text-sm font-semibold transition',
                   !explore.onlyHighlighted

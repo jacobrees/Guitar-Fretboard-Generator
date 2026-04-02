@@ -163,6 +163,7 @@ const instrument = useInstrumentStore();
           <div class="mt-4 flex flex-col gap-3 sm:flex-row">
             <button
               @click="instrument.addString"
+              :disabled="instrument.tuningIndexes.length === 9"
               :class="[
                 'flex-1 rounded-xl px-4 py-3 text-base font-semibold text-gray-100 transition',
                 instrument.tuningIndexes.length === 9
@@ -174,6 +175,7 @@ const instrument = useInstrumentStore();
             </button>
             <button
               @click="instrument.removeString"
+              :disabled="instrument.tuningIndexes.length === 5"
               :class="[
                 'flex-1 rounded-xl px-4 py-3 text-base font-semibold text-gray-100 transition',
                 instrument.tuningIndexes.length === 5
