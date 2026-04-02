@@ -360,7 +360,7 @@ export const usePlaybackStore = defineStore("playback", () => {
     () => explore.playbackEnabled,
     (isPlaybackEnabled) => {
       if (!isPlaybackEnabled) {
-        stopAllAudio();
+        resetAll();
       }
     },
   );
@@ -385,7 +385,6 @@ export const usePlaybackStore = defineStore("playback", () => {
   return {
     analysisNotes,
     bassRelativeMatch,
-    bassNote,
     currentFormulaChips,
     hasSelectedNotes,
     hasAudioSupport,

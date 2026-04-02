@@ -35,7 +35,7 @@ const emit = defineEmits(["open-interval-helper", "go-to-focus"]);
             </div>
 
             <div class="mt-5">
-              <ConfigFretboardControls embedded />
+              <ConfigFretboardControls />
             </div>
           </div>
         </div>
@@ -56,7 +56,7 @@ const emit = defineEmits(["open-interval-helper", "go-to-focus"]);
               </div>
 
               <div class="mt-5">
-                <InstrumentConfigurator embedded />
+                <InstrumentConfigurator />
               </div>
             </div>
           </div>
@@ -74,7 +74,6 @@ const emit = defineEmits(["open-interval-helper", "go-to-focus"]);
 
               <div class="mt-5">
                 <ScaleBuilder
-                  embedded
                   @open-interval-helper="emit('open-interval-helper')"
                   @go-to-focus="emit('go-to-focus')"
                 />
