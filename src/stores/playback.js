@@ -385,7 +385,6 @@ export const usePlaybackStore = defineStore("playback", () => {
   return {
     analysisNotes,
     bassRelativeMatch,
-    bassNote,
     currentFormulaChips,
     hasSelectedNotes,
     hasAudioSupport,

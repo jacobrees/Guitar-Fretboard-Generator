@@ -226,12 +226,6 @@ export const useExploreStore = defineStore("explore", () => {
   const getNotePositionKey = (stringPosition, fret) =>
     `${stringPosition}:${fret}`;
 
-  const isNotePositionWithinFilterRanges = (stringPosition, fret) =>
-    stringPosition >= visibleStringRangeStart.value &&
-    stringPosition <= visibleStringRangeEnd.value &&
-    fret >= visibleFretRangeStart.value &&
-    fret <= visibleFretRangeEnd.value;
-
   const hasNotePositionVisibilityOverride = (stringPosition, fret) =>
     Object.prototype.hasOwnProperty.call(
       notePositionVisibilityOverrides.value,
@@ -381,20 +375,13 @@ export const useExploreStore = defineStore("explore", () => {
     getExploreIntervalColor,
     hasNotePositionVisibilityOverrides,
     isFretVisible,
-    isFinderModeActive,
     isNotePositionWithinInteractiveFilterRange,
     isNotePositionVisible,
-    isNotePositionWithinFilterRanges,
-    isNoteVisible,
     isStringVisible,
     onlyHighlighted,
     paletteColors,
     playbackEnabled,
-    preferredExploreLabelMode,
-    resetFocusWorkspaceState,
     resetNotePositionVisibilityOverrides,
-    resetVisibleFretRange,
-    resetVisibleStringRange,
     resetExploreIntervalHighlightsToScale,
     setVisibleFretRange,
     setVisibleStringRange,
