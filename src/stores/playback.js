@@ -2,6 +2,11 @@ import { computed, ref, watch } from "vue";
 import { defineStore } from "pinia";
 
 import { guitarPlaybackEngine } from "@/audio/guitarPlaybackEngine";
+import {
+  getBassRelativeIntervalLabel,
+  getRootRelativeIntervalLabel,
+  identifyChordMatch,
+} from "@/music/chordAnalysis";
 import { useExploreStore } from "@/stores/explore";
 import { useInstrumentStore } from "@/stores/instrument";
 
@@ -11,40 +16,165 @@ const toneOptions = Object.freeze([
   { id: "distorted", label: "Distorted" },
 ]);
 
-const playStyleOptions = Object.freeze([
-  { id: "hold", label: "Hold" },
-  { id: "fade", label: "Fade" },
-]);
-
 const clamp = (value, minValue, maxValue) =>
   Math.min(Math.max(value, minValue), maxValue);
 
+const RETRIGGER_RELEASE_MS = 24;
+const RETRIGGER_START_LEAD_TIME_SECONDS = 0.035;
+
 let voiceCounter = 0;
 
+const intervalLabelOrder = Object.freeze({
+  R: 0,
+  "♭2": 1,
+  2: 2,
+  "♭3": 3,
+  3: 4,
+  4: 5,
+  "#4": 6,
+  "♭5": 6,
+  5: 7,
+  "♭6": 8,
+  6: 9,
+  "♭7": 10,
+  7: 11,
+  "♭9": 12,
+  9: 13,
+  11: 14,
+  "#11": 15,
+  "♭13": 16,
+  13: 17,
+});
+
 const createVoiceId = () => `voice-${Date.now()}-${voiceCounter++}`;
+const getNotePositionKey = (stringPosition, fret) =>
+  `${stringPosition}:${fret}`;
+const sortNotesByPitch = (leftNote, rightNote) =>
+  leftNote.midiNumber - rightNote.midiNumber ||
+  leftNote.stringNumber - rightNote.stringNumber ||
+  leftNote.fret - rightNote.fret;
+const sortFormulaChips = (leftChip, rightChip) =>
+  (intervalLabelOrder[leftChip.label] ?? Number.POSITIVE_INFINITY) -
+    (intervalLabelOrder[rightChip.label] ?? Number.POSITIVE_INFINITY) ||
+  leftChip.label.localeCompare(rightChip.label);
 
 export const usePlaybackStore = defineStore("playback", () => {
   const explore = useExploreStore();
   const instrument = useInstrumentStore();
   const tone = ref("overdriven");
-  const playStyle = ref("fade");
-  const fadeOutMs = ref(1200);
   const volume = ref(70);
+  const selectedNotePositionsByString = ref({});
+  const selectedRootPositionKey = ref(null);
   const activeNotesByString = ref({});
   const hasAudioSupport = ref(guitarPlaybackEngine.isSupported());
-  const hasActiveNotes = computed(
-    () => Object.keys(activeNotesByString.value).length > 0,
+  const selectedVoicing = computed(() =>
+    Object.values(selectedNotePositionsByString.value)
+      .map(({ fret, stringNumber }) => ({
+        ...instrument.getNoteDetails(stringNumber, fret),
+        key: getNotePositionKey(stringNumber, fret),
+      }))
+      .sort(sortNotesByPitch),
   );
+  const hasSelectedNotes = computed(() => selectedVoicing.value.length > 0);
+  const bassNote = computed(() => selectedVoicing.value[0] ?? null);
+  const manualRootNote = computed(
+    () =>
+      selectedVoicing.value.find(
+        (noteDetails) => noteDetails.key === selectedRootPositionKey.value,
+      ) ?? null,
+  );
+  const selectedPitchClassIndexes = computed(() =>
+    Array.from(new Set(selectedVoicing.value.map((note) => note.noteIndex))),
+  );
+  const bassRelativeMatch = computed(() => {
+    if (!bassNote.value) {
+      return null;
+    }
+
+    return identifyChordMatch({
+      noteIndexes: selectedPitchClassIndexes.value,
+      noteNames: instrument.musicalNotes,
+      bassNoteIndex: bassNote.value.noteIndex,
+      preferredRootNoteIndex: bassNote.value.noteIndex,
+      preferredRootMidiNumber: bassNote.value.midiNumber,
+      selectedNotes: selectedVoicing.value,
+    });
+  });
+  const selectedRootMatch = computed(() => {
+    if (!manualRootNote.value) {
+      return null;
+    }
+
+    return identifyChordMatch({
+      noteIndexes: selectedPitchClassIndexes.value,
+      noteNames: instrument.musicalNotes,
+      bassNoteIndex: bassNote.value?.noteIndex ?? null,
+      preferredRootNoteIndex: manualRootNote.value?.noteIndex ?? null,
+      preferredRootMidiNumber: manualRootNote.value?.midiNumber ?? null,
+      selectedNotes: selectedVoicing.value,
+    });
+  });
+  const analysisNotes = computed(() => {
+    if (!bassNote.value) {
+      return [];
+    }
+
+    return selectedVoicing.value.map((noteDetails, index) => {
+      const intervalSemitones =
+        (noteDetails.noteIndex - bassNote.value.noteIndex + 12) % 12;
+      const bassRelativeIntervalLabel = getBassRelativeIntervalLabel({
+        rootMidiNumber: bassNote.value.midiNumber,
+        rootNoteIndex: bassNote.value.noteIndex,
+        noteMidiNumber: noteDetails.midiNumber,
+        noteIndex: noteDetails.noteIndex,
+      });
+      const rootRelativeIntervalLabel = manualRootNote.value
+        ? getRootRelativeIntervalLabel({
+            rootMidiNumber: manualRootNote.value.midiNumber,
+            rootNoteIndex: manualRootNote.value.noteIndex,
+            noteMidiNumber: noteDetails.midiNumber,
+            noteIndex: noteDetails.noteIndex,
+          })
+        : null;
+
+      return {
+        ...noteDetails,
+        intervalSemitones,
+        bassRelativeIntervalLabel,
+        rootRelativeIntervalLabel,
+        displayIntervalLabel:
+          rootRelativeIntervalLabel ?? bassRelativeIntervalLabel,
+        isBass: index === 0,
+        isRoot: manualRootNote.value?.key === noteDetails.key,
+        positionLabel: `String ${noteDetails.stringNumber} • Fret ${noteDetails.fret}`,
+      };
+    });
+  });
+  const currentFormulaChips = computed(() => {
+    const chipsByLabel = new Map();
+
+    analysisNotes.value.forEach((noteDetails) => {
+      const currentChip = chipsByLabel.get(noteDetails.displayIntervalLabel);
+
+      if (!currentChip) {
+        chipsByLabel.set(noteDetails.displayIntervalLabel, {
+          id: manualRootNote.value
+            ? `${noteDetails.key}-root`
+            : noteDetails.key,
+          label: noteDetails.displayIntervalLabel,
+          note: noteDetails.label,
+        });
+        return;
+      }
+
+      currentChip.note = `${currentChip.note}, ${noteDetails.label}`;
+    });
+
+    return Array.from(chipsByLabel.values()).sort(sortFormulaChips);
+  });
 
   const getActiveNoteForString = (stringPosition) =>
     activeNotesByString.value[stringPosition] ?? null;
-
-  const setActiveNoteForString = (stringPosition, nextNote) => {
-    activeNotesByString.value = {
-      ...activeNotesByString.value,
-      [stringPosition]: nextNote,
-    };
-  };
 
   const clearActiveNoteForString = (stringPosition, voiceId = null) => {
     const currentNote = getActiveNoteForString(stringPosition);
@@ -58,22 +188,6 @@ export const usePlaybackStore = defineStore("playback", () => {
     activeNotesByString.value = nextActiveNotes;
   };
 
-  const stopStringNote = (stringPosition, releaseMs = 90) => {
-    const activeNote = getActiveNoteForString(stringPosition);
-
-    if (!activeNote) {
-      return;
-    }
-
-    clearActiveNoteForString(stringPosition);
-    guitarPlaybackEngine.stopVoice(activeNote.voiceId, { releaseMs });
-  };
-
-  const stopAll = () => {
-    activeNotesByString.value = {};
-    guitarPlaybackEngine.stopAll({ releaseMs: 90 });
-  };
-
   const setTone = (nextTone) => {
     if (!toneOptions.some((option) => option.id === nextTone)) {
       return;
@@ -82,107 +196,153 @@ export const usePlaybackStore = defineStore("playback", () => {
     tone.value = nextTone;
   };
 
-  const setPlayStyle = (nextStyle) => {
-    if (!playStyleOptions.some((option) => option.id === nextStyle)) {
-      return;
-    }
-
-    playStyle.value = nextStyle;
-  };
-
-  const setFadeOutMs = (nextFadeOutMs) => {
-    fadeOutMs.value = clamp(Number(nextFadeOutMs), 150, 4000);
-  };
-
   const setVolume = (nextVolume) => {
     volume.value = clamp(Number(nextVolume), 0, 100);
   };
 
-  const getNotePositionPlaybackState = (stringPosition, fret) => {
-    const activeNote = getActiveNoteForString(stringPosition);
-
-    if (!activeNote || activeNote.fret !== fret) {
-      return null;
-    }
-
-    return activeNote.state;
+  const stopAllAudio = (releaseMs = 90) => {
+    activeNotesByString.value = {};
+    guitarPlaybackEngine.stopAll({ releaseMs });
   };
 
-  const isNotePositionActive = (stringPosition, fret) =>
-    getNotePositionPlaybackState(stringPosition, fret) !== null;
-
-  const isNotePositionFading = (stringPosition, fret) =>
-    getNotePositionPlaybackState(stringPosition, fret) === "fading";
-
-  const triggerNote = async (noteDetails) => {
+  const retriggerSelectedVoicing = async (releaseMs = RETRIGGER_RELEASE_MS) => {
     hasAudioSupport.value = guitarPlaybackEngine.isSupported();
+
+    stopAllAudio(releaseMs);
 
     if (!hasAudioSupport.value) {
       return false;
     }
 
-    const stringPosition = noteDetails.stringNumber;
-    const currentNote = getActiveNoteForString(stringPosition);
-    const nextStyle = playStyle.value;
-
     if (
-      nextStyle === "hold" &&
-      currentNote &&
-      currentNote.fret === noteDetails.fret &&
-      currentNote.state === "holding"
+      !explore.playbackEnabled ||
+      explore.currentWorkspaceMode !== "focus" ||
+      selectedVoicing.value.length === 0
     ) {
-      stopStringNote(stringPosition, 80);
       return true;
     }
 
-    if (currentNote) {
-      stopStringNote(stringPosition, 70);
-    }
+    const isReady = await guitarPlaybackEngine.ensureReady();
 
-    const voiceId = createVoiceId();
-    const didStart = await guitarPlaybackEngine.playVoice({
-      voiceId,
-      midiNumber: noteDetails.midiNumber,
-      tone: tone.value,
-      playStyle: nextStyle,
-      fadeOutMs: fadeOutMs.value,
-      stringPosition,
-      stringCount: instrument.tuningMidiNumbers.length,
-      onEnded: () => {
-        clearActiveNoteForString(stringPosition, voiceId);
-      },
-    });
-
-    if (!didStart) {
+    if (!isReady) {
+      hasAudioSupport.value = false;
       return false;
     }
 
-    setActiveNoteForString(stringPosition, {
-      voiceId,
-      fret: noteDetails.fret,
-      noteIndex: noteDetails.noteIndex,
-      midiNumber: noteDetails.midiNumber,
-      state: nextStyle === "hold" ? "holding" : "fading",
-    });
+    const startTime =
+      guitarPlaybackEngine.getScheduledStartTime(
+        RETRIGGER_START_LEAD_TIME_SECONDS,
+      ) ?? undefined;
+    const nextActiveNotes = {};
 
-    return true;
+    const playResults = await Promise.all(
+      selectedVoicing.value.map(async (noteDetails) => {
+        const voiceId = createVoiceId();
+        const didStart = await guitarPlaybackEngine.playVoice({
+          voiceId,
+          midiNumber: noteDetails.midiNumber,
+          tone: tone.value,
+          stringPosition: noteDetails.stringNumber,
+          stringCount: instrument.tuningMidiNumbers.length,
+          startTime,
+          onEnded: () => {
+            clearActiveNoteForString(noteDetails.stringNumber, voiceId);
+          },
+        });
+
+        if (didStart) {
+          nextActiveNotes[noteDetails.stringNumber] = {
+            voiceId,
+            fret: noteDetails.fret,
+            key: noteDetails.key,
+          };
+        }
+
+        return didStart;
+      }),
+    );
+
+    activeNotesByString.value = nextActiveNotes;
+
+    return playResults.some(Boolean);
+  };
+
+  const clearSelectedRootIfUnavailable = () => {
+    if (!selectedRootPositionKey.value) {
+      return;
+    }
+
+    const hasMatchingRootSelection = selectedVoicing.value.some(
+      (noteDetails) => noteDetails.key === selectedRootPositionKey.value,
+    );
+
+    if (!hasMatchingRootSelection) {
+      selectedRootPositionKey.value = null;
+    }
+  };
+
+  const pruneSelectedNotePositions = () => {
+    const maximumStringNumber = instrument.tuningMidiNumbers.length;
+    const nextSelectedNotePositions = Object.fromEntries(
+      Object.entries(selectedNotePositionsByString.value).filter(
+        ([stringNumber]) => Number(stringNumber) <= maximumStringNumber,
+      ),
+    );
+
+    if (
+      Object.keys(nextSelectedNotePositions).length ===
+      Object.keys(selectedNotePositionsByString.value).length
+    ) {
+      return;
+    }
+
+    selectedNotePositionsByString.value = nextSelectedNotePositions;
+    clearSelectedRootIfUnavailable();
+  };
+
+  const isNotePositionSelected = (stringPosition, fret) =>
+    selectedNotePositionsByString.value[stringPosition]?.fret === fret;
+
+  const toggleSelectedNote = async (noteDetails) => {
+    const { fret, stringNumber } = noteDetails;
+
+    if (isNotePositionSelected(stringNumber, fret)) {
+      const nextSelectedNotePositions = {
+        ...selectedNotePositionsByString.value,
+      };
+      delete nextSelectedNotePositions[stringNumber];
+      selectedNotePositionsByString.value = nextSelectedNotePositions;
+    } else {
+      selectedNotePositionsByString.value = {
+        ...selectedNotePositionsByString.value,
+        [stringNumber]: {
+          fret,
+          stringNumber,
+        },
+      };
+    }
+
+    clearSelectedRootIfUnavailable();
+
+    return retriggerSelectedVoicing();
+  };
+
+  const toggleSelectedRoot = (noteKey) => {
+    selectedRootPositionKey.value =
+      selectedRootPositionKey.value === noteKey ? null : noteKey;
+  };
+
+  const resetAll = () => {
+    selectedNotePositionsByString.value = {};
+    selectedRootPositionKey.value = null;
+    stopAllAudio(70);
   };
 
   watch(
     tone,
     (nextTone, previousTone) => {
       if (nextTone !== previousTone) {
-        stopAll();
-      }
-    },
-    { flush: "sync" },
-  );
-
-  watch(
-    playStyle,
-    (nextStyle, previousStyle) => {
-      if (nextStyle !== previousStyle) {
-        stopAll();
+        void retriggerSelectedVoicing();
       }
     },
     { flush: "sync" },
@@ -200,7 +360,7 @@ export const usePlaybackStore = defineStore("playback", () => {
     () => explore.playbackEnabled,
     (isPlaybackEnabled) => {
       if (!isPlaybackEnabled) {
-        stopAll();
+        stopAllAudio();
       }
     },
   );
@@ -209,29 +369,37 @@ export const usePlaybackStore = defineStore("playback", () => {
     () => explore.currentWorkspaceMode,
     (mode) => {
       if (mode !== "focus") {
-        stopAll();
+        stopAllAudio();
       }
     },
   );
 
+  watch(
+    () => instrument.tuningMidiNumbers.slice(),
+    () => {
+      pruneSelectedNotePositions();
+      void retriggerSelectedVoicing();
+    },
+  );
+
   return {
-    activeNotesByString,
-    fadeOutMs,
-    hasActiveNotes,
+    analysisNotes,
+    bassRelativeMatch,
+    bassNote,
+    currentFormulaChips,
+    hasSelectedNotes,
     hasAudioSupport,
-    isNotePositionActive,
-    isNotePositionFading,
-    playStyle,
-    playStyleOptions,
-    setFadeOutMs,
-    setPlayStyle,
+    isNotePositionSelected,
+    manualRootNote,
+    resetAll,
+    selectedVoicing,
+    selectedRootMatch,
     setTone,
+    toggleSelectedRoot,
+    toggleSelectedNote,
     setVolume,
-    stopAll,
-    stopStringNote,
     tone,
     toneOptions,
-    triggerNote,
     volume,
   };
 });

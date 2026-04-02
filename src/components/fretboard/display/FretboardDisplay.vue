@@ -50,9 +50,7 @@ const maximumRenderedFret = computed(
   () => effectiveFrets.value[effectiveFrets.value.length - 1] ?? 0,
 );
 const renderedFretSet = computed(() => new Set(effectiveFrets.value));
-const activePlaybackNotes = computed(() =>
-  Object.values(playback.activeNotesByString),
-);
+const selectedFinderNotes = computed(() => playback.selectedVoicing);
 
 const isFretRenderedInViewport = (fret) =>
   fret === 0 ? shouldRenderOpenStringColumn() : renderedFretSet.value.has(fret);
@@ -71,14 +69,14 @@ const hasPlaybackNotesBeforeFretView = computed(
   () =>
     explore.currentWorkspaceMode === "focus" &&
     explore.playbackEnabled &&
-    activePlaybackNotes.value.some(({ fret }) => isFretLeftOfViewport(fret)),
+    selectedFinderNotes.value.some(({ fret }) => isFretLeftOfViewport(fret)),
 );
 
 const hasPlaybackNotesAfterFretView = computed(
   () =>
     explore.currentWorkspaceMode === "focus" &&
     explore.playbackEnabled &&
-    activePlaybackNotes.value.some(({ fret }) => isFretRightOfViewport(fret)),
+    selectedFinderNotes.value.some(({ fret }) => isFretRightOfViewport(fret)),
 );
 
 const hasPlaybackNotesOutsideFretView = computed(
@@ -117,15 +115,10 @@ const resetFilteredNotes = () => {
   explore.resetNotePositionVisibilityOverrides();
 };
 
-const isPlaybackNoteActive = (stringPosition, fret) =>
+const isFinderNoteSelected = (stringPosition, fret) =>
   explore.currentWorkspaceMode === "focus" &&
   explore.playbackEnabled &&
-  playback.isNotePositionActive(stringPosition, fret);
-
-const isPlaybackNoteFading = (stringPosition, fret) =>
-  explore.currentWorkspaceMode === "focus" &&
-  explore.playbackEnabled &&
-  playback.isNotePositionFading(stringPosition, fret);
+  playback.isNotePositionSelected(stringPosition, fret);
 
 const isNotePositionWithinFilterRanges = (stringPosition, fret) =>
   explore.currentWorkspaceMode === "focus" &&
@@ -133,7 +126,7 @@ const isNotePositionWithinFilterRanges = (stringPosition, fret) =>
   explore.isNotePositionWithinInteractiveFilterRange(stringPosition, fret);
 
 const isNoteRenderedAtPosition = (noteIndex, fret, stringPosition) => {
-  const isCurrentlyPlayingHiddenNote = isPlaybackNoteActive(
+  const isCurrentlySelectedHiddenNote = isFinderNoteSelected(
     stringPosition,
     fret,
   );
@@ -144,16 +137,16 @@ const isNoteRenderedAtPosition = (noteIndex, fret, stringPosition) => {
       explore.isStringVisible(stringPosition) &&
       isNoteWithinViewport &&
       (explore.isNotePositionVisible(noteIndex, stringPosition, fret) ||
-        isCurrentlyPlayingHiddenNote)
+        isCurrentlySelectedHiddenNote)
     );
   }
 
   return (
-    (explore.isFretVisible(fret) || isCurrentlyPlayingHiddenNote) &&
+    (explore.isFretVisible(fret) || isCurrentlySelectedHiddenNote) &&
     explore.isStringVisible(stringPosition) &&
     isNoteWithinViewport &&
     (explore.isNotePositionVisible(noteIndex, stringPosition, fret) ||
-      isCurrentlyPlayingHiddenNote)
+      isCurrentlySelectedHiddenNote)
   );
 };
 
@@ -165,10 +158,8 @@ const isPlaybackHighlightedNote = (noteIndex, fret, stringPosition) =>
 
 const getNoteVisibilityClass = (noteIndex, fret, stringPosition) => {
   if (isNoteRenderedAtPosition(noteIndex, fret, stringPosition)) {
-    if (isPlaybackNoteActive(stringPosition, fret)) {
-      return isPlaybackNoteFading(stringPosition, fret)
-        ? "opacity-[0.84]"
-        : "opacity-100";
+    if (isFinderNoteSelected(stringPosition, fret)) {
+      return "opacity-100";
     }
 
     return isPlaybackHighlightedNote(noteIndex, fret, stringPosition)
@@ -206,7 +197,7 @@ const getNoteInteractionClass = (noteIndex, fret, stringPosition) => {
 };
 
 const getNoteSurfaceClass = (noteIndex, fret, stringPosition) => {
-  if (isPlaybackNoteActive(stringPosition, fret)) {
+  if (isFinderNoteSelected(stringPosition, fret)) {
     return "border-slate-950/90 bg-cyan-100 shadow-[0_10px_22px_rgba(34,211,238,0.12)]";
   }
 
@@ -218,17 +209,10 @@ const getNoteLabelClass = (
   fret,
   inactiveClass = "text-gray-100",
 ) =>
-  isPlaybackNoteActive(stringPosition, fret) ? "text-zinc-950" : inactiveClass;
+  isFinderNoteSelected(stringPosition, fret) ? "text-zinc-950" : inactiveClass;
 
-const getNoteScaleClass = (stringPosition, fret) => {
-  if (!isPlaybackNoteActive(stringPosition, fret)) {
-    return "scale-100";
-  }
-
-  return isPlaybackNoteFading(stringPosition, fret)
-    ? "scale-[0.93]"
-    : "scale-[0.9]";
-};
+const getNoteScaleClass = (stringPosition, fret) =>
+  isFinderNoteSelected(stringPosition, fret) ? "scale-[0.94]" : "scale-100";
 
 const handleNoteClick = (stringPosition, fret) => {
   if (explore.currentWorkspaceMode !== "focus") {
@@ -238,7 +222,7 @@ const handleNoteClick = (stringPosition, fret) => {
   const noteDetails = instrument.getNoteDetails(stringPosition, fret);
 
   if (explore.playbackEnabled) {
-    void playback.triggerNote(noteDetails);
+    void playback.toggleSelectedNote(noteDetails);
     return;
   }
 
@@ -276,11 +260,11 @@ const handleNoteClick = (stringPosition, fret) => {
                   explore.playbackEnabled ? 'text-cyan-200' : 'text-gray-400',
                 ]"
               >
-                {{ explore.playbackEnabled ? "Playback" : "Filter" }}
+                {{ explore.playbackEnabled ? "Finder" : "Filter" }}
               </p>
               <p
                 :class="[
-                  'mt-1 text-xs',
+                  'mt-1 max-w-2xl text-xs leading-relaxed',
                   explore.playbackEnabled
                     ? 'text-cyan-100/85'
                     : 'text-gray-500',
@@ -288,7 +272,7 @@ const handleNoteClick = (stringPosition, fret) => {
               >
                 {{
                   explore.playbackEnabled
-                    ? "Tap notes on the fretboard to play them."
+                    ? "Click notes on the fretboard to build a voicing one string at a time. Clicking the same note again removes it, and choosing a different fret on the same string replaces the previous note for that string. Every change restarts the full voicing in sync, so you always hear the exact shape you have selected. After the voicing is built, use Chord Analysis below to choose one of the selected notes as the root and switch the analysis from bass-relative intervals to a root-relative chord reading."
                     : "Click notes to hide or restore them on individual strings."
                 }}
               </p>
@@ -356,7 +340,7 @@ const handleNoteClick = (stringPosition, fret) => {
                   <p class="mt-1 text-xs text-gray-400">
                     {{
                       explore.playbackEnabled
-                        ? "Playback mode active"
+                        ? "Finder mode active"
                         : "Filter mode active"
                     }}
                   </p>
@@ -395,7 +379,7 @@ const handleNoteClick = (stringPosition, fret) => {
                       :aria-pressed="explore.playbackEnabled"
                       @click="setPlaybackMode(true)"
                     >
-                      Playback
+                      Finder
                     </button>
                   </div>
                 </div>
@@ -493,7 +477,7 @@ const handleNoteClick = (stringPosition, fret) => {
                   getPlaybackViewportIndicatorTitleClass(),
                 ]"
               >
-                Playing Outside Visible Frets
+                Selected Outside Visible Frets
               </p>
               <p
                 :class="[
@@ -501,7 +485,8 @@ const handleNoteClick = (stringPosition, fret) => {
                   getPlaybackViewportIndicatorSubtitleClass(),
                 ]"
               >
-                Left and right markers show notes beyond the current view.
+                Left and right markers show selected notes beyond the current
+                view.
               </p>
             </div>
 
@@ -765,7 +750,7 @@ const handleNoteClick = (stringPosition, fret) => {
                   getPlaybackViewportIndicatorTitleClass(),
                 ]"
               >
-                Playing Outside Visible Frets
+                Selected Outside Visible Frets
               </p>
               <p
                 :class="[
@@ -773,7 +758,8 @@ const handleNoteClick = (stringPosition, fret) => {
                   getPlaybackViewportIndicatorSubtitleClass(),
                 ]"
               >
-                Left and right markers show notes beyond the current view.
+                Left and right markers show selected notes beyond the current
+                view.
               </p>
             </div>
 

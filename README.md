@@ -42,11 +42,14 @@
 
 ## ✨ Features
 
-- Configure custom guitar tunings  
-- Build and visualize scales across the fretboard  
-- Select root notes and explore interval relationships  
-- Interactive fretboard UI  
-- Fast and responsive performance  
+- Configure custom tunings and string counts for extended-range guitars
+- Build scales from preset modes or custom interval formulas
+- Choose a root note and map interval relationships across the fretboard
+- Switch between setup and explore workspaces with dedicated focus tools
+- Use Filter mode to narrow the visible note set by fret, string, and interval color
+- Use Finder mode to build voicings one string at a time with synced playback
+- Analyze voicings with bass-relative and selected-root chord formulas and matches
+- Toggle note naming, fretboard views, and other interactive exploration controls
 
 ---
 
@@ -80,21 +83,21 @@ npm run dev
 
 ## 🛠 Scripts
 
-| Command | Description |
-|--------|------------|
-| `npm install` | Install dependencies |
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
+| Command           | Description              |
+| ----------------- | ------------------------ |
+| `npm install`     | Install dependencies     |
+| `npm run dev`     | Start development server |
+| `npm run build`   | Build for production     |
 | `npm run preview` | Preview production build |
 
 ---
 
 ## 🧱 Built With
 
-- Vue.js  
-- Pinia  
-- Tailwind CSS  
-- Vite  
+- Vue.js
+- Pinia
+- Tailwind CSS
+- Vite
 
 ---
 
@@ -102,7 +105,7 @@ npm run dev
 
 **Jacob Rees**
 
-- GitHub: https://github.com/jacobrees  
+- GitHub: https://github.com/jacobrees
 - LinkedIn: https://www.linkedin.com/in/jacob-rees/
 
 ---

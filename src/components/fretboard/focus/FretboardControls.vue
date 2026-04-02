@@ -227,7 +227,9 @@ onBeforeUnmount(() => {
               v-for="view in fretViewOptions"
               :key="view.id"
               type="button"
-              :disabled="isFretViewDisabled(view.id)"
+              :disabled="
+                isFretViewDisabled(view.id) || effectiveFretViewId === view.id
+              "
               :class="[
                 'block w-full border-b border-zinc-800/90 px-0 py-2.5 text-sm font-semibold transition last:border-b-0',
                 isFretViewDisabled(view.id)

@@ -18,16 +18,19 @@ export const useExploreStore = defineStore("explore", () => {
   const visibleFretRangeEnd = ref(12);
   const visibleStringRangeStart = ref(1);
   const visibleStringRangeEnd = ref(instrument.tuningIndexes.length);
-  const isPlaybackModeActive = computed(
+  const isFinderModeActive = computed(
     () => currentWorkspaceMode.value === "focus" && playbackEnabled.value,
   );
+  const canUseIntervalLabels = computed(() => !isFinderModeActive.value);
   const hasNotePositionVisibilityOverrides = computed(
     () => Object.keys(notePositionVisibilityOverrides.value).length > 0,
   );
 
   const effectiveFretLabelMode = computed(() =>
     currentWorkspaceMode.value === "focus"
-      ? preferredExploreLabelMode.value
+      ? canUseIntervalLabels.value
+        ? preferredExploreLabelMode.value
+        : "notes"
       : "notes",
   );
 
@@ -58,7 +61,12 @@ export const useExploreStore = defineStore("explore", () => {
   };
 
   const setPreferredExploreLabelMode = (mode) => {
+    if (mode === "intervals" && !canUseIntervalLabels.value) {
+      return false;
+    }
+
     preferredExploreLabelMode.value = mode;
+    return true;
   };
 
   const getExploreIntervalColor = (semitones) => {
@@ -106,10 +114,6 @@ export const useExploreStore = defineStore("explore", () => {
 
   const toggleHighlighted = (value) => {
     onlyHighlighted.value = value;
-  };
-
-  const togglePlayback = () => {
-    playbackEnabled.value = !playbackEnabled.value;
   };
 
   const setPlaybackEnabled = (value) => {
@@ -177,7 +181,7 @@ export const useExploreStore = defineStore("explore", () => {
 
   const isFretVisible = (fret) =>
     currentWorkspaceMode.value !== "focus" ||
-    isPlaybackModeActive.value ||
+    isFinderModeActive.value ||
     (fret >= visibleFretRangeStart.value && fret <= visibleFretRangeEnd.value);
 
   const resetVisibleStringRange = (startString, endString) => {
@@ -215,7 +219,7 @@ export const useExploreStore = defineStore("explore", () => {
 
   const isStringVisible = (stringPosition) =>
     currentWorkspaceMode.value !== "focus" ||
-    isPlaybackModeActive.value ||
+    isFinderModeActive.value ||
     (stringPosition >= visibleStringRangeStart.value &&
       stringPosition <= visibleStringRangeEnd.value);
 
@@ -351,7 +355,7 @@ export const useExploreStore = defineStore("explore", () => {
   };
 
   const isNotePositionVisible = (noteIndex, stringPosition, fret) => {
-    if (isPlaybackModeActive.value) {
+    if (isFinderModeActive.value) {
       return isNoteVisible(noteIndex);
     }
 
@@ -367,6 +371,7 @@ export const useExploreStore = defineStore("explore", () => {
   };
 
   return {
+    canUseIntervalLabels,
     clearAllExploreIntervalHighlights,
     clearExploreIntervalColor,
     currentWorkspaceMode,
@@ -376,6 +381,7 @@ export const useExploreStore = defineStore("explore", () => {
     getExploreIntervalColor,
     hasNotePositionVisibilityOverrides,
     isFretVisible,
+    isFinderModeActive,
     isNotePositionWithinInteractiveFilterRange,
     isNotePositionVisible,
     isNotePositionWithinFilterRanges,
@@ -397,7 +403,6 @@ export const useExploreStore = defineStore("explore", () => {
     setPreferredExploreLabelMode,
     setWorkspaceMode,
     syncVisibleRanges,
-    togglePlayback,
     toggleHighlighted,
     toggleNotePositionVisibility,
     visibleFretRangeEnd,
