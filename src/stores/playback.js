@@ -360,7 +360,7 @@ export const usePlaybackStore = defineStore("playback", () => {
     () => explore.playbackEnabled,
     (isPlaybackEnabled) => {
       if (!isPlaybackEnabled) {
-        stopAllAudio();
+        resetAll();
       }
     },
   );
