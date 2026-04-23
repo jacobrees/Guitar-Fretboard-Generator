@@ -31,6 +31,8 @@ const activeHandle = ref(null);
 
 const stringCount = computed(() => props.maxString - props.minString + 1);
 const boardSectionCount = computed(() => stringCount.value + 1);
+const handleHorizontalPosition = "1.5rem";
+const handleVerticalOffset = "0.9rem";
 
 const getBoardPosition = (value) =>
   ((value - props.minString + 1) / boardSectionCount.value) * 100;
@@ -48,12 +50,16 @@ const normalizedMarkers = computed(() =>
     })),
 );
 
-const activeTrackStyle = computed(() => ({
-  top: `${getBoardPosition(props.startString)}%`,
-  bottom: `${100 - getBoardPosition(props.endString)}%`,
-}));
+const getHandleVerticalPosition = (value, handle) => {
+  const verticalOffsetOperator = handle === "start" ? "-" : "+";
 
-const isOverlapping = computed(() => props.startString === props.endString);
+  return `calc(${getBoardPosition(value)}% ${verticalOffsetOperator} ${handleVerticalOffset})`;
+};
+
+const activeTrackStyle = computed(() => ({
+  top: getHandleVerticalPosition(props.startString, "start"),
+  bottom: `calc(${100 - getBoardPosition(props.endString)}% - ${handleVerticalOffset})`,
+}));
 
 const getMarkerStyle = (marker) => ({
   top: `${marker.position}%`,
@@ -62,16 +68,10 @@ const getMarkerStyle = (marker) => ({
 
 const getHandleStyle = (handle) => {
   const value = handle === "start" ? props.startString : props.endString;
-  const overlapOffset =
-    isOverlapping.value && handle === "start"
-      ? "1.15rem"
-      : isOverlapping.value
-        ? "1.85rem"
-        : "1.5rem";
 
   return {
-    left: overlapOffset,
-    top: `${getBoardPosition(value)}%`,
+    left: handleHorizontalPosition,
+    top: getHandleVerticalPosition(value, handle),
     transform: "translate(-50%, -50%)",
   };
 };
